@@ -6,6 +6,7 @@
 #include <stack>
 
 #include "Piece.h"
+#include "Utility.h"
 
 #include <SFML\Graphics\Sprite.hpp>
 #include <SFML\Graphics\Texture.hpp>
@@ -57,9 +58,8 @@ class Board {
 		Piece*					getPiece(int x, int y) const;
 		Piece*					getPiece(sf::Vector2i pos) const;
 		void					addMove(int startX, int startY, int endX, int endY, int player, std::vector<Move> &moves, bool checkConsidered);
-		bool					isOnBoard(int x, int y);
 		bool					isValidMove(Move move);
-		bool					isCorrectMove(Move move);
+		bool					isCorrectMove(Move move) const;
 		void					getMoves(int x, int y, std::vector<Move> &moves, bool checkConsidered);
 		std::vector<Move>		getMoves(int x, int y, bool checkConsidered);
 		std::vector<Move>		getAllMoves(int idPlayer, bool checkConsidered);
@@ -68,7 +68,6 @@ class Board {
 
 		std::string				getMoveSymbol(Move move);
 		void					printMove(Move move);
-		int						otherPlayer(int idPlayer);
 
 	private :
 		void					init();

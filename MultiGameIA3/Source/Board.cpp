@@ -154,10 +154,6 @@ void Board::initDebug(){
 	debugTexts.insert({ "repetitiveMoves", text });
 }
 
-bool Board::isOnBoard(int x, int y) {
-	return x >= 0 && x < 8 && y >= 0 && y < 8;
-}
-
 bool Board::isValidMove(Move move) {
 	for (int i = 0; i < validMoves.size(); i++) {
 		if (equalMoves(move, validMoves[i])) {
@@ -167,7 +163,7 @@ bool Board::isValidMove(Move move) {
 	return false;
 }
 
-bool Board::isCorrectMove(Move move) {
+bool Board::isCorrectMove(Move move) const{
 	if (!isOnBoard(move.end.x, move.end.y) || !isOnBoard(move.begin.x, move.begin.y)) {
 		return false;
 	}
@@ -888,10 +884,6 @@ void Board::getKingMoves(int x, int y, std::vector<Move> &moves, bool checkConsi
 			}
 		}
 	}
-}
-
-int Board::otherPlayer(int idPlayer) {
-	return (idPlayer + 1) % 2;
 }
 
 std::string Board::generateBoardId() const {

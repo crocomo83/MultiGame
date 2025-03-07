@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -140,12 +140,13 @@
     <ClCompile Include="MultiGameIA3\Source\Menu.cpp" />
     <ClCompile Include="MultiGameIA3\Source\Piece.cpp" />
     <ClCompile Include="MultiGameIA3\Source\Player.cpp" />
+    <ClCompile Include="MultiGameIA3\Source\Utility.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MultiGameIA3\Headers\Board.h" />
     <ClInclude Include="MultiGameIA3\Headers\Game.h" />
     <ClInclude Include="MultiGameIA3\Headers\Menu.h" />
-    <ClInclude Include="MultiGameIA3\Headers\NodePool.h" />
+    <ClInclude Include="MultiGameIA3\Headers\Utility.h" />
     <ClInclude Include="MultiGameIA3\Headers\Piece.h" />
     <ClInclude Include="MultiGameIA3\Headers\Player.h" />
   </ItemGroup>
