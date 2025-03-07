@@ -1,0 +1,126 @@
+#pragma once
+
+#include <queue>
+#include <map>
+#include <vector>
+#include <stack>
+
+#include "Piece.h"
+
+#include <SFML\Graphics\Sprite.hpp>
+#include <SFML\Graphics\Texture.hpp>
+#include <SFML\Graphics\RenderWindow.hpp>
+#include <SFML/Graphics/Text.hpp>
+#include <SFML/Graphics/Font.hpp>
+
+class Board {
+
+	public : 
+		enum State {
+			Normal, 
+			CheckWhite, 
+			CheckBlack, 
+			CheckMateWhite, 
+			CheckMateBlack, 
+			Equality
+		};
+
+	public :
+		struct Highlight {
+			bool activated;
+			sf::Sprite sprite;
+		};
+
+	public : 
+								Board();
+
+		Piece*					select(int x, int y, int player);
+		bool					unselect(int x, int y, Piece* piece);
+
+		// Interface
+		void					draw(sf::RenderWindow& target);
+		void					update(int x, int y, int idPlayer);
+		void					updateDebug();
+
+		// Test de situations
+		bool					isCheck(int idPlayer);
+		bool					isCheckMate(int idPlayer);
+		bool					isEquality();
+		
+		void					movePiece(Move &move);
+		void					computeValidMoves(int idPlayer);
+		void					printValidMoves();
+		bool					play(Move &move, bool checkValidity);
+		bool					undo();
+		void					unMovePiece(Move &move);
+		void					resetLastMove();
+		Piece*					getPiece(int x, int y) const;
+		Piece*					getPiece(sf::Vector2i pos) const;
+		void					addMove(int startX, int startY, int endX, int endY, int player, std::vector<Move> &moves, bool checkConsidered);
+		bool					isOnBoard(int x, int y);
+		bool					isValidMove(Move move);
+		bool					isCorrectMove(Move move);
+		void					getMoves(int x, int y, std::vector<Move> &moves, bool checkConsidered);
+		std::vector<Move>		getMoves(int x, int y, bool checkConsidered);
+		std::vector<Move>		getAllMoves(int idPlayer, bool checkConsidered);
+		bool					isAnyMovePossible(int idPlayer);
+		float					eval(int player, float weightPieces, float weightMoves, float weightRandom);
+
+		std::string				getMoveSymbol(Move move);
+		void					printMove(Move move);
+		int						otherPlayer(int idPlayer);
+
+	private :
+		void					init();
+		void					initSprites();
+		void					initFont();
+		void					initPositions() const;
+		void					initHighlights();
+		void					initDebug();
+
+		void					resetHighlights() const;
+		bool					testMove(Move &move);
+		float					evalPieces() const;
+		float					evalMoves();
+		float					evalCenter();
+
+		void					undo(Move &move);
+		void					undo(Move &move, Move &previousMove);
+
+		void					promotion(int x, int y);
+		void					getPawnMoves(int x, int y, std::vector<Move> &moves, bool checkConsidered);
+		void					getKnightMoves(int x, int y, std::vector<Move> &moves, bool checkConsidered);
+		void					getBishopMoves(int x, int y, std::vector<Move> &moves, bool checkConsidered);
+		void					getTowerMoves(int x, int y, std::vector<Move> &moves, bool checkConsidered);
+		void					getKingMoves(int x, int y, std::vector<Move> &moves, bool checkConsidered);
+
+		// Lecture ecriture
+		std::string				generateBoardId() const;
+		
+	private :
+		sf::Vector2i					selectedPawn;
+		sf::Vector2i					lastMove;
+		sf::Vector2f					mousePos;
+
+		std::stack<short>				repetitiveMoves;
+
+		Highlight*						highlights[8][8];
+		Piece*							pieces[8][8];
+		std::vector<Move>				history;
+		std::vector<std::string>		historyBoard;
+		std::vector<Move>				validMoves;
+
+		sf::Texture						boardTexture;
+		sf::Texture						piecesTexture;
+		sf::Texture						highlightBlue;
+		sf::Texture						highlightGreen;
+
+		sf::Font*						font;
+
+		sf::Sprite						boardSprite;
+		sf::Sprite						pieceSprites[2][6];
+		sf::Sprite						blueSprite;
+		sf::Sprite						greenSprite;
+
+		std::map<std::string, sf::Text> debugTexts;
+};

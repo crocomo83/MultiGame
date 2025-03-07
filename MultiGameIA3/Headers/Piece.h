@@ -1,0 +1,76 @@
+#pragma once
+
+#include <SFML\Graphics\Sprite.hpp>
+#include <string>
+
+enum PieceType {
+	King,
+	Queen,
+	Bishop,
+	Knight,
+	Tower,
+	Pawn,
+	None
+};
+
+enum Tag {
+	NoneTag,
+	JumpTwoCases,
+	EnPassant,
+	Promotion,
+	Castling
+};
+
+struct Piece {
+	PieceType type;
+	int player;
+	int nbMoves;
+	bool hasJustMoveTwoCases;
+
+	Piece()
+		: type(None)
+		, player(-1)
+	{
+		nbMoves = 0;
+		hasJustMoveTwoCases = false;
+	}
+
+	Piece(PieceType type_, int player_)
+		: type(type_)
+		, player(player_)
+	{
+		nbMoves = 0;
+		hasJustMoveTwoCases = false;
+	}
+};
+
+struct Move {
+	sf::Vector2i begin;
+	sf::Vector2i end;
+	Piece* piece;
+	int player;
+	Piece* destroyed;
+	Tag tag;
+
+	Move()
+		: begin(sf::Vector2i(-1, -1))
+		, end(sf::Vector2i(-1, -1))
+		, piece(nullptr)
+		, player(-1)
+		, destroyed(nullptr)
+		, tag(NoneTag)
+	{}
+
+	Move(Piece* piece_, sf::Vector2i begin_, sf::Vector2i end_)
+		: begin(begin_)
+		, end(end_)
+		, piece(piece_)
+		, player(piece_->player)
+		, destroyed(nullptr)
+		, tag(NoneTag)
+	{}
+};
+
+bool equalMoves(Move move1, Move move2);
+std::string getSymbolPosition(sf::Vector2i pos);
+std::string getId(Piece* piece);

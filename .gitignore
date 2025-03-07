@@ -1,0 +1,5 @@
+*.dll
+*.ttf
+*.user
+.vs
+Debug/*
