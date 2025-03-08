@@ -18,9 +18,7 @@ class Board {
 
 	public : 
 		enum State {
-			Normal, 
-			CheckWhite, 
-			CheckBlack, 
+			Normal,
 			CheckMateWhite, 
 			CheckMateBlack, 
 			Equality
@@ -45,8 +43,9 @@ class Board {
 
 		// Test de situations
 		bool					isCheck(int idPlayer);
-		bool					isCheckMate(int idPlayer);
+		bool					isCheckMate();
 		bool					isEquality();
+		State					getGameState();
 		
 		void					movePiece(Move &move);
 		void					computeValidMoves(int idPlayer);

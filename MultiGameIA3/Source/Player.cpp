@@ -1,4 +1,5 @@
 #include "../Headers/Player.h"
+#include "../Headers/Utility.h"
 
 #include <iostream>
 #include <cmath>
@@ -27,16 +28,17 @@ std::pair<int, float> Player::playMinMax(Board* board, int level, int idPlayer) 
 		return std::pair<int, float>(-1, valueBoard);
 	}
 	else {
-		if (board->isCheckMate(idPlayer)) {
-			if (idPlayer == 0) {
-				return std::pair<int, float>(- 1, -1000);
-			}
-			else {
+		Board::State state = board->getGameState();
+		switch (state) {
+			case Board::State::CheckMateWhite:
+				return std::pair<int, float>(-1, -1000);
+				break;
+			case Board::State::CheckMateBlack:
 				return std::pair<int, float>(-1, 1000);
-			}
-		}
-		else if (board->isEquality()) {
-			return std::pair<int, float>(-1, 0);
+				break;
+			case Board::State::Equality:
+				return std::pair<int, float>(-1, 0);
+				break;
 		}
 	}
 
@@ -88,11 +90,20 @@ std::pair<int, float> Player::playMinMax(Board* board, int level, int idPlayer) 
 	return std::pair<int, float>(numBest, best);
 }
 
-std::map<std::string, float> Player::getMinMaxAllMovesValue(Board* board, int level, int idPlayer, bool root, Move& lastMove) {
+std::map<std::string, float> Player::getMinMaxAllMovesValue(Board* board, int level, int idPlayer) {
 	std::map<std::string, float> valueMoves;
 
 	std::vector<Move> moves = board->getAllMoves(idPlayer, true);
 	int n = moves.size();
+
+	std::vector<Move>::iterator it;
+	for (it = moves.begin(); it != moves.end(); ++it) {
+		Move move = *it;
+		board->play(move, false);
+		float value = playMinMax(board, level - 1, otherPlayer(idPlayer)).second;
+		valueMoves.insert(std::pair<std::string, float>(board->getMoveSymbol(move), value));
+		board->undo();
+	}
 
 	return valueMoves;
 }

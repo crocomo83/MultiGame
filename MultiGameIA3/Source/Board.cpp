@@ -522,15 +522,37 @@ bool Board::isCheck(int idPlayer) {
 	return false;
 }
 
-bool Board::isCheckMate(int idPlayer) {
+Board::State Board::getGameState() {
+	// Debut de partie
+	if (history.empty()) {
+		return Board::State::Normal;
+	}
+
+	Move& lastMove = history[history.size() - 1];
+	if (isCheckMate()) {
+		if (lastMove.player == 0) {
+			return Board::State::CheckMateWhite;
+		}
+		else {
+			return Board::State::CheckMateBlack;
+		}
+	}
+	else if (isEquality()) {
+		return Board::State::Equality;
+	}
+
+	
+}
+
+bool Board::isCheckMate() {
+	// Debut de partie => pas d'echec et mat
 	if (history.empty()) {
 		return false;
 	}
-	Move lastMove = history[history.size() - 1];
-	if (lastMove.player == idPlayer && isCheck(idPlayer) && !isAnyMovePossible(otherPlayer(idPlayer))) {
-		return true;
-	}
-	return false;
+
+	// Pat
+	Move& lastMove = history[history.size() - 1];
+	return isCheck(lastMove.player) && !isAnyMovePossible(otherPlayer(lastMove.player));
 }
 
 bool Board::isEquality() {
@@ -541,7 +563,7 @@ bool Board::isEquality() {
 
 	// Pat
 	Move &lastMove = history[history.size() - 1];
-	if (!isAnyMovePossible(otherPlayer(lastMove.player))) {
+	if (!isCheck(lastMove.player) && !isAnyMovePossible(otherPlayer(lastMove.player))) {
 		return true;
 	}
 
@@ -564,7 +586,7 @@ bool Board::isEquality() {
 }
 
 float Board::eval(int player, float weightPieces, float weightMoves, float weightRandom) {
-	if (isCheckMate(player)) {
+	if (isCheckMate()) {
 		if (player == 0) {
 			return -1000;
 		}
@@ -951,7 +973,7 @@ std::string Board::getMoveSymbol(Move move) {
 	}
 	symbol += getSymbolPosition(move.end);
 
-	if (isCheckMate(move.piece->player)) {
+	if (isCheckMate()) {
 		symbol += "#";
 	}
 	else if (isCheck(move.piece->player)) {
