@@ -28,7 +28,7 @@ int Node::getBestChild() {
 }
 
 void Node::computeValue() {
-    if (mode == Node::Mode::Min) {
+    if (mode == Node::Mode::Max) {
         value = findMinChild().second;
     }
     else {
@@ -41,8 +41,8 @@ std::pair<int, float> Node::findMinChild() {
     int indexMin = 0;
     for (int i = 1; i < children.size(); i++) {
         Node* currentNode = children[i];
-        if (currentNode < minNode) {
-            currentNode = minNode;
+        if (currentNode->value < minNode->value) {
+            minNode = currentNode;
             indexMin = i;
         }
     }
@@ -54,8 +54,8 @@ std::pair<int, float> Node::findMaxChild() {
     int indexMax = 0;
     for (int i = 1; i < children.size(); i++) {
         Node* currentNode = children[i];
-        if (currentNode > maxNode) {
-            currentNode = maxNode;
+        if (currentNode->value > maxNode->value) {
+            maxNode = currentNode;
             indexMax = i;
         }
     }
