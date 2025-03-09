@@ -33,6 +33,15 @@
     <ClCompile Include="MultiGameIA3\Source\Menu.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
+    <ClCompile Include="MultiGameIA3\Source\Utility.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="MultiGameIA3\Source\NodePool.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="MultiGameIA3\Source\Node.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MultiGameIA3\Headers\Board.h">
@@ -50,7 +59,13 @@
     <ClInclude Include="MultiGameIA3\Headers\Menu.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
+    <ClInclude Include="MultiGameIA3\Headers\Utility.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
     <ClInclude Include="MultiGameIA3\Headers\NodePool.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="MultiGameIA3\Headers\Node.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
   </ItemGroup>

@@ -6,58 +6,71 @@
 #include <iostream>
 #include <iomanip>
 
-Game::Game() 
-: window(sf::VideoMode(700, 700), "Chess master")
-, xMouse(-1)
+Game::Game()
+: xMouse(-1)
 , yMouse(-1)
 , currentPlayer(0)
 , hasSwap(true)
 , debug(true)
 , selectedPiece(nullptr)
+, currentMoveOnMouse(-1)
 {
+	Player::init();
+
+	window = new sf::RenderWindow();
+	window->create(sf::VideoMode(800, 700), "Chess master", sf::Style::Titlebar | sf::Style::Close);
+	window->setPosition(sf::Vector2i(0, 0));
+
 	board = new Board();
-	players[0] = new Player(Player::PlayerType::Human, 0);
-	players[1] = new Player(Player::PlayerType::Human, 1);
+	players[0].type = Player::PlayerType::Human;
+	players[0].id = 0;
+	players[1].type = Player::PlayerType::Human;
+	players[1].id = 1;
 
 	initFont();
 	initDebug();
-
-	for (int i = 0; i < 100; i++) {
-		sf::Text moveText;
-		moveText.setFont(*font);
-		moveText.setString("");
-		moveText.setCharacterSize(12);
-		moveText.setOutlineColor(sf::Color::White);
-		moveText.setPosition(sf::Vector2f(510, i * 10));
-
-		moveTexts.push_back(moveText);
-	}
 }
 
 Game::Game(Player::PlayerType whitePlayer, Player::PlayerType blackPlayer)
-: window(sf::VideoMode(500, 500), "Chess master")
-, xMouse(-1)
+: xMouse(-1)
 , yMouse(-1)
 , currentPlayer(0)
 , hasSwap(true)
 , debug(false)
 , selectedPiece(nullptr)
+, currentMoveOnMouse(-1)
 {
+	Player::init();
+
+	window = new sf::RenderWindow();
+	window->create(sf::VideoMode(500, 500), "Chess master", sf::Style::Titlebar | sf::Style::Close);
+	window->setPosition(sf::Vector2i(0, 0));
+
 	board = new Board();
-	players[0] = new Player(whitePlayer, 0);
-	players[1] = new Player(blackPlayer, 1);
+	players[0].type = whitePlayer;
+	players[0].id = 0;
+	players[1].type = blackPlayer;
+	players[1].id = 1;
 }
 
 void Game::initDebug() {
-	for (int i = 0; i < 100; i++) {
-		sf::Text moveText;
-		moveText.setFont(*font);
-		moveText.setString("");
-		moveText.setCharacterSize(14);
-		moveText.setOutlineColor(sf::Color::White);
-		moveText.setPosition(sf::Vector2f(510, i * 14));
+	moveTexts.clear();
+	for (int i = 0; i < selectedMove.size() + 1; i++) {
+		std::vector <sf::Text> layerText;
+		for (int j = 0; j < 100; j++) {
+			sf::Text moveText;
+			moveText.setFont(*font);
+			moveText.setString("");
+			moveText.setCharacterSize(14);
+			moveText.setOutlineColor(sf::Color::White);
+			moveText.setPosition(sf::Vector2f(510 + i * 80, j * 15));
+			if (i != selectedMove.size() && j == selectedMove[i]) {
+				moveText.setOutlineThickness(1);
+			}
 
-		moveTexts.push_back(moveText);
+			layerText.push_back(moveText);
+		}
+		moveTexts.push_back(layerText);
 	}
 }
 
@@ -70,55 +83,53 @@ void Game::initFont() {
 }
 
 void Game::run() {
-	
-	while (window.isOpen())
+	board->update(xMouse, yMouse, currentPlayer);
+	render();
+	while (window->isOpen())
 	{
 		if (hasSwap) {
 			hasSwap = false;
 			checkGameOver();
 			board->computeValidMoves(currentPlayer);
 			if (debug) {
+				selectedMove.clear();
+				initDebug();
+				computeDebug();
 				updateDebug();
 			}
 		}
 		handleEvent();
 		board->update(xMouse, yMouse, currentPlayer);
-		if (debug) {
-			board->updateDebug();
-		}
 		render();
 	}
 }
 
+void Game::computeDebug() {
+	Node::Mode mode = (currentPlayer == 0 ? Node::Mode::Min : Node::Mode::Max);
+	lastIAPlay = Player::pool.createNode(0.0f, mode);
+	Player::playMinMax(board, 3, currentPlayer, lastIAPlay);
+
+	lastIAPlay->sortChildren();
+}
+
 void Game::updateDebug() {
-	std::map<std::string, float> valueMoves = players[currentPlayer]->getMinMaxAllMovesValue(board, 3, currentPlayer);
-
-	// Copier les éléments dans un std::vector de paires
-	std::vector<std::pair<std::string, float>> vec(valueMoves.begin(), valueMoves.end());
-
-	// Trier par valeur (float)
-	if (currentPlayer == 0) {
-		std::sort(vec.begin(), vec.end(),
-			[](const std::pair<std::string, float>& a, const std::pair<std::string, float>& b) {
-				return a.second < b.second;
-			});
-	}
-	else {
-		std::sort(vec.begin(), vec.end(),
-			[](const std::pair<std::string, float>& a, const std::pair<std::string, float>& b) {
-				return a.second > b.second;
-			});
-	}
-
-	std::vector<std::pair<std::string, float>>::iterator it;
-	int index = 0;
-	for (it = vec.begin(); it != vec.end(); ++it) {
-		std::pair<std::string, float> valueMove = *it;
-		moveTexts[index].setString(valueMove.first + " : " + floatToStringWithDecimal(valueMove.second, 1));
-		index++;
-	}
-	for (int i = index; i < 100; i++) {
-		moveTexts[i].setString("");
+	int size = selectedMove.size();
+	for (int i = -1; i < size; i++) {
+		Node* toDisplay = lastIAPlay;
+		for (int j = 0; j < i + 1; j++) {
+			toDisplay = toDisplay->children[selectedMove[j]];
+		}
+		
+		std::vector<Node*>::iterator it;
+		int index = 0;
+		for (it = toDisplay->children.begin(); it != toDisplay->children.end(); ++it) {
+			Node* node = *it;
+			moveTexts[i+1][index].setString(node->moveSymbol + " : " + floatToStringWithDecimal(node->value, 1));
+			index++;
+		}
+		for (int j = index; j < 100; j++) {
+			moveTexts[i+1][j].setString("");
+		}
 	}
 }
 
@@ -147,24 +158,53 @@ void Game::checkGameOver() {
 void Game::handleEvent() {
 	int player = currentPlayer;
 	sf::Event event;
-	while (window.pollEvent(event))
+	while (window->pollEvent(event))
 	{
 		if (event.type == sf::Event::Closed) {
-			window.close();
+			window->close();
 		}
 
-		if (players[player]->isHuman()) {
+		if (debug) {
+			sf::Vector2i pos_mouse = sf::Mouse::getPosition(*window);
+			sf::Vector2f mouse_coord = window->mapPixelToCoords(pos_mouse);
+
+			std::vector<sf::Text> lastMoves = moveTexts[moveTexts.size() - 1];
+			currentMoveOnMouse = -1;
+			for (int i = 0; i < lastMoves.size(); i++) {
+				std::string str = lastMoves[i].getString();
+				if (lastMoves[i].getGlobalBounds().contains(mouse_coord)) {
+					moveTexts[moveTexts.size() - 1][i].setOutlineThickness(1);
+					currentMoveOnMouse = i;
+				}
+				else {
+					moveTexts[moveTexts.size() - 1][i].setOutlineThickness(0);
+				}
+				
+			}
+
+			if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+				if (currentMoveOnMouse != -1) {
+					selectedMove.push_back(currentMoveOnMouse);
+					currentMoveOnMouse = -1;
+					initDebug();
+					updateDebug();
+				}
+			}
+
+		}
+
+		if (Player::isHuman(players[player].type)) {
 			handleActionEvent(event);
 		}
 	}
 
-	if(!players[player]->isHuman()){
+	if(!Player::isHuman(players[player].type)){
 		computePlay();
 	}
 }
 
 void Game::computePlay() {
-	Move move = players[currentPlayer]->play(board);
+	Move move = Player::play(board, players[currentPlayer].type, players[currentPlayer].id);
 	if (board->play(move, true)) {
 		std::cout << (currentPlayer == 0 ? "white" : "black") << " play " << board->getMoveSymbol(move) << std::endl;
 		std::cout << std::endl;
@@ -203,10 +243,12 @@ void Game::swapPlayer() {
 }
 
 void Game::render() {
-	window.clear();
-	board->draw(window);
+	window->clear();
+	board->draw(*window);
 	for (int i = 0; i < moveTexts.size(); i++) {
-		window.draw(moveTexts[i]);
+		for (int j = 0; j < moveTexts[i].size(); j++) {
+			window->draw(moveTexts[i][j]);
+		}
 	}
-	window.display();
+	window->display();
 }

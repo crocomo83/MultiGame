@@ -2,6 +2,7 @@
 
 #include "Player.h"
 #include "Board.h"
+#include "Node.h"
 
 class Game {
 
@@ -20,6 +21,7 @@ class Game {
 		void				handleActionEvent(sf::Event &event);
 		void				computePlay();
 		void				checkGameOver();
+		void				computeDebug();
 		void				updateDebug();
 
 	private :
@@ -29,11 +31,15 @@ class Game {
 		int						yMouse;
 		int						currentPlayer;
 
-		sf::RenderWindow		window;
+		sf::RenderWindow*		window;
 		Board*					board;
-		Player*					players[2];
+		Player::Data			players[2];
 		Piece*					selectedPiece;
 
-		sf::Font*				font;
-		std::vector<sf::Text>	moveTexts;
+		Node*					lastIAPlay;
+
+		sf::Font*							font;
+		std::vector<std::vector<sf::Text>>	moveTexts;
+		int									currentMoveOnMouse;
+		std::vector<int>					selectedMove;
 };

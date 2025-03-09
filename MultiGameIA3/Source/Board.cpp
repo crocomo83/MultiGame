@@ -180,6 +180,10 @@ Piece* Board::select(int x, int y, int player) {
 		int numX = (int)((float)(x - startX) / offsetX);
 		int numY = (int)((float)(y - startY) / offsetY);
 
+		if (numX < 0 || numX > 7 || numY < 0 || numY > 7) {
+			return nullptr;
+		}
+
 		Piece* piece = pieces[numX][numY];
 		if (piece->player != player) {
 			return nullptr;

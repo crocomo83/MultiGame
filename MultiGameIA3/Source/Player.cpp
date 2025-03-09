@@ -5,15 +5,15 @@
 #include <cmath>
 #include <chrono>
 
-Player::Player(PlayerType type, int id_)
-: myType(type)
-, id(id_)
-{
+NodePool Player::pool;
 
+void Player::init() {
+	size_t maxNodes = 1000000;  // Capacité du pool (1 million de nœuds)
+	pool = NodePool(maxNodes);
 }
 
-bool Player::isHuman() const {
-	return myType == PlayerType::Human;
+bool Player::isHuman(PlayerType type) {
+	return type == PlayerType::Human;
 }
 
 float Player::playRandom(Board* board, int idPlayer) {
@@ -22,23 +22,24 @@ float Player::playRandom(Board* board, int idPlayer) {
 	return choice;
 }
 
-std::pair<int, float> Player::playMinMax(Board* board, int level, int idPlayer) {
+void Player::playMinMax(Board* board, int level, int idPlayer, Node* parent) {
+	Node::Mode mode = (idPlayer == 0 ? Node::Mode::Min : Node::Mode::Max);
 	if (level == 0) {
-		float valueBoard = board->eval(idPlayer, 1, 0.1, 2);
-		return std::pair<int, float>(-1, valueBoard);
+		parent->value = board->eval(idPlayer, 1, 0.1, 2);
+		return;
 	}
 	else {
 		Board::State state = board->getGameState();
 		switch (state) {
 			case Board::State::CheckMateWhite:
-				return std::pair<int, float>(-1, -1000);
-				break;
+				parent->value = -1000.0f;
+				return;
 			case Board::State::CheckMateBlack:
-				return std::pair<int, float>(-1, 1000);
-				break;
+				parent->value = 1000.0f;
+				return;
 			case Board::State::Equality:
-				return std::pair<int, float>(-1, 0);
-				break;
+				parent->value = 0.0f;
+				return;
 		}
 	}
 
@@ -47,65 +48,21 @@ std::pair<int, float> Player::playMinMax(Board* board, int level, int idPlayer) 
 
 	if (n == 0) {
 		std::cerr << "Pat ou checkmate aurait du etre detecte !" << std::endl;
-		return std::pair<int, float>(-1, 0);
-	}
-	
-	Move& firstMove = moves[0];
-	int numBest = 0;
-	float best;
-
-	if (idPlayer == 0) {
-		best = playMinMax(board, level - 1, 1).second;
-		for (int i = 1; i < n; i++) {
-			Move &move = moves[i];
-			board->play(move, false);
-
-			float value = playMinMax(board, level - 1, 1).second;
-
-			if (value < best) {
-				best = value;
-				numBest = i;
-			}
-
-			board->undo();
-		}
-	}
-	else {
-		best = playMinMax(board, level - 1, 0).second;
-		for (int i = 1; i < n; i++) {
-			Move &move = moves[i];
-			board->play(move, false);
-
-			float value = playMinMax(board, level - 1, 0).second;
-
-			if (value > best) {
-				best = value;
-				numBest = i;
-			}
-
-			board->undo();
-		}
+		parent->addChild(pool.createNode(0.0f, mode));
+		return;
 	}
 
-	return std::pair<int, float>(numBest, best);
-}
+	for (int i = 0; i < n; i++) {
+		board->play(moves[i], false);
 
-std::map<std::string, float> Player::getMinMaxAllMovesValue(Board* board, int level, int idPlayer) {
-	std::map<std::string, float> valueMoves;
+		Node* child = pool.createNode(0.0f, mode);
+		child->setMoveSymbol(board->getMoveSymbol(moves[i]));
+		playMinMax(board, level - 1, otherPlayer(idPlayer), child);
+		parent->addChild(child);
 
-	std::vector<Move> moves = board->getAllMoves(idPlayer, true);
-	int n = moves.size();
-
-	std::vector<Move>::iterator it;
-	for (it = moves.begin(); it != moves.end(); ++it) {
-		Move move = *it;
-		board->play(move, false);
-		float value = playMinMax(board, level - 1, otherPlayer(idPlayer)).second;
-		valueMoves.insert(std::pair<std::string, float>(board->getMoveSymbol(move), value));
 		board->undo();
 	}
-
-	return valueMoves;
+	parent->computeValue();
 }
 
 float Player::playAlphaBeta(Board* board, int level, int idPlayer, bool root, Move& lastMove, float alpha_, float beta_) {
@@ -180,24 +137,28 @@ float Player::playAlphaBeta(Board* board, int level, int idPlayer, bool root, Mo
 	}
 }
 
-Move Player::play(Board* board) {
+Move Player::play(Board* board, PlayerType type, int idPlayer) {
 	Move move = Move();
 	int index;
 
 	auto start = std::chrono::high_resolution_clock::now();
 
-	switch (myType) {
+	Node::Mode mode = (idPlayer == 0 ? Node::Mode::Min : Node::Mode::Max);
+	Node* root = pool.createNode(0.0f, mode);
+
+	switch (type) {
 		case MinMax :
 			std::cout << "Play : " << "MinMax" << std::endl;
-			index = playMinMax(board, 3, id).first;
+			playMinMax(board, 3, idPlayer, root);
+			index = root->getBestChild();
 			break;
 		case AlphaBeta :
 			std::cout << "Play : " << "AlphaBeta" << std::endl;
-			index = playAlphaBeta(board, 3, id, true, move, -1000000, 10000000);
+			index = playAlphaBeta(board, 3, idPlayer, true, move, -1000000, 10000000);
 			break;
 		case Random:
 			std::cout << "Play : " << "Random" << std::endl;
-			index = playRandom(board, id);
+			index = playRandom(board, idPlayer);
 			break;
 	}
 	auto end = std::chrono::high_resolution_clock::now();
@@ -207,6 +168,6 @@ Move Player::play(Board* board) {
 
 	std::cout << "Temps d'execution: " << duration << " ms" << std::endl;
 
-	std::vector<Move> moves = board->getAllMoves(id, true);
+	std::vector<Move> moves = board->getAllMoves(idPlayer, true);
 	return moves[index];
 }

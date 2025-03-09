@@ -2,6 +2,8 @@
 
 #include "Board.h"
 #include "Piece.h"
+#include "Node.h"
+#include "NodePool.h"
 
 class Player {
 
@@ -13,22 +15,26 @@ class Player {
 			AlphaBeta
 		};
 
+		struct Data {
+			PlayerType type;
+			int id;
+		};
+
 		struct Config {
 			float coeffPieces;
 			float coeffMoves;
 		};
 
 	public :
-										Player(PlayerType type, int id_);
-		Move							play(Board* board);
-		float							playRandom(Board* board, int idPlayer);
-		std::pair<int, float>			playMinMax(Board* board, int level, int idPlayer);
-		std::map<std::string, float>	getMinMaxAllMovesValue(Board* board, int level, int idPlayer);
-		float							playAlphaBeta(Board* board, int level, int idPlayer, bool root, Move& lastMove, float alpha, float beta);
+											Player() = delete;
+		static void							init();
+		static Move							play(Board* board, PlayerType type, int idPlayer);
+		static float						playRandom(Board* board, int idPlayer);
+		static void							playMinMax(Board* board, int level, int idPlayer, Node* parent);
+		static float						playAlphaBeta(Board* board, int level, int idPlayer, bool root, Move& lastMove, float alpha, float beta);
 
-		bool							isHuman() const;
+		static bool							isHuman(PlayerType type);
 
-	private : 
-		PlayerType		myType;
-		int				id;
+	public:
+		static NodePool pool;
 };
