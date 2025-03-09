@@ -533,7 +533,12 @@ Board::State Board::getGameState() {
 	}
 
 	Move& lastMove = history[history.size() - 1];
-	if (isCheckMate()) {
+
+	// Evite d'appeler ces fonction deux fois : pour check mate et pat
+	bool check = isCheck(lastMove.player);
+	bool opponentCanPlay = isAnyMovePossible(otherPlayer(lastMove.player));
+	
+	if (check && !opponentCanPlay) {
 		if (lastMove.player == 0) {
 			return Board::State::CheckMateWhite;
 		}
@@ -541,11 +546,12 @@ Board::State Board::getGameState() {
 			return Board::State::CheckMateBlack;
 		}
 	}
+	else if (check && !opponentCanPlay) {
+		return Board::State::Equality;
+	}
 	else if (isEquality()) {
 		return Board::State::Equality;
 	}
-
-	
 }
 
 bool Board::isCheckMate() {
@@ -563,12 +569,6 @@ bool Board::isEquality() {
 	// Debut de partie => pas d'égalité
 	if (history.empty()) {
 		return false;
-	}
-
-	// Pat
-	Move &lastMove = history[history.size() - 1];
-	if (!isCheck(lastMove.player) && !isAnyMovePossible(otherPlayer(lastMove.player))) {
-		return true;
 	}
 
 	// position répétée 3 fois => égalité
