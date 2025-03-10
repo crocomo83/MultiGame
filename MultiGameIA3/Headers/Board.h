@@ -54,8 +54,10 @@ class Board {
 		bool					undo();
 		void					unMovePiece(Move &move);
 		void					resetLastMove();
+
 		Piece*					getPiece(int x, int y) const;
 		Piece*					getPiece(sf::Vector2i pos) const;
+
 		void					addMove(int startX, int startY, int endX, int endY, int player, std::vector<Move> &moves, bool checkConsidered);
 		bool					isValidMove(Move move);
 		bool					isCorrectMove(Move move) const;

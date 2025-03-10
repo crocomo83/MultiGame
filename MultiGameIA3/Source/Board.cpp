@@ -382,7 +382,7 @@ void Board::undo(Move &move) {
 		case EnPassant:
 			pawnTaken = new Piece(Pawn, !move.player);
 			pawnTaken->hasJustMoveTwoCases = true;
-			pawnTaken->nbMoves = 1;
+			pawnTaken->hasMove = true;
 			delete(pieces[beginX][endY]);
 			pieces[beginX][endY] = pawnTaken;
 			break;
@@ -428,14 +428,12 @@ void Board::movePiece(Move &move) {
 	move.destroyed = pieces[move.end.x][move.end.y];
 	pieces[move.end.x][move.end.y] = pieces[move.begin.x][move.begin.y];
 	pieces[move.begin.x][move.begin.y] = new Piece();
-	pieces[move.end.x][move.end.y]->nbMoves++;
 }
 
 void Board::unMovePiece(Move &move) {
 	delete(pieces[move.begin.x][move.begin.y]);
 	pieces[move.begin.x][move.begin.y] = pieces[move.end.x][move.end.y];
 	pieces[move.end.x][move.end.y] = move.destroyed;
-	pieces[move.begin.x][move.begin.y]->nbMoves--;
 }
 
 void Board::resetLastMove() {
@@ -728,12 +726,9 @@ void Board::getMoves(int x, int y, std::vector<Move> &moves, bool checkConsidere
 
 bool Board::testMove(Move &move) {
 	play(move, false);
-	if (isCheck(otherPlayer(move.player))) {
-		undo();
-		return false;
-	}
+	bool check = isCheck(otherPlayer(move.player));
 	undo();
-	return true;
+	return !check;
 }
 
 void Board::addMove(int startX, int startY, int endX, int endY, int player, std::vector<Move> &moves, bool checkConsidered) {
@@ -756,7 +751,7 @@ void Board::getPawnMoves(int x, int y, std::vector<Move> &moves, bool checkConsi
 	Piece* frontSpot = getPiece(x, y + sign);
 	if (frontSpot != nullptr && frontSpot->type == None) {
 		addMove(x, y, x, y + sign, player, moves, checkConsidered);
-		if (piece->nbMoves == 0) {
+		if (!piece->hasMove) {
 			Piece* nextSpot = getPiece(x, y + 2 * sign);
 			if (nextSpot != nullptr && nextSpot->type == None) {
 				addMove(x, y, x, y + 2 * sign, player, moves, checkConsidered);
@@ -890,14 +885,14 @@ void Board::getKingMoves(int x, int y, std::vector<Move> &moves, bool checkConsi
 			}
 		}
 	}
-	if (movingPiece->nbMoves == 0) {
+	if (!movingPiece->hasMove) {
 		for (int side = -1; side < 2; side += 2) {
 			bool next = true;
 			int i = 1;
 			while (next) {
 				int newX = x + i * side;
 				Piece* piece = getPiece(newX, y);
-				if (piece != nullptr && piece->type == Tower && piece->player == movingPiece->player && piece->nbMoves == 0) {
+				if (piece != nullptr && piece->type == Tower && piece->player == movingPiece->player && !piece->hasMove) {
 					addMove(x, y, x + 2 * side, y, movingPiece->player, moves, checkConsidered);
 					next = false;
 				}

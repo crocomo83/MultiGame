@@ -30,6 +30,7 @@ class Player {
 		static void							init();
 		static Move							play(Board* board, PlayerType type, int idPlayer);
 		static float						playRandom(Board* board, int idPlayer);
+		static std::pair<int, float>		playMinMaxSimple(Board* board, int level, int idPlayer);
 		static void							playMinMax(Board* board, int level, int idPlayer, Node* parent);
 		static float						playAlphaBeta(Board* board, int level, int idPlayer, bool root, Move& lastMove, float alpha, float beta);
 
@@ -37,4 +38,5 @@ class Player {
 
 	public:
 		static NodePool pool;
+		static int		nbTest;
 };

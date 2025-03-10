@@ -24,14 +24,14 @@ enum Tag {
 struct Piece {
 	PieceType type;
 	int player;
-	int nbMoves;
+	bool hasMove;
 	bool hasJustMoveTwoCases;
 
 	Piece()
 		: type(None)
 		, player(-1)
 	{
-		nbMoves = 0;
+		hasMove = false;
 		hasJustMoveTwoCases = false;
 	}
 
@@ -39,7 +39,7 @@ struct Piece {
 		: type(type_)
 		, player(player_)
 	{
-		nbMoves = 0;
+		hasMove = false;
 		hasJustMoveTwoCases = false;
 	}
 };
