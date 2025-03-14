@@ -80,6 +80,7 @@ void Menu::loop_events() {
         texts[2].setOutlineThickness(1);
         texts[3].setOutlineThickness(1);
 
+        pos = 0;
         for (int i = 0; i < texts.size(); i++) {
             if (texts[i].getGlobalBounds().contains(mouse_coord)) {
                 texts[i].setOutlineThickness(4);
@@ -100,7 +101,6 @@ void Menu::loop_events() {
                 Game game;
                 game.run();
             }
-            
             else if (pos == 4 || winclose->getGlobalBounds().contains(mouse_coord)) {
                 std::cout << "Close the window!" << '\n';
                 window->close();
