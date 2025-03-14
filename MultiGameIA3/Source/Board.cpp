@@ -18,7 +18,6 @@ Board::Board()
 {
 
 	selectedPawn = sf::Vector2i(-1, -1);
-	lastMove = sf::Vector2i(-1, -1);
 	mousePos = sf::Vector2f(-1, -1);
 
 	repetitiveMoves.push(0);
@@ -27,37 +26,44 @@ Board::Board()
 	initSprites();
 	initFont();
 	initHighlights();
-	initPositions();
 	initDebug();
 }
 
 void Board::init() {
-	for (int x = 0; x < 8; x++) {
-		pieces[x][1] = new Piece(Pawn, 1);
-		pieces[x][6] = new Piece(Pawn, 0);
+	for (int i = 0; i < 8; i++) {
+		pieces[0][i] = new Piece(Pawn, 0, sf::Vector2i(i, 1));
+		pieces[1][i] = new Piece(Pawn, 1, sf::Vector2i(i, 6));
 	}
 
-	pieces[0][0] = new Piece(Tower, 1);
-	pieces[1][0] = new Piece(Knight, 1);
-	pieces[2][0] = new Piece(Bishop, 1);
-	pieces[3][0] = new Piece(Queen, 1);
-	pieces[4][0] = new Piece(King, 1);
-	pieces[5][0] = new Piece(Bishop, 1);
-	pieces[6][0] = new Piece(Knight, 1);
-	pieces[7][0] = new Piece(Tower, 1);
+	pieces[0][8] = new Piece(Tower, 0, sf::Vector2i(0, 0));
+	pieces[0][9] = new Piece(Knight, 0, sf::Vector2i(1, 0));
+	pieces[0][10] = new Piece(Bishop, 0, sf::Vector2i(2, 0));
+	pieces[0][11] = new Piece(Queen, 0, sf::Vector2i(3, 0));
+	pieces[0][12] = new Piece(King, 0, sf::Vector2i(4, 0));
+	pieces[0][13] = new Piece(Bishop, 0, sf::Vector2i(5, 0));
+	pieces[0][14] = new Piece(Knight, 0, sf::Vector2i(6, 0));
+	pieces[0][15] = new Piece(Tower, 0, sf::Vector2i(7, 0));
 
-	pieces[0][7] = new Piece(Tower, 0);
-	pieces[1][7] = new Piece(Knight, 0);
-	pieces[2][7] = new Piece(Bishop, 0);
-	pieces[3][7] = new Piece(Queen, 0);
-	pieces[4][7] = new Piece(King, 0);
-	pieces[5][7] = new Piece(Bishop, 0);
-	pieces[6][7] = new Piece(Knight, 0);
-	pieces[7][7] = new Piece(Tower, 0);
+	pieces[1][8] = new Piece(Tower, 1, sf::Vector2i(0, 7));
+	pieces[1][9] = new Piece(Knight, 1, sf::Vector2i(1, 7));
+	pieces[1][10] = new Piece(Bishop, 1, sf::Vector2i(2, 7));
+	pieces[1][11] = new Piece(Queen, 1, sf::Vector2i(3, 7));
+	pieces[1][12] = new Piece(King, 1, sf::Vector2i(4, 7));
+	pieces[1][13] = new Piece(Bishop, 1, sf::Vector2i(5, 7));
+	pieces[1][14] = new Piece(Knight, 1, sf::Vector2i(6, 7));
+	pieces[1][15] = new Piece(Tower, 1, sf::Vector2i(7, 7));
 
-	for (int x = 0; x < 8; x++) {
-		for (int y = 2; y < 6; y++) {
-			pieces[x][y] = new Piece(None, -1);
+	for (int i = 0; i < 8; i++) {
+		for (int j = 0; j < 8; j++) {
+			piecesOnBoard[i][j] = nullptr;
+		}
+	}
+
+	for (int idPlayer = 0; idPlayer < 2; idPlayer++) {
+		for (int i = 0; i < 16; i++) {
+			Piece* piece = pieces[idPlayer][i];
+			sf::Vector2i pos = piece->pos;
+			piecesOnBoard[pos.x][pos.y] = piece;
 		}
 	}
 
@@ -91,7 +97,7 @@ void Board::initSprites() {
 		pieceSprites[0][5] = sf::Sprite(piecesTexture, sf::IntRect(332, 97, 61, 61));
 	}
 	else {
-		//std::cerr << "Error loading pieces" << std::endl;
+		std::cerr << "Error loading pieces" << std::endl;
 	}
 }
 
@@ -117,7 +123,7 @@ void Board::initHighlights() {
 			Highlight* highlightInstance = new Highlight();
 			highlightInstance->activated = false;
 			highlightInstance->sprite = blueSprite;
-			highlightInstance->sprite.setPosition(startX + (float)x * offsetX, startY + (float)y * offsetY);
+			highlightInstance->sprite.setPosition(startX + (float)x * offsetX, startY + (float)((7 - y) * offsetY));
 			highlights[x][y] = highlightInstance;
 		}
 	}
@@ -128,17 +134,6 @@ void Board::resetHighlights() const{
 		for (int y = 0; y < 8; y++) {
 			Highlight* highlightInstance = highlights[x][y];
 			highlightInstance->activated = false;
-		}
-	}
-}
-
-void Board::initPositions() const{
-	for (int x = 0; x < 8; x++) {
-		for (int y = 0; y < 8; y++) {
-			Piece* piece = pieces[x][y];
-			if (piece->type != None) {
-				int player = piece->player;
-			}
 		}
 	}
 }
@@ -168,8 +163,8 @@ bool Board::isCorrectMove(Move move) const{
 		return false;
 	}
 
-	Piece* target = pieces[move.end.x][move.end.y];
-	if (target->type != None && target->player == move.player) {
+	Piece* target = getPiece(move.end.x, move.end.y);
+	if (target != nullptr && target->player == move.player) {
 		return false;
 	}
 	return true;
@@ -178,27 +173,28 @@ bool Board::isCorrectMove(Move move) const{
 Piece* Board::select(int x, int y, int player) {
 	if (selectedPawn.x == -1) {
 		int numX = (int)((float)(x - startX) / offsetX);
-		int numY = (int)((float)(y - startY) / offsetY);
+		int numY = 7 - (int)((float)(y - startY) / offsetY);
 
 		if (numX < 0 || numX > 7 || numY < 0 || numY > 7) {
 			return nullptr;
 		}
 
-		Piece* piece = pieces[numX][numY];
-		if (piece->player != player) {
+		Piece* piece = getPiece(numX, numY);
+		if (piece == nullptr || piece->player != player) {
 			return nullptr;
 		}
 
-		if (numX >= 0 && numX < 8 && numY >= 0 && numY < 8) {
-			selectedPawn.x = numX;
-			selectedPawn.y = numY;
-		}
+		selectedPawn.x = numX;
+		selectedPawn.y = numY;
 
 		std::vector<Move> moves = getMoves(numX, numY, true);
+		
 		for (int i = 0; i < moves.size(); i++) {
 			Move move = moves[i];
 			highlights[move.end.x][move.end.y]->activated = true;
 		}
+
+		Piece* test = getPiece(selectedPawn.x, selectedPawn.y);
 
 		return piece;
 	}
@@ -209,9 +205,10 @@ bool Board::unselect(int x, int y, Piece* piece) {
 	bool played = false;
 	if (selectedPawn.x != -1) {
 		int numX = (int)((float)(x - startX) / offsetX);
-		int numY = (int)((float)(y - startY) / offsetY);
+		int numY = 7 - (int)((float)(y - startY) / offsetY);
 
 		Move move = Move(piece, selectedPawn, sf::Vector2i(numX, numY));
+
 		played = play(move, true);
 
 		if (played) {
@@ -228,26 +225,25 @@ bool Board::unselect(int x, int y, Piece* piece) {
 
 std::vector<Move> Board::getAllMoves(int idPlayer, bool checkConsidered) {
 	std::vector<Move> moves;
-	for (int x = 0; x < 8; x++) {
-		for (int y = 0; y < 8; y++) {
-			Piece* piece = pieces[x][y];
-			if (piece->type != None && piece->player == idPlayer) {
-				getMoves(x, y, moves, checkConsidered);
-			}
+	for (int i = 0; i < 16; i++) {
+		Piece* piece = pieces[idPlayer][i];
+		if (!piece->taken) {
+			getMoves(piece->pos.x, piece->pos.y, moves, checkConsidered);
 		}
 	}
 	return moves;
 }
 
 bool Board::isAnyMovePossible(int idPlayer) {
-	for (int x = 0; x < 8; x++) {
-		for (int y = 0; y < 8; y++) {
-			Piece* piece = pieces[x][y];
-			if (piece->type != None && piece->player == idPlayer) {
-				std::vector<Move> moves = getMoves(x, y, true);
-				if (!moves.empty()) {
-					return true;
-				}
+	for (int i = 0; i < 16; i++) {
+		Piece* piece = pieces[idPlayer][i];
+		if (!piece->taken) {
+			if (piece != getPiece(piece->pos.x, piece->pos.y)) {
+				std::cout << "piece non conforme" << std::endl;
+			}
+			std::vector<Move> moves = getMoves(piece->pos.x, piece->pos.y, true);
+			if (!moves.empty()) {
+				return true;
 			}
 		}
 	}
@@ -256,12 +252,13 @@ bool Board::isAnyMovePossible(int idPlayer) {
 
 void Board::computeValidMoves(int idPlayer) {
 	validMoves.clear();
-	for (int x = 0; x < 8; x++) {
-		for (int y = 0; y < 8; y++) {
-			Piece* piece = pieces[x][y];
-			if (piece->type != None && piece->player == idPlayer) {
-				getMoves(x, y, validMoves, true);
+	for (int idPlayer = 0; idPlayer < 2; idPlayer++) {
+		for (int i = 0; i < 16; i++) {
+			Piece* piece = pieces[idPlayer][i];
+			if (piece->player == idPlayer) {
+				getMoves(piece->pos.x, piece->pos.y, validMoves, true);
 			}
+			
 		}
 	}
 }
@@ -282,20 +279,26 @@ bool Board::play(Move &move, bool checkValidity) {
 		}
 	}
 
+	resetEnPassant(move.player);
+
 	int beginX = move.begin.x;
 	int beginY = move.begin.y;
 	int endX = move.end.x;
 	int endY = move.end.y;
 
-	Piece* piece = pieces[beginX][beginY];
+	Piece* piece = getPiece(beginX, beginY);
 
-	if (piece->type == Pawn) {
+	if (piece == nullptr) {
+		return false;
+	}
+	else if (piece->type == Pawn) {
 		// En passant
 		if (abs(endX - beginX) == 1){
-			Piece* dest = pieces[endX][endY];
-			if (dest != nullptr && dest->type == None) {
-				move.destroyed = pieces[endX][beginY];
-				pieces[endX][beginY] = new Piece();
+			Piece* dest = getPiece(endX, endY);
+			if (dest == nullptr) {
+				move.destroyed = getPiece(endX, beginY);
+				move.destroyed->taken = true;
+				piecesOnBoard[endX][beginY] = nullptr;
 				move.tag = EnPassant;
 			}
 		}
@@ -303,18 +306,15 @@ bool Board::play(Move &move, bool checkValidity) {
 		else if (abs(endY - beginY) == 2) {
 			piece->hasJustMoveTwoCases = true;
 			move.tag = JumpTwoCases;
-			lastMove.x = endX;
-			lastMove.y = endY;
 		}
 		// Pawn promoted
-		else if (endY == 0 || endY == 7) {
-			promotion(beginX, beginY);
+		if (endY == 0 || endY == 7) {
+			piece->type = Queen;
 			move.tag = Promotion;
 		}
 	}
-
 	// Castling
-	if (piece->type == King && abs(endX - beginX) >= 2) {
+	else if (piece->type == King && abs(endX - beginX) >= 2) {
 		move.tag = Castling;
 		if (endX > beginX) {
 			Move move2(getPiece(7, beginY), sf::Vector2i(7, beginY), sf::Vector2i(5, beginY));
@@ -329,7 +329,7 @@ bool Board::play(Move &move, bool checkValidity) {
 	// Actual move
 	movePiece(move);
 
-	if (piece->type == Pawn || move.destroyed->type != None) {
+	if (piece->type == Pawn || move.destroyed != nullptr) {
 		repetitiveMoves.push(0);
 	}
 	else {
@@ -370,8 +370,7 @@ void Board::undo(Move &move) {
 	int endX = move.begin.x;
 	int endY = move.begin.y;
 
-	Piece* piece = pieces[beginX][beginY];
-	Piece * pawnTaken;
+	Piece* piece = getPiece(beginX, beginY);
 
 	switch (move.tag) {
 		case NoneTag:
@@ -380,11 +379,8 @@ void Board::undo(Move &move) {
 			piece->hasJustMoveTwoCases = false;
 			break;
 		case EnPassant:
-			pawnTaken = new Piece(Pawn, !move.player);
-			pawnTaken->hasJustMoveTwoCases = true;
-			pawnTaken->hasMove = true;
-			delete(pieces[beginX][endY]);
-			pieces[beginX][endY] = pawnTaken;
+			piecesOnBoard[move.destroyed->pos.x][move.destroyed->pos.y] = move.destroyed;
+			move.destroyed->taken = false;
 			break;
 		case Promotion:
 			piece->type = Pawn;
@@ -392,12 +388,12 @@ void Board::undo(Move &move) {
 		case Castling:
 			if (endX < beginX) {
 				Move move2(getPiece(5, beginY), sf::Vector2i(7, beginY), sf::Vector2i(5, beginY));
-				move2.destroyed = new Piece();
+				move2.destroyed = nullptr;
 				unMovePiece(move2);
 			}
 			else {
 				Move move2(getPiece(3, beginY), sf::Vector2i(0, beginY), sf::Vector2i(3, beginY));
-				move2.destroyed = new Piece();
+				move2.destroyed = nullptr;
 				unMovePiece(move2);
 			}
 			break;
@@ -420,42 +416,58 @@ void Board::undo(Move &move, Move &previousMove) {
 
 	// Pawn moved 2 cases
 	if (previousMove.tag == JumpTwoCases) {
-		pieces[previousMove.end.x][previousMove.end.y]->hasJustMoveTwoCases = true;
+		piecesOnBoard[previousMove.end.x][previousMove.end.y]->hasJustMoveTwoCases = true;
+	}
+}
+
+void Board::resetEnPassant(int idPlayer) const {
+	for (int i = 0; i < 16; i++) {
+		Piece* piece = pieces[idPlayer][i];
+		piece->hasJustMoveTwoCases = false;
 	}
 }
 
 void Board::movePiece(Move &move) {
-	move.destroyed = pieces[move.end.x][move.end.y];
-	pieces[move.end.x][move.end.y] = pieces[move.begin.x][move.begin.y];
-	pieces[move.begin.x][move.begin.y] = new Piece();
+	if (move.tag != Tag::EnPassant) {
+		move.destroyed = getPiece(move.end.x, move.end.y);
+		if (move.destroyed != nullptr) {
+			move.destroyed->taken = true;
+		}
+	}
+	Piece* piece = getPiece(move.begin.x, move.begin.y);
+	piece->pos = move.end;
+	piece->nbMove++;
+	piecesOnBoard[move.end.x][move.end.y] = piece;
+	piecesOnBoard[move.begin.x][move.begin.y] = nullptr;
 }
 
 void Board::unMovePiece(Move &move) {
-	delete(pieces[move.begin.x][move.begin.y]);
-	pieces[move.begin.x][move.begin.y] = pieces[move.end.x][move.end.y];
-	pieces[move.end.x][move.end.y] = move.destroyed;
-}
-
-void Board::resetLastMove() {
-	pieces[lastMove.x][lastMove.y]->hasJustMoveTwoCases = false;
-	lastMove = sf::Vector2i(-1, -1);
-}
-
-void Board::promotion(int x, int y) {
-	pieces[x][y]->type = Queen;
+	Piece* piece = getPiece(move.end.x, move.end.y);
+	piece->pos = move.begin;
+	piece->nbMove--;
+	piecesOnBoard[move.begin.x][move.begin.y] = piece;
+	if (move.tag != Tag::EnPassant) {
+		piecesOnBoard[move.end.x][move.end.y] = move.destroyed;
+		if (move.destroyed != nullptr) {
+			move.destroyed->taken = false;
+		}
+	}
+	else {
+		piecesOnBoard[move.end.x][move.end.y] = nullptr;
+	}
 }
 
 void Board::update(int x, int y, int idPlayer) {
 	mousePos = sf::Vector2f(x, y);
 	if (selectedPawn.x != -1) {
 		int numX = (int)((float)(x - startX) / offsetX);
-		int numY = (int)((float)(y - startY) / offsetY);
+		int numY = 7 - (int)((float)(y - startY) / offsetY);
 
 		Move move = Move(getPiece(selectedPawn), selectedPawn, sf::Vector2i(numX, numY));
 
 		if (isValidMove(move)) {
 			int realX = startX + (float)numX * offsetX;
-			int realY = startY + (float)numY * offsetY;
+			int realY = startY + (float)(7 - numY) * offsetY;
 			greenSprite.setPosition(realX, realY);
 		}
 		else {
@@ -474,6 +486,8 @@ void Board::updateDebug() {
 void Board::draw(sf::RenderWindow& target) {
 	target.draw(boardSprite);
 
+	const sf::Texture* boardTexture = boardSprite.getTexture();
+
 	for (int x = 0; x < 8; x++) {
 		for (int y = 0; y < 8; y++) {
 			Highlight* highlightInstance = highlights[x][y];
@@ -487,25 +501,39 @@ void Board::draw(sf::RenderWindow& target) {
 		target.draw(greenSprite);
 	}
 
-	for (int x = 0; x < 8; x++) {
-		for (int y = 0; y < 8; y++) {
-			if (x != selectedPawn.x || y != selectedPawn.y) {
-				Piece* piece = pieces[x][y];
-				if (piece->type != None) {
-					pieceSprites[piece->player][piece->type].setPosition(startX + (float)x * offsetX, startY + (float)y * offsetY);
-					target.draw(pieceSprites[piece->player][piece->type]);
-				}
+	for (int idPlayer = 0; idPlayer < 2; idPlayer++) {
+		for (int i = 0; i < 16; i++) {
+			Piece* piece = pieces[idPlayer][i];
+			if (piece->pos != selectedPawn && !piece->taken) {
+				pieceSprites[idPlayer][piece->type].setPosition(startX + (float)piece->pos.x * offsetX, startY + (float)(7 - piece->pos.y) * offsetY);
+				target.draw(pieceSprites[idPlayer][piece->type]);
 			}
 		}
 	}
 
-	if (selectedPawn.x != -1) {
-		Piece* selectedPiece = pieces[selectedPawn.x][selectedPawn.y];
-		sf::Sprite* sprite = &pieceSprites[selectedPiece->player][selectedPiece->type];
-		sprite->setPosition( mousePos.x - sprite->getLocalBounds().width / 2, mousePos.y - sprite->getLocalBounds().height / 2);
-		target.draw(*sprite);
+	/*
+	for (int x = 0; x < 8; x++) {
+		for (int y = 0; y < 8; y++) {
+			Piece* piece = piecesOnBoard[x][y];
+			if (piece != nullptr && sf::Vector2i(x, y) != selectedPawn) {
+				pieceSprites[piece->player][piece->type].setPosition(startX + (float)x * offsetX, startY + (float)(7 - y) * offsetY);
+				target.draw(pieceSprites[piece->player][piece->type]);
+			}
+		}
 	}
-
+	*/
+	if (selectedPawn.x != -1) {
+		Piece* selectedPiece = getPiece(selectedPawn);
+		if (selectedPiece == nullptr) {
+			std::cerr << "Erreur: selectedPiece est NULL!" << std::endl;
+		}
+		else {
+			sf::Sprite* sprite = &pieceSprites[selectedPiece->player][selectedPiece->type];
+			sprite->setPosition(mousePos.x - sprite->getLocalBounds().width / 2, mousePos.y - sprite->getLocalBounds().height / 2);
+			target.draw(*sprite);
+		}
+	}
+	
 	std::map<std::string, sf::Text>::iterator it;
 	for (it = debugTexts.begin(); it != debugTexts.end(); ++it) {
 		target.draw(it->second);
@@ -516,8 +544,8 @@ bool Board::isCheck(int idPlayer) {
 	std::vector<Move> moves = getAllMoves(idPlayer, false);
 	for (int i = 0; i < moves.size(); i++) {
 		Move move = moves[i];
-		Piece* target = pieces[move.end.x][move.end.y];
-		if (target->type == King && target->player != idPlayer) {
+		Piece* target = getPiece(move.end);
+		if (target != nullptr && target->type == King && target->player != idPlayer) {
 			return true;
 		}
 	}
@@ -608,34 +636,34 @@ float Board::eval(int player, float weightPieces, float weightMoves, float weigh
 
 float Board::evalPieces() const{
 	float total = 0;
-	for (int x = 0; x < 8; x++) {
-		for (int y = 0; y < 8; y++) {
-			Piece* piece = pieces[x][y];
-			float rawValue = 0;
-			switch (piece->type) {
-				case None:
-					break;
-				case Pawn:
-					rawValue = 1;
-					break;
-				case Bishop:
-					rawValue = 3;
-					break;
-				case Knight:
-					rawValue = 3;
-					break;
-				case Tower:
-					rawValue = 5;
-					break;
-				case Queen:
-					rawValue = 9;
-					break;
-			}
-			if (piece->player == 0) {
-				total -= rawValue;
-			}
-			else {
-				total += rawValue;
+	for (int idPlayer = 0; idPlayer < 2; idPlayer++) {
+		for (int i = 0; i < 16; i++) {
+			Piece* piece = pieces[idPlayer][i];
+			if (!piece->taken) {
+				float rawValue = 0;
+				switch (piece->type) {
+					case Pawn:
+						rawValue = 1;
+						break;
+					case Bishop:
+						rawValue = 3;
+						break;
+					case Knight:
+						rawValue = 3;
+						break;
+					case Tower:
+						rawValue = 5;
+						break;
+					case Queen:
+						rawValue = 9;
+						break;
+				}
+				if (piece->player == 0) {
+					total -= rawValue;
+				}
+				else {
+					total += rawValue;
+				}
 			}
 		}
 	}
@@ -663,7 +691,7 @@ Piece* Board::getPiece(int x, int y) const{
 	if (x < 0 || x > 7 || y < 0 || y > 7) {
 		return nullptr;
 	}
-	return pieces[x][y];
+	return piecesOnBoard[x][y];
 }
 
 std::vector<Move> Board::getMoves(int x, int y, bool checkConsidered) {
@@ -698,6 +726,9 @@ std::vector<Move> Board::getMoves(int x, int y, bool checkConsidered) {
 
 void Board::getMoves(int x, int y, std::vector<Move> &moves, bool checkConsidered) {
 	Piece* piece = getPiece(x, y);
+	if (piece == nullptr) {
+		return;
+	}
 	switch (piece->type)
 	{
 	case King:
@@ -746,33 +777,53 @@ void Board::addMove(int startX, int startY, int endX, int endY, int player, std:
 void Board::getPawnMoves(int x, int y, std::vector<Move> &moves, bool checkConsidered) {
 	Piece* piece = getPiece(x, y);
 	int player = piece->player;
-	int sign = 2 * player - 1;
 
-	Piece* frontSpot = getPiece(x, y + sign);
-	if (frontSpot != nullptr && frontSpot->type == None) {
-		addMove(x, y, x, y + sign, player, moves, checkConsidered);
-		if (!piece->hasMove) {
-			Piece* nextSpot = getPiece(x, y + 2 * sign);
-			if (nextSpot != nullptr && nextSpot->type == None) {
-				addMove(x, y, x, y + 2 * sign, player, moves, checkConsidered);
+	// Sens d'avancee des pions
+	int sign = (piece->player == 0 ? 1 : -1);
+
+	if (isOnBoard(x, y + sign)) {
+		Piece* frontSpot = getPiece(x, y + sign);
+		if (frontSpot == nullptr) {
+			// Avancée d'une case
+			addMove(x, y, x, y + sign, player, moves, checkConsidered);
+			if (piece->nbMove == 0) {
+				if (isOnBoard(x, y + 2 * sign)) {
+					Piece* nextSpot = getPiece(x, y + 2 * sign);
+					if (nextSpot == nullptr) {
+						// Avancée de deux cases
+						addMove(x, y, x, y + 2 * sign, player, moves, checkConsidered);
+					}
+				}
 			}
 		}
 	}
-	Piece* leftSpot = getPiece(x - 1, y + sign);
-	if (leftSpot != nullptr && leftSpot->type != None && leftSpot->player != player) {
-		addMove(x, y, x - 1, y + sign, player, moves, checkConsidered);
+	
+	// Prise
+	if (isOnBoard(x - 1, y + sign)) {
+		Piece* leftSpot = getPiece(x - 1, y + sign);
+		if (leftSpot != nullptr && leftSpot->player != player) {
+			addMove(x, y, x - 1, y + sign, player, moves, checkConsidered);
+		}
 	}
-	Piece* rightSpot = getPiece(x + 1, y + sign);
-	if (rightSpot != nullptr && rightSpot->type != None && rightSpot->player != player) {
-		addMove(x, y, x + 1, y + sign, player, moves, checkConsidered);
+	if (isOnBoard(x + 1, y + sign)) {
+		Piece* rightSpot = getPiece(x + 1, y + sign);
+		if (rightSpot != nullptr && rightSpot->player != player) {
+			addMove(x, y, x + 1, y + sign, player, moves, checkConsidered);
+		}
 	}
-	Piece* sideLeft = getPiece(x - 1, y);
-	if (sideLeft != nullptr && sideLeft->type == Pawn && sideLeft->player != piece->player && sideLeft->hasJustMoveTwoCases) {
-		addMove(x, y, x - 1, y + sign, player, moves, checkConsidered);
+	
+	// Prise en passant
+	if (isOnBoard(x - 1, y)) {
+		Piece* sideLeft = getPiece(x - 1, y);
+		if (sideLeft != nullptr && sideLeft->type == Pawn && sideLeft->player != piece->player && sideLeft->hasJustMoveTwoCases) {
+			addMove(x, y, x - 1, y + sign, player, moves, checkConsidered);
+		}
 	}
-	Piece* sideRight = getPiece(x + 1, y);
-	if (sideRight != nullptr && sideRight->type == Pawn && sideRight->player != piece->player && sideRight->hasJustMoveTwoCases) {
-		addMove(x, y, x + 1, y + sign, player, moves, checkConsidered);
+	if (isOnBoard(x + 1, y)) {
+		Piece* sideRight = getPiece(x + 1, y);
+		if (sideRight != nullptr && sideRight->type == Pawn && sideRight->player != piece->player && sideRight->hasJustMoveTwoCases) {
+			addMove(x, y, x + 1, y + sign, player, moves, checkConsidered);
+		}
 	}
 }
 
@@ -801,77 +852,74 @@ void Board::getKnightMoves(int x, int y, std::vector<Move> &moves, bool checkCon
 	for (int i = 0; i < 8; i++) {
 		int newX = possibilities[i][0];
 		int newY = possibilities[i][1];
-		Piece* piece = getPiece(possibilities[i][0], possibilities[i][1]);
-		if (piece != nullptr && (piece->type == None || piece->player != movingPiece->player)) {
-			addMove(x, y, newX, newY, movingPiece->player, moves, checkConsidered);
+		if (isOnBoard(newX, newY)) {
+			Piece* piece = getPiece(newX, newY);
+			if (piece == nullptr || piece->player != movingPiece->player) {
+				addMove(x, y, newX, newY, movingPiece->player, moves, checkConsidered);
+			}
 		}
 	}
 }
 
 void Board::getBishopMoves(int x, int y, std::vector<Move> &moves, bool checkConsidered) {
 	Piece* movingPiece = getPiece(x, y);
-	for (int i = 0; i < 4; i++) {
-		int diffX = 2 * (i % 2) - 1;
-		int diffY = 2 * (i / 2) - 1;
-		bool next = true;
-		int j = 1;
-		do {
-			int newX = x + j * diffX;
-			int newY = y + j * diffY;
-			Piece* piece = getPiece(newX, newY);
-			if (piece != nullptr && (piece->type == None || piece->player != movingPiece->player)) {
-				addMove(x, y, newX, newY, movingPiece->player, moves, checkConsidered);
-				if (piece->type == None) {
-					j++;
-				}
-				else {
-					next = false;
-				}
-			}
-			else {
-				next = false;
-			}
-		} while (next);
+
+	// Les 4 diagonales possibles
+	sf::Vector2i directions[4] = { {1, 1}, {-1, -1}, {-1, 1}, {1, -1} };
+
+	for (auto& dir : directions) {
+		getDirectionMove(movingPiece, dir, moves, checkConsidered);
 	}
 }
 
 void Board::getTowerMoves(int x, int y, std::vector<Move> &moves, bool checkConsidered) {
 	Piece* movingPiece = getPiece(x, y);
-	for (int i = 0; i < 4; i++) {
-		int mod = 2 * (i % 2) - 1;
-		int diffX, diffY;
-		if (i < 2) {
-			diffX = mod;
-			diffY = 0;
-		}
-		else {
-			diffX = 0;
-			diffY = mod;
-		}
-		bool next = true;
-		int j = 1;
-		do {
-			int newX = x + j * diffX;
-			int newY = y + j * diffY;
-			Piece* piece = getPiece(newX, newY);
-			if (piece != nullptr && (piece->type == None || piece->player != movingPiece->player)) {
-				addMove(x, y, newX, newY, movingPiece->player, moves, checkConsidered);
-				if (piece->type == None) {
-					j++;
-				}
-				else {
-					next = false;
-				}
-			}
-			else {
-				next = false;
-			}
-		} while (next);
+
+	// Les 4 directions possibles : Droite, Gauche, Bas, Haut
+	sf::Vector2i directions[4] = { {1, 0}, {-1, 0}, {0, 1}, {0, -1} };
+
+	for (auto& dir : directions) {
+		getDirectionMove(movingPiece, dir, moves, checkConsidered);
 	}
 }
 
+void Board::getDirectionMove(Piece* movingPiece, sf::Vector2i dir, std::vector<Move>& moves, bool checkConsidered) {
+	int x = movingPiece->pos.x;
+	int y = movingPiece->pos.y;
+
+	int diffX = dir.x;
+	int diffY = dir.y;
+
+	bool next = true;
+	int j = 1;
+	do {
+		int newX = x + j * diffX;
+		int newY = y + j * diffY;
+		Piece* piece = getPiece(newX, newY);
+
+		// On a atteint le bord => on arrete
+		if (!isOnBoard(newX, newY)) {
+			next = false;
+		}
+
+		// Espace libre => on continue
+		else if (piece == nullptr) {
+			addMove(x, y, newX, newY, movingPiece->player, moves, checkConsidered);
+			next = true;
+			j++;
+		}
+		// Piece présente => on arrête
+		else {
+			if (piece->player != movingPiece->player) {
+				addMove(x, y, newX, newY, movingPiece->player, moves, checkConsidered);
+			}
+			next = false;
+		}
+	} while (next);
+}
+
 void Board::getKingMoves(int x, int y, std::vector<Move> &moves, bool checkConsidered) {
-	Piece* movingPiece = getPiece(x, y);
+	Piece* king = getPiece(x, y);
 	for (int diffX = -1; diffX < 2; diffX++) {
 		for (int diffY = -1; diffY < 2; diffY++) {
 			if (diffX == 0 && diffY == 0) {
@@ -879,30 +927,30 @@ void Board::getKingMoves(int x, int y, std::vector<Move> &moves, bool checkConsi
 			}
 			int newX = x + diffX;
 			int newY = y + diffY;
-			Piece* piece = getPiece(newX, newY);
-			if (piece != nullptr && (piece->type == None || piece->player != movingPiece->player)) {
-				addMove(x, y, newX, newY, movingPiece->player, moves, checkConsidered);
+			if (isOnBoard(newX, newY)) {
+				Piece* piece = getPiece(newX, newY);
+				if (piece == nullptr || piece->player != king->player) {
+					addMove(x, y, newX, newY, king->player, moves, checkConsidered);
+				}
 			}
 		}
 	}
-	if (!movingPiece->hasMove) {
-		for (int side = -1; side < 2; side += 2) {
-			bool next = true;
-			int i = 1;
-			while (next) {
-				int newX = x + i * side;
-				Piece* piece = getPiece(newX, y);
-				if (piece != nullptr && piece->type == Tower && piece->player == movingPiece->player && !piece->hasMove) {
-					addMove(x, y, x + 2 * side, y, movingPiece->player, moves, checkConsidered);
-					next = false;
-				}
-				else if (piece != nullptr && piece->type == None) {
-					i++;
-				}
-				else {
-					next = false;
-				}
-			}
+
+	// Roque
+	if (king->nbMove == 0) {
+		Piece* towerSmallRook = getPiece(7, y);
+		Piece* knight = getPiece(6, y);
+		Piece* bishop = getPiece(5, y);
+		if (bishop == nullptr && knight == nullptr && towerSmallRook != nullptr && towerSmallRook->nbMove == 0) {
+			addMove(x, y, x + 2, y, king->player, moves, checkConsidered);
+		}
+
+		Piece* towerBigRook = getPiece(0, y);
+		Piece* knight2 = getPiece(1, y);
+		Piece* bishop2 = getPiece(2, y);
+		Piece* queen = getPiece(3, y);
+		if (bishop2 == nullptr && knight2 == nullptr && queen == nullptr && towerBigRook != nullptr && towerBigRook->nbMove == 0) {
+			addMove(x, y, x - 2, y, king->player, moves, checkConsidered);
 		}
 	}
 }
@@ -911,8 +959,8 @@ std::string Board::generateBoardId() const {
 	std::string id = "";
 	for (int x = 0; x < 8; x++) {
 		for (int y = 0; y < 8; y++) {
-			Piece* piece = pieces[x][y];
-			if (piece->type == PieceType::None) {
+			Piece* piece = getPiece(x, y);
+			if (piece == nullptr) {
 				id += " ";
 			}
 			else if (piece->player == 0) {
@@ -967,7 +1015,7 @@ std::string Board::generateBoardId() const {
 
 std::string Board::getMoveSymbol(Move move) {
 	std::string symbol = getId(move.piece);
-	if (move.destroyed != nullptr && move.destroyed->type != PieceType::None) {
+	if (move.destroyed != nullptr) {
 		symbol += "x";
 	}
 	symbol += getSymbolPosition(move.end);

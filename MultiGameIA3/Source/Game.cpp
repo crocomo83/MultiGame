@@ -190,7 +190,6 @@ void Game::handleEvent() {
 					updateDebug();
 				}
 			}
-
 		}
 
 		if (Player::isHuman(players[player].type)) {
@@ -230,6 +229,13 @@ void Game::handleActionEvent(sf::Event &event) {
 		case sf::Event::MouseButtonReleased:
 			if (event.mouseButton.button == sf::Mouse::Left) {
 				if (board->unselect(xMouse, yMouse, selectedPiece)) {
+					swapPlayer();
+				}
+			}
+			break;
+		case sf::Event::KeyPressed :
+			if (debug && event.key.code == sf::Keyboard::U) {
+				if (board->undo()) {
 					swapPlayer();
 				}
 			}

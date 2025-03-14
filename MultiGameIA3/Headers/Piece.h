@@ -9,8 +9,7 @@ enum PieceType {
 	Bishop,
 	Knight,
 	Tower,
-	Pawn,
-	None
+	Pawn
 };
 
 enum Tag {
@@ -24,24 +23,19 @@ enum Tag {
 struct Piece {
 	PieceType type;
 	int player;
-	bool hasMove;
+	sf::Vector2i pos;
+	int nbMove;
 	bool hasJustMoveTwoCases;
+	bool taken;
 
-	Piece()
-		: type(None)
-		, player(-1)
-	{
-		hasMove = false;
-		hasJustMoveTwoCases = false;
-	}
-
-	Piece(PieceType type_, int player_)
+	Piece(PieceType type_, int player_, sf::Vector2i pos_)
 		: type(type_)
 		, player(player_)
-	{
-		hasMove = false;
-		hasJustMoveTwoCases = false;
-	}
+		, pos(pos_)
+		, nbMove(0)
+		, hasJustMoveTwoCases(false)
+		, taken(false)
+	{}
 };
 
 struct Move {

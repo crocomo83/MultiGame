@@ -53,7 +53,6 @@ class Board {
 		bool					play(Move &move, bool checkValidity);
 		bool					undo();
 		void					unMovePiece(Move &move);
-		void					resetLastMove();
 
 		Piece*					getPiece(int x, int y) const;
 		Piece*					getPiece(sf::Vector2i pos) const;
@@ -74,7 +73,6 @@ class Board {
 		void					init();
 		void					initSprites();
 		void					initFont();
-		void					initPositions() const;
 		void					initHighlights();
 		void					initDebug();
 
@@ -87,25 +85,26 @@ class Board {
 		void					undo(Move &move);
 		void					undo(Move &move, Move &previousMove);
 
-		void					promotion(int x, int y);
+		void					resetEnPassant(int idPlayer) const;
 		void					getPawnMoves(int x, int y, std::vector<Move> &moves, bool checkConsidered);
 		void					getKnightMoves(int x, int y, std::vector<Move> &moves, bool checkConsidered);
 		void					getBishopMoves(int x, int y, std::vector<Move> &moves, bool checkConsidered);
 		void					getTowerMoves(int x, int y, std::vector<Move> &moves, bool checkConsidered);
 		void					getKingMoves(int x, int y, std::vector<Move> &moves, bool checkConsidered);
+		void					getDirectionMove(Piece* movingPiece, sf::Vector2i dir, std::vector<Move>& moves, bool checkConsidered);
 
 		// Lecture ecriture
 		std::string				generateBoardId() const;
 		
 	private :
 		sf::Vector2i					selectedPawn;
-		sf::Vector2i					lastMove;
 		sf::Vector2f					mousePos;
 
 		std::stack<short>				repetitiveMoves;
 
 		Highlight*						highlights[8][8];
-		Piece*							pieces[8][8];
+		Piece*							pieces[2][16];
+		Piece*							piecesOnBoard[8][8];
 		std::vector<Move>				history;
 		std::vector<std::string>		historyBoard;
 		std::vector<Move>				validMoves;
