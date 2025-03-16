@@ -85,6 +85,8 @@ class Board {
 		void					undo(Move &move);
 		void					undo(Move &move, Move &previousMove);
 
+		bool					isThreatenedBy(sf::Vector2i pos, int idPlayer) const;
+
 		void					resetEnPassant(int idPlayer) const;
 		void					getPawnMoves(int x, int y, std::vector<Move> &moves, bool checkConsidered);
 		void					getKnightMoves(int x, int y, std::vector<Move> &moves, bool checkConsidered);

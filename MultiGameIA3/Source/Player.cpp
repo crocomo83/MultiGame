@@ -45,7 +45,7 @@ std::pair<int, float> Player::playMinMaxSimple(Board* board, int level, int idPl
 	int n = moves.size();
 
 	if (n == 0) {
-		std::cerr << "Pat ou checkmate aurait du etre detecte !" << std::endl;
+		std::cerr << "Pat ou checkmate aurait dus etre detectes !" << std::endl;
 		return std::pair<int, float>(-1, 0);
 	}
 
