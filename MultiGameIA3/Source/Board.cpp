@@ -14,6 +14,7 @@ const float offsetY = 60;
 Board::Board()
 	: validMoves()
 	, repetitiveMoves()
+	, history()
 	, historyBoard()
 {
 
@@ -21,6 +22,9 @@ Board::Board()
 	mousePos = sf::Vector2f(-1, -1);
 
 	repetitiveMoves.push(0);
+
+	history.reserve(1000);
+	historyBoard.reserve(1000);
 
 	init();
 	initSprites();

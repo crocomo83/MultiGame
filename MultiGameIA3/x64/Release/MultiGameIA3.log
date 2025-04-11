@@ -1,0 +1,14 @@
+﻿  Board.cpp
+C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Headers\Piece.h(3,10): error C1083: Impossible d'ouvrir le fichier include : 'SFML\Graphics\Sprite.hpp' : No such file or directory
+  Game.cpp
+C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Headers\Piece.h(3,10): error C1083: Impossible d'ouvrir le fichier include : 'SFML\Graphics\Sprite.hpp' : No such file or directory
+  main.cpp
+C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\main.cpp(1,10): error C1083: Impossible d'ouvrir le fichier include : 'SFML/Graphics.hpp' : No such file or directory
+  Menu.cpp
+C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Headers\Menu.h(3,10): error C1083: Impossible d'ouvrir le fichier include : 'SFML/Graphics.hpp' : No such file or directory
+  Piece.cpp
+C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Headers\Piece.h(3,10): error C1083: Impossible d'ouvrir le fichier include : 'SFML\Graphics\Sprite.hpp' : No such file or directory
+  Player.cpp
+C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Headers\Piece.h(3,10): error C1083: Impossible d'ouvrir le fichier include : 'SFML\Graphics\Sprite.hpp' : No such file or directory
+  Utility.cpp
+C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Headers\Utility.h(4,10): error C1083: Impossible d'ouvrir le fichier include : 'SFML/System/Vector2.hpp' : No such file or directory
