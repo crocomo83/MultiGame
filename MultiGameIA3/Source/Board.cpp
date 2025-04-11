@@ -513,6 +513,14 @@ void Board::unMovePiece(Move &move) {
 
 void Board::update(int x, int y, int idPlayer) {
 	resetHighlights();
+
+	// red highlight
+	if (history.size() > 0) {
+		Move& lastMove = history[history.size() - 1];
+		colorSquare[lastMove.begin.x][lastMove.begin.y] = Color::Red;
+		colorSquare[lastMove.end.x][lastMove.end.y] = Color::Red;
+	}
+
 	mousePos = sf::Vector2f(x, y);
 	if (selectedPawn.x != -1) {
 		// blue highlight
@@ -529,13 +537,6 @@ void Board::update(int x, int y, int idPlayer) {
 		if (isValidMove(move)) {
 			colorSquare[numX][numY] = Color::Green;
 		}
-	}
-
-	// red highlight
-	if (history.size() > 0) {
-		Move& lastMove = history[history.size() - 1];
-		colorSquare[lastMove.begin.x][lastMove.begin.y] = Color::Red;
-		colorSquare[lastMove.end.x][lastMove.end.y] = Color::Red;
 	}
 }
 
