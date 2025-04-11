@@ -33,7 +33,7 @@ class Player {
 		static float						playRandom(Board* board, int idPlayer);
 		static std::pair<int, float>		playMinMaxSimple(Board* board, int level, int idPlayer);
 		static void							playMinMax(Board* board, int level, int idPlayer, Node* parent);
-		static float						playAlphaBeta(Board* board, int level, int idPlayer, bool root, Move& lastMove, float alpha, float beta);
+		static float						playAlphaBeta(Board* board, int level, int idPlayer, bool root, float alpha, float beta);
 
 		static bool							isHuman(PlayerType type);
 

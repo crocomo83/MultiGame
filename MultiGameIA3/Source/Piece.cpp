@@ -48,3 +48,39 @@ std::string getId(Piece* piece) {
 	}
 	return "error";
 }
+
+int getType(Piece* piece) {
+	if (piece->player == 0) {
+		switch (piece->type) {
+		case PieceType::King:
+			return 1;
+		case PieceType::Queen:
+			return 2;
+		case PieceType::Bishop:
+			return 3;
+		case PieceType::Knight:
+			return 4;
+		case PieceType::Tower:
+			return 5;
+		case PieceType::Pawn:
+			return 6;
+		}
+	}
+	else {
+		switch (piece->type) {
+		case PieceType::King:
+			return 7;
+		case PieceType::Queen:
+			return 8;
+		case PieceType::Bishop:
+			return 9;
+		case PieceType::Knight:
+			return 10;
+		case PieceType::Tower:
+			return 11;
+		case PieceType::Pawn:
+			return 12;
+		}
+	}
+	
+}

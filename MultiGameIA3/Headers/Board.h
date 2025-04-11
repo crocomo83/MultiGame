@@ -2,6 +2,7 @@
 
 #include <queue>
 #include <map>
+#include <unordered_map>
 #include <vector>
 #include <stack>
 
@@ -64,23 +65,28 @@ class Board {
 		std::vector<Move>		getMoves(int x, int y, bool checkConsidered);
 		std::vector<Move>		getAllMoves(int idPlayer, bool checkConsidered);
 		bool					isAnyMovePossible(int idPlayer);
-		float					eval(int player, float weightPieces, float weightMoves, float weightRandom);
+
+		float					getEvaluation();
 
 		std::string				getMoveSymbol(Move move);
 		void					printMove(Move move);
+
+		uint64_t				hashBoard() const;
 
 	private :
 		void					init();
 		void					initSprites();
 		void					initFont();
 		void					initHighlights();
+		void					initializeZobristTable();
 		void					initDebug();
 
 		void					resetHighlights() const;
 		bool					testMove(Move &move);
+
+		float					eval();
 		float					evalPieces() const;
 		float					evalMoves();
-		float					evalCenter();
 
 		void					undo(Move &move);
 		void					undo(Move &move, Move &previousMove);
@@ -124,4 +130,7 @@ class Board {
 		sf::Sprite						greenSprite;
 
 		std::map<std::string, sf::Text> debugTexts;
+
+		std::unordered_map<uint64_t, float> zobristCache;
+		uint64_t zobristTable[64][12];
 };

@@ -5,11 +5,16 @@
 #include <iostream>
 #include <filesystem>
 #include <direct.h>
+#include <random>
 
 const float startX = 8;
 const float startY = 7;
 const float offsetX = 60.5;
 const float offsetY = 60;
+
+const float weightPieces = 1;
+const float weightMoves = 0.2f;
+const float weightRandom = 0;
 
 Board::Board()
 	: validMoves()
@@ -30,6 +35,7 @@ Board::Board()
 	initSprites();
 	initFont();
 	initHighlights();
+	initializeZobristTable();
 	initDebug();
 }
 
@@ -138,6 +144,17 @@ void Board::resetHighlights() const{
 		for (int y = 0; y < 8; y++) {
 			Highlight* highlightInstance = highlights[x][y];
 			highlightInstance->activated = false;
+		}
+	}
+}
+
+void Board::initializeZobristTable() {
+	std::mt19937_64 rng(42);
+	std::uniform_int_distribution<uint64_t> dist;
+
+	for (int piece = 0; piece < 12; ++piece) {
+		for (int square = 0; square < 64; ++square) {
+			zobristTable[piece][square] = dist(rng);
 		}
 	}
 }
@@ -683,18 +700,19 @@ bool Board::isEquality() {
 	return false;
 }
 
-float Board::eval(int player, float weightPieces, float weightMoves, float weightRandom) {
-	if (isCheckMate()) {
-		if (player == 0) {
-			return -1000;
-		}
-		else {
-			return 1000;
-		}	
+float Board::getEvaluation() {
+	uint64_t hash = hashBoard();
+	auto it = zobristCache.find(hash);
+	if (it != zobristCache.end()) {
+		return it->second;
 	}
-	if (isEquality()) {
-		return 0;
-	}
+
+	float value = eval();
+	zobristCache[hash] = value;
+	return value;
+}
+
+float Board::eval() {
 	float score = 0;
 	score += weightPieces * evalPieces();
 	score += weightMoves * evalMoves();
@@ -741,14 +759,8 @@ float Board::evalPieces() const{
 float Board::evalMoves() {
 	std::vector<Move> moves0 = getAllMoves(0, false);
 	std::vector<Move> moves1 = getAllMoves(1, false);
-	int size0 = moves0.size();
-	int size1 = moves1.size();
 	int diff = moves1.size() - moves0.size();
 	return (float)diff;
-}
-
-float Board::evalCenter() {
-	return 0;
 }
 
 Piece* Board::getPiece(sf::Vector2i pos) const {
@@ -1079,4 +1091,19 @@ std::string Board::getMoveSymbol(Move move) {
 
 void Board::printMove(Move move) {
 	std::cout << getMoveSymbol(move) << std::endl;
+}
+
+uint64_t Board::hashBoard() const {
+	uint64_t hash = 0;
+	for (int x = 0; x < 8; x++) {
+		for (int y = 0; y < 8; y++) {
+			Piece* piece = getPiece(x, y);
+			if (piece) {
+				int squareIndex = y * 8 + x;
+				int pieceType = getType(piece);
+				hash ^= zobristTable[pieceType][squareIndex];
+			}
+		}
+	}
+	return hash;
 }

@@ -68,3 +68,4 @@ struct Move {
 bool equalMoves(Move move1, Move move2);
 std::string getSymbolPosition(sf::Vector2i pos);
 std::string getId(Piece* piece);
+int getType(Piece* piece);
