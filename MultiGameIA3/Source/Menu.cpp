@@ -90,7 +90,7 @@ void Menu::loop_events() {
 
         if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
             if (pos == 1) {
-                Game game(Player::PlayerType::Human, Player::PlayerType::MinMax);
+                Game game(Player::PlayerType::Human, Player::PlayerType::AlphaBeta);
                 game.run();
             }
             else if (pos == 2) {

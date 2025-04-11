@@ -81,7 +81,9 @@ class Board {
 		void					initializeZobristTable();
 		void					initDebug();
 
+		void					setSpritePosition(sf::Sprite& sprite, sf::Vector2i pos);
 		void					resetHighlights() const;
+
 		bool					testMove(Move &move);
 
 		float					eval();
@@ -121,6 +123,7 @@ class Board {
 		sf::Texture						piecesTexture;
 		sf::Texture						highlightBlue;
 		sf::Texture						highlightGreen;
+		sf::Texture						highlightRed;
 
 		sf::Font*						font;
 
@@ -128,6 +131,7 @@ class Board {
 		sf::Sprite						pieceSprites[2][6];
 		sf::Sprite						blueSprite;
 		sf::Sprite						greenSprite;
+		sf::Sprite						redSprite;
 
 		std::map<std::string, sf::Text> debugTexts;
 

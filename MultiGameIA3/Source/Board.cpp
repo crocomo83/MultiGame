@@ -10,7 +10,7 @@
 const float startX = 8;
 const float startY = 7;
 const float offsetX = 60.5;
-const float offsetY = 60;
+const float offsetY = 60.75;
 
 const float weightPieces = 1;
 const float weightMoves = 0.2f;
@@ -126,6 +126,10 @@ void Board::initHighlights() {
 
 	if (highlightGreen.loadFromFile("Media/green.png")) {
 		greenSprite = sf::Sprite(highlightGreen, sf::IntRect(0, 0, 60, 60));
+	}
+
+	if (highlightRed.loadFromFile("Media/red.png")) {
+		redSprite = sf::Sprite(highlightRed, sf::IntRect(0, 0, 60, 60));
 	}
 
 	for (int x = 0; x < 8; x++) {
@@ -519,11 +523,19 @@ void Board::draw(sf::RenderWindow& target) {
 		target.draw(greenSprite);
 	}
 
+	if (history.size() > 0) {
+		Move& lastMove = history[history.size() - 1];
+		setSpritePosition(redSprite, lastMove.begin);
+		target.draw(redSprite);
+		setSpritePosition(redSprite, lastMove.end);
+		target.draw(redSprite);
+	}
+
 	for (int idPlayer = 0; idPlayer < 2; idPlayer++) {
 		for (int i = 0; i < 16; i++) {
 			Piece* piece = pieces[idPlayer][i];
 			if (piece->pos != selectedPawn && !piece->taken) {
-				pieceSprites[idPlayer][piece->type].setPosition(startX + (float)piece->pos.x * offsetX, startY + (float)(7 - piece->pos.y) * offsetY);
+				setSpritePosition(pieceSprites[idPlayer][piece->type], piece->pos);
 				target.draw(pieceSprites[idPlayer][piece->type]);
 			}
 		}
@@ -545,6 +557,10 @@ void Board::draw(sf::RenderWindow& target) {
 	for (it = debugTexts.begin(); it != debugTexts.end(); ++it) {
 		target.draw(it->second);
 	}
+}
+
+void Board::setSpritePosition(sf::Sprite& sprite, sf::Vector2i pos) {
+	sprite.setPosition(startX + (float)pos.x * offsetX, startY + (float)(7 - pos.y) * offsetY);
 }
 
 bool Board::isThreatenedBy(sf::Vector2i pos, int idPlayer) const{
