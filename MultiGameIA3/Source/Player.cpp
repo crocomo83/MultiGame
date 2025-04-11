@@ -25,6 +25,7 @@ float Player::playRandom(Board* board, int idPlayer) {
 
 std::pair<int, float> Player::playMinMaxSimple(Board* board, int level, int idPlayer) {
 	nbTest++;
+
 	Board::State state = board->getGameState();
 	switch (state) {
 	case Board::State::CheckMateWhite:
@@ -48,13 +49,11 @@ std::pair<int, float> Player::playMinMaxSimple(Board* board, int level, int idPl
 		return { -1, 0 };
 	}
 
-	Move& firstMove = moves[0];
-	int numBest = 0;
-	float best;
+	int numBest = -1;
+	float best = (idPlayer == 0 ? 1000 : -1000);
 
 	if (idPlayer == 0) {
-		best = playMinMaxSimple(board, level - 1, 1).second;
-		for (int i = 1; i < n; i++) {
+		for (int i = 0; i < n; i++) {
 			Move& move = moves[i];
 			board->play(move, false);
 
@@ -69,8 +68,7 @@ std::pair<int, float> Player::playMinMaxSimple(Board* board, int level, int idPl
 		}
 	}
 	else {
-		best = playMinMaxSimple(board, level - 1, 0).second;
-		for (int i = 1; i < n; i++) {
+		for (int i = 0; i < n; i++) {
 			Move& move = moves[i];
 			board->play(move, false);
 
@@ -233,7 +231,7 @@ Move Player::play(Board* board, PlayerType type, int idPlayer) {
 	}
 	else if (type == PlayerType::AlphaBeta) {
 		std::cout << "Play : " << "AlphaBeta" << std::endl;
-		index = playAlphaBeta(board, 3, idPlayer, true, -1000000, 10000000);
+		index = playAlphaBeta(board, 4, idPlayer, true, -1000000, 10000000);
 	}
 	else if (type == PlayerType::Random) {
 		std::cout << "Play : " << "Random" << std::endl;
