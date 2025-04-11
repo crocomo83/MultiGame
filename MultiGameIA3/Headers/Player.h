@@ -12,6 +12,7 @@ class Player {
 			Human,
 			Random,
 			MinMax,
+			MinMaxDebug,
 			AlphaBeta
 		};
 

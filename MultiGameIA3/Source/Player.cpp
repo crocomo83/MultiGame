@@ -219,29 +219,28 @@ float Player::playAlphaBeta(Board* board, int level, int idPlayer, bool root, Mo
 Move Player::play(Board* board, PlayerType type, int idPlayer) {
 	Move move = Move();
 	int index;
-
-	auto start = std::chrono::high_resolution_clock::now();
-	/*
-	Node::Mode mode = (idPlayer == 0 ? Node::Mode::Min : Node::Mode::Max);
-	Node* root = pool.createNode(0.0f, mode);*/
-
 	nbTest = 0;
 
-	switch (type) {
-		case MinMax :
-			std::cout << "Play : " << "MinMax" << std::endl;
-			//playMinMax(board, 3, idPlayer, root);
-			//index = root->getBestChild();
-			index = playMinMaxSimple(board, 4, idPlayer).first;
-			break;
-		case AlphaBeta :
-			std::cout << "Play : " << "AlphaBeta" << std::endl;
-			index = playAlphaBeta(board, 3, idPlayer, true, move, -1000000, 10000000);
-			break;
-		case Random:
-			std::cout << "Play : " << "Random" << std::endl;
-			index = playRandom(board, idPlayer);
-			break;
+	auto start = std::chrono::high_resolution_clock::now();
+
+	if (type == PlayerType::MinMax) {
+		std::cout << "Play : " << "MinMax" << std::endl;
+		index = playMinMaxSimple(board, 4, idPlayer).first;
+	}
+	else if (type == PlayerType::MinMaxDebug) {
+		std::cout << "Play : " << "MinMaxDebug" << std::endl;
+		Node::Mode mode = (idPlayer == 0 ? Node::Mode::Min : Node::Mode::Max);
+		Node* root = pool.createNode(0.0f, mode);
+		playMinMax(board, 3, idPlayer, root);
+		index = root->getBestChild();
+	}
+	else if (type == PlayerType::AlphaBeta) {
+		std::cout << "Play : " << "AlphaBeta" << std::endl;
+		index = playAlphaBeta(board, 3, idPlayer, true, move, -1000000, 10000000);
+	}
+	else if (type == PlayerType::Random) {
+		std::cout << "Play : " << "Random" << std::endl;
+		index = playRandom(board, idPlayer);
 	}
 	auto end = std::chrono::high_resolution_clock::now();
 

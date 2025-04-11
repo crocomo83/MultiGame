@@ -1,5 +1,8 @@
 *.dll
 *.ttf
 *.user
+*.obj
 .vs
 Debug/*
+x64/*
+MultiGameIA3/x64/Release/*
