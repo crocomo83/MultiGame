@@ -19,48 +19,10 @@ C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Board.cpp(670,
 C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Board.cpp(744,12): warning C4267: 'initialisation' : conversion de 'size_t' en 'int', perte possible de données
 C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Board.cpp(745,12): warning C4267: 'initialisation' : conversion de 'size_t' en 'int', perte possible de données
 C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Board.cpp(746,11): warning C4267: 'initialisation' : conversion de 'size_t' en 'int', perte possible de données
-  Game.cpp
-C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Game.cpp(66,54): warning C4244: 'argument' : conversion de 'int' en 'T', perte possible de données
-C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Game.cpp(66,54): warning C4244:         with
-C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Game.cpp(66,54): warning C4244:         [
-C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Game.cpp(66,54): warning C4244:             T=float
-C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Game.cpp(66,54): warning C4244:         ]
-C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Game.cpp(66,42): warning C4244: 'argument' : conversion de 'int' en 'T', perte possible de données
-C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Game.cpp(66,42): warning C4244:         with
-C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Game.cpp(66,42): warning C4244:         [
-C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Game.cpp(66,42): warning C4244:             T=float
-C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Game.cpp(66,42): warning C4244:         ]
-C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Game.cpp(116,11): warning C4267: 'initialisation' : conversion de 'size_t' en 'int', perte possible de données
-  main.cpp
-  Menu.cpp
-  Node.cpp
-  NodePool.cpp
-  Piece.cpp
-  Player.cpp
-C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Player.cpp(23,9): warning C4244: 'return' : conversion de 'int' en 'float', perte possible de données
-C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Player.cpp(29,47): warning C4305: 'argument' : troncation de 'double' à 'float'
-C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Player.cpp(45,8): warning C4267: 'initialisation' : conversion de 'size_t' en 'int', perte possible de données
-C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Player.cpp(95,44): warning C4305: 'argument' : troncation de 'double' à 'float'
-C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Player.cpp(114,8): warning C4267: 'initialisation' : conversion de 'size_t' en 'int', perte possible de données
-C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Player.cpp(138,42): warning C4305: 'argument' : troncation de 'double' à 'float'
-C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Player.cpp(153,8): warning C4267: 'initialisation' : conversion de 'size_t' en 'int', perte possible de données
-C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Player.cpp(212,10): warning C4244: 'return' : conversion de 'int' en 'float', perte possible de données
-C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Player.cpp(239,25): warning C4244: '=' : conversion de 'float' en 'int', perte possible de données
-C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Player.cpp(243,22): warning C4244: '=' : conversion de 'float' en 'int', perte possible de données
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.40.33807\include\utility(247,54): warning C4244: 'initialisation' : conversion de '_Ty' en '_Ty2', perte possible de données
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.40.33807\include\utility(247,54): warning C4244:         with
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.40.33807\include\utility(247,54): warning C4244:         [
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.40.33807\include\utility(247,54): warning C4244:             _Ty=int
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.40.33807\include\utility(247,54): warning C4244:         ]
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.40.33807\include\utility(247,54): warning C4244:         and
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.40.33807\include\utility(247,54): warning C4244:         [
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.40.33807\include\utility(247,54): warning C4244:             _Ty2=float
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.40.33807\include\utility(247,54): warning C4244:         ]
-  Utility.cpp
   Génération de code en cours
-  Previous IPDB not found, fall back to full compilation.
-C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Utility.cpp(32): warning C4172: retourne l'adresse d'une variable locale ou : possibilities temporaire
 C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Board.cpp(649): warning C4715: 'Board::getGameState' : les chemins de contrôle ne retournent pas tous une valeur
-  All 1063 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  82 of 1063 functions ( 7.7%) were compiled, the rest were copied from previous compilation.
+    24 functions were new in current compilation
+    54 functions had inline decision re-evaluated but remain unchanged
   Fin de la génération du code
   MultiGameIA3.vcxproj -> C:\Users\thoma\Documents\Projets\MultiGameIA3\x64\Release\MultiGameIA3.exe

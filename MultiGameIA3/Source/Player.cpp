@@ -232,7 +232,7 @@ Move Player::play(Board* board, PlayerType type, int idPlayer) {
 			std::cout << "Play : " << "MinMax" << std::endl;
 			//playMinMax(board, 3, idPlayer, root);
 			//index = root->getBestChild();
-			index = playMinMaxSimple(board, 3, idPlayer).first;
+			index = playMinMaxSimple(board, 4, idPlayer).first;
 			break;
 		case AlphaBeta :
 			std::cout << "Play : " << "AlphaBeta" << std::endl;
