@@ -43,7 +43,7 @@ Game::Game(Player::PlayerType whitePlayer, Player::PlayerType blackPlayer)
 	Player::init();
 
 	window = new sf::RenderWindow();
-	window->create(sf::VideoMode(500, 500), "Chess master", sf::Style::Titlebar | sf::Style::Close);
+	window->create(sf::VideoMode(540, 540), "Chess master", sf::Style::Titlebar | sf::Style::Close);
 	window->setPosition(sf::Vector2i(0, 0));
 
 	board = new Board();
@@ -249,7 +249,7 @@ void Game::swapPlayer() {
 }
 
 void Game::render() {
-	window->clear();
+	window->clear(sf::Color::White);
 	board->draw(*window);
 	for (int i = 0; i < moveTexts.size(); i++) {
 		for (int j = 0; j < moveTexts[i].size(); j++) {

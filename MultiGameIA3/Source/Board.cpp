@@ -7,10 +7,10 @@
 #include <direct.h>
 #include <random>
 
-const float startX = 8;
-const float startY = 7;
-const float offsetX = 60.5;
-const float offsetY = 60.75;
+const float startX = 30;
+const float startY = 30;
+const float offsetX = 60;
+const float offsetY = 60;
 
 const float weightPieces = 1;
 const float weightMoves = 0.2f;
@@ -22,7 +22,6 @@ Board::Board()
 	, history()
 	, historyBoard()
 {
-
 	selectedPawn = sf::Vector2i(-1, -1);
 	mousePos = sf::Vector2f(-1, -1);
 
@@ -32,8 +31,9 @@ Board::Board()
 	historyBoard.reserve(1000);
 
 	init();
-	initSprites();
 	initFont();
+	initText();
+	initSprites();
 	initHighlights();
 	initializeZobristTable();
 	initDebug();
@@ -80,15 +80,34 @@ void Board::init() {
 	historyBoard.push_back(generateBoardId());
 }
 
-void Board::initSprites() {
+void Board::initText() {
+	sf::Vector2f startTextNum(7, 40);
+	for (int i = 1; i < 9; i++) {
+		sf::Text text;
+		text.setFont(*font);
+		text.setString(std::to_string(i));
+		text.setCharacterSize(25);
+		text.setFillColor(sf::Color::Black);
+		text.setPosition(sf::Vector2f(startTextNum) + sf::Vector2f(0, (8 - i)*offsetY));
 
-	if (boardTexture.loadFromFile("Media/board.jpg"))
-	{
-		boardSprite = sf::Sprite(boardTexture);
+		textsSquare.push_back(text);
 	}
-	else {
-		std::cerr << "Error loading board texture" << std::endl;
+
+	sf::Vector2f startTextAlph(52, 508);
+	std::string bottomText = "abcdefgh";
+	for (int i = 0; i < 8; i++) {
+		sf::Text text;
+		text.setFont(*font);
+		text.setString(bottomText[i]);
+		text.setCharacterSize(25);
+		text.setFillColor(sf::Color::Black);
+		text.setPosition(sf::Vector2f(startTextAlph) + sf::Vector2f(i * offsetX, 0));
+
+		textsSquare.push_back(text);
 	}
+}
+
+void Board::initSprites() {
 
 	if (piecesTexture.loadFromFile("Media/Pieces_small_size.png"))
 	{
@@ -109,45 +128,57 @@ void Board::initSprites() {
 	else {
 		std::cerr << "Error loading pieces" << std::endl;
 	}
+
+	squareBoard.setSize(sf::Vector2f(8 * offsetX, 8 * offsetY));
+	squareBoard.setPosition(startX, startY);
+	squareBoard.setFillColor(sf::Color::Transparent);
+	squareBoard.setOutlineColor(sf::Color::Black);
+	squareBoard.setOutlineThickness(3);
 }
 
 void Board::initFont() {
 	font = new sf::Font();
 	if (!font->loadFromFile("arial.ttf"))
 	{
-		// erreur...
+		std::cout << "error while loading font" << std::endl;
 	}
 }
 
 void Board::initHighlights() {
-	if (highlightBlue.loadFromFile("Media/blue.png")) {
-		blueSprite = sf::Sprite(highlightBlue, sf::IntRect(0, 0, 60, 60));
-	}
+	std::map<Color, std::string> pathColor;
+	pathColor[Color::Blue] = "Media/blue.png";
+	pathColor[Color::Green] = "Media/green.png";
+	pathColor[Color::Red] = "Media/red.png";
+	pathColor[Color::White] = "Media/white.png";
+	pathColor[Color::Black] = "Media/black.png";
 
-	if (highlightGreen.loadFromFile("Media/green.png")) {
-		greenSprite = sf::Sprite(highlightGreen, sf::IntRect(0, 0, 60, 60));
-	}
-
-	if (highlightRed.loadFromFile("Media/red.png")) {
-		redSprite = sf::Sprite(highlightRed, sf::IntRect(0, 0, 60, 60));
+	for (auto itr = pathColor.begin(); itr != pathColor.end(); ++itr) {
+		Color color = itr->first;
+		std::string path = itr->second;
+		highlights[color] = new sf::Texture();
+		if (highlights[color]->loadFromFile(path)) {
+			colorSprites[color] = new sf::Sprite(*(highlights[color]), sf::IntRect(0, 0, offsetX, offsetY));
+		}
 	}
 
 	for (int x = 0; x < 8; x++) {
 		for (int y = 0; y < 8; y++) {
-			Highlight* highlightInstance = new Highlight();
-			highlightInstance->activated = false;
-			highlightInstance->sprite = blueSprite;
-			highlightInstance->sprite.setPosition(startX + (float)x * offsetX, startY + (float)((7 - y) * offsetY));
-			highlights[x][y] = highlightInstance;
+			if ((x + y) % 2 == 0) {
+				baseColorSquare[x][y] = Color::White;
+				colorSquare[x][y] = Color::White;
+			}
+			else {
+				baseColorSquare[x][y] = Color::Black;
+				colorSquare[x][y] = Color::Black;
+			}
 		}
 	}
 }
 
-void Board::resetHighlights() const{
+void Board::resetHighlights() {
 	for (int x = 0; x < 8; x++) {
 		for (int y = 0; y < 8; y++) {
-			Highlight* highlightInstance = highlights[x][y];
-			highlightInstance->activated = false;
+			colorSquare[x][y] = baseColorSquare[x][y];
 		}
 	}
 }
@@ -211,13 +242,14 @@ Piece* Board::select(int x, int y, int player) {
 
 		selectedPawn.x = numX;
 		selectedPawn.y = numY;
-
-		std::vector<Move> moves = getMoves(numX, numY, true);
+		/*
+		std::vector<Move> moves = getMoves(selectedPawn.x, selectedPawn.y, true);
 		
 		for (int i = 0; i < moves.size(); i++) {
 			Move move = moves[i];
-			highlights[move.end.x][move.end.y]->activated = true;
+			colorSquare[move.end.x][move.end.y] = Color::Blue;
 		}
+		*/
 
 		Piece* test = getPiece(selectedPawn.x, selectedPawn.y);
 
@@ -480,24 +512,30 @@ void Board::unMovePiece(Move &move) {
 }
 
 void Board::update(int x, int y, int idPlayer) {
+	resetHighlights();
 	mousePos = sf::Vector2f(x, y);
 	if (selectedPawn.x != -1) {
+		// blue highlight
+		std::vector<Move> moves = getMoves(selectedPawn.x, selectedPawn.y, true);
+		for (int i = 0; i < moves.size(); i++) {
+			Move move = moves[i];
+			colorSquare[move.end.x][move.end.y] = Color::Blue;
+		}
+		
+		// green highlight
 		int numX = (int)((float)(x - startX) / offsetX);
 		int numY = 7 - (int)((float)(y - startY) / offsetY);
-
 		Move move = Move(getPiece(selectedPawn), selectedPawn, sf::Vector2i(numX, numY));
-
 		if (isValidMove(move)) {
-			int realX = startX + (float)numX * offsetX;
-			int realY = startY + (float)(7 - numY) * offsetY;
-			greenSprite.setPosition(realX, realY);
-		}
-		else {
-			greenSprite.setPosition(-1, -1);
+			colorSquare[numX][numY] = Color::Green;
 		}
 	}
-	else {
-		greenSprite.setPosition(-1, -1);
+
+	// red highlight
+	if (history.size() > 0) {
+		Move& lastMove = history[history.size() - 1];
+		colorSquare[lastMove.begin.x][lastMove.begin.y] = Color::Red;
+		colorSquare[lastMove.end.x][lastMove.end.y] = Color::Red;
 	}
 }
 
@@ -505,31 +543,25 @@ void Board::updateDebug() {
 	debugTexts["repetitiveMoves"].setString("repetitiveMoves : " + std::to_string(repetitiveMoves.top()));
 }
 
-void Board::draw(sf::RenderWindow& target) {
-	target.draw(boardSprite);
-
-	const sf::Texture* boardTexture = boardSprite.getTexture();
-
+void Board::drawBoard(sf::RenderWindow& target) {
 	for (int x = 0; x < 8; x++) {
 		for (int y = 0; y < 8; y++) {
-			Highlight* highlightInstance = highlights[x][y];
-			if (highlightInstance->activated) {
-				target.draw(highlightInstance->sprite);
-			}
+			Color color = colorSquare[x][y];
+			sf::Sprite* sprite = colorSprites[color];
+			setSpritePosition(*sprite, sf::Vector2i(x, y));
+			target.draw(*sprite);
 		}
 	}
 
-	if (greenSprite.getPosition().x >= 0) {
-		target.draw(greenSprite);
-	}
+	target.draw(squareBoard);
 
-	if (history.size() > 0) {
-		Move& lastMove = history[history.size() - 1];
-		setSpritePosition(redSprite, lastMove.begin);
-		target.draw(redSprite);
-		setSpritePosition(redSprite, lastMove.end);
-		target.draw(redSprite);
+	for (auto& text : textsSquare) {
+		target.draw(text);
 	}
+}
+
+void Board::draw(sf::RenderWindow& target) {
+	drawBoard(target);
 
 	for (int idPlayer = 0; idPlayer < 2; idPlayer++) {
 		for (int i = 0; i < 16; i++) {

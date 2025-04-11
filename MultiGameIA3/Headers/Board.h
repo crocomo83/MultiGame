@@ -14,6 +14,7 @@
 #include <SFML\Graphics\RenderWindow.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/Graphics/Font.hpp>
+#include <SFML/Graphics/RectangleShape.hpp>
 
 class Board {
 
@@ -25,10 +26,12 @@ class Board {
 			Equality
 		};
 
-	public :
-		struct Highlight {
-			bool activated;
-			sf::Sprite sprite;
+		enum Color {
+			Blue,
+			Green,
+			Red,
+			White,
+			Black
 		};
 
 	public : 
@@ -75,14 +78,16 @@ class Board {
 
 	private :
 		void					init();
+		void					initText();
 		void					initSprites();
 		void					initFont();
 		void					initHighlights();
 		void					initializeZobristTable();
 		void					initDebug();
 
+		void					drawBoard(sf::RenderWindow& target);
 		void					setSpritePosition(sf::Sprite& sprite, sf::Vector2i pos);
-		void					resetHighlights() const;
+		void					resetHighlights();
 
 		bool					testMove(Move &move);
 
@@ -112,27 +117,28 @@ class Board {
 
 		std::stack<short>				repetitiveMoves;
 
-		Highlight*						highlights[8][8];
+		Color							colorSquare[8][8];
+		Color							baseColorSquare[8][8];
+
 		Piece*							pieces[2][16];
 		Piece*							piecesOnBoard[8][8];
 		std::vector<Move>				history;
 		std::vector<std::string>		historyBoard;
 		std::vector<Move>				validMoves;
 
+		sf::RectangleShape				squareBoard;
 		sf::Texture						boardTexture;
 		sf::Texture						piecesTexture;
-		sf::Texture						highlightBlue;
-		sf::Texture						highlightGreen;
-		sf::Texture						highlightRed;
+
+		std::map<Color, sf::Texture*>	highlights;
+		std::map<Color, sf::Sprite*>	colorSprites;
 
 		sf::Font*						font;
 
 		sf::Sprite						boardSprite;
 		sf::Sprite						pieceSprites[2][6];
-		sf::Sprite						blueSprite;
-		sf::Sprite						greenSprite;
-		sf::Sprite						redSprite;
 
+		std::vector<sf::Text>			textsSquare;
 		std::map<std::string, sf::Text> debugTexts;
 
 		std::unordered_map<uint64_t, float> zobristCache;
