@@ -2,6 +2,7 @@
 *.ttf
 *.user
 *.obj
+*.tlog
 .vs
 Debug/*
 x64/*
