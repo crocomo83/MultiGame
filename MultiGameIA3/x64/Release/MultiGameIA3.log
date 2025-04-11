@@ -1,14 +1,66 @@
 ﻿  Board.cpp
-C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Headers\Piece.h(3,10): error C1083: Impossible d'ouvrir le fichier include : 'SFML\Graphics\Sprite.hpp' : No such file or directory
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.40.33807\include\filesystem(12): warning STL4038: The contents of <filesystem> are available only with C++17 or later.
+C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Board.cpp(347,8): warning C4267: 'initialisation' : conversion de 'size_t' en 'int', perte possible de données
+C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Board.cpp(462,29): warning C4244: 'argument' : conversion de 'int' en 'T', perte possible de données
+C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Board.cpp(462,29): warning C4244:         with
+C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Board.cpp(462,29): warning C4244:         [
+C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Board.cpp(462,29): warning C4244:             T=float
+C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Board.cpp(462,29): warning C4244:         ]
+C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Board.cpp(462,26): warning C4244: 'argument' : conversion de 'int' en 'T', perte possible de données
+C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Board.cpp(462,26): warning C4244:         with
+C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Board.cpp(462,26): warning C4244:         [
+C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Board.cpp(462,26): warning C4244:             T=float
+C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Board.cpp(462,26): warning C4244:         ]
+C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Board.cpp(470,14): warning C4244: 'initialisation' : conversion de 'float' en 'int', perte possible de données
+C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Board.cpp(471,14): warning C4244: 'initialisation' : conversion de 'float' en 'int', perte possible de données
+C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Board.cpp(472,35): warning C4244: 'argument' : conversion de 'int' en 'float', perte possible de données
+C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Board.cpp(472,28): warning C4244: 'argument' : conversion de 'int' en 'float', perte possible de données
+C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Board.cpp(670,23): warning C4244: 'initialisation' : conversion de '__int64' en 'int', perte possible de données
+C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Board.cpp(744,12): warning C4267: 'initialisation' : conversion de 'size_t' en 'int', perte possible de données
+C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Board.cpp(745,12): warning C4267: 'initialisation' : conversion de 'size_t' en 'int', perte possible de données
+C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Board.cpp(746,11): warning C4267: 'initialisation' : conversion de 'size_t' en 'int', perte possible de données
   Game.cpp
-C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Headers\Piece.h(3,10): error C1083: Impossible d'ouvrir le fichier include : 'SFML\Graphics\Sprite.hpp' : No such file or directory
+C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Game.cpp(66,54): warning C4244: 'argument' : conversion de 'int' en 'T', perte possible de données
+C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Game.cpp(66,54): warning C4244:         with
+C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Game.cpp(66,54): warning C4244:         [
+C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Game.cpp(66,54): warning C4244:             T=float
+C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Game.cpp(66,54): warning C4244:         ]
+C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Game.cpp(66,42): warning C4244: 'argument' : conversion de 'int' en 'T', perte possible de données
+C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Game.cpp(66,42): warning C4244:         with
+C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Game.cpp(66,42): warning C4244:         [
+C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Game.cpp(66,42): warning C4244:             T=float
+C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Game.cpp(66,42): warning C4244:         ]
+C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Game.cpp(116,11): warning C4267: 'initialisation' : conversion de 'size_t' en 'int', perte possible de données
   main.cpp
-C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\main.cpp(1,10): error C1083: Impossible d'ouvrir le fichier include : 'SFML/Graphics.hpp' : No such file or directory
   Menu.cpp
-C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Headers\Menu.h(3,10): error C1083: Impossible d'ouvrir le fichier include : 'SFML/Graphics.hpp' : No such file or directory
+  Node.cpp
+  NodePool.cpp
   Piece.cpp
-C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Headers\Piece.h(3,10): error C1083: Impossible d'ouvrir le fichier include : 'SFML\Graphics\Sprite.hpp' : No such file or directory
   Player.cpp
-C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Headers\Piece.h(3,10): error C1083: Impossible d'ouvrir le fichier include : 'SFML\Graphics\Sprite.hpp' : No such file or directory
+C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Player.cpp(23,9): warning C4244: 'return' : conversion de 'int' en 'float', perte possible de données
+C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Player.cpp(29,47): warning C4305: 'argument' : troncation de 'double' à 'float'
+C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Player.cpp(45,8): warning C4267: 'initialisation' : conversion de 'size_t' en 'int', perte possible de données
+C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Player.cpp(95,44): warning C4305: 'argument' : troncation de 'double' à 'float'
+C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Player.cpp(114,8): warning C4267: 'initialisation' : conversion de 'size_t' en 'int', perte possible de données
+C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Player.cpp(138,42): warning C4305: 'argument' : troncation de 'double' à 'float'
+C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Player.cpp(153,8): warning C4267: 'initialisation' : conversion de 'size_t' en 'int', perte possible de données
+C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Player.cpp(212,10): warning C4244: 'return' : conversion de 'int' en 'float', perte possible de données
+C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Player.cpp(239,25): warning C4244: '=' : conversion de 'float' en 'int', perte possible de données
+C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Player.cpp(243,22): warning C4244: '=' : conversion de 'float' en 'int', perte possible de données
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.40.33807\include\utility(247,54): warning C4244: 'initialisation' : conversion de '_Ty' en '_Ty2', perte possible de données
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.40.33807\include\utility(247,54): warning C4244:         with
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.40.33807\include\utility(247,54): warning C4244:         [
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.40.33807\include\utility(247,54): warning C4244:             _Ty=int
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.40.33807\include\utility(247,54): warning C4244:         ]
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.40.33807\include\utility(247,54): warning C4244:         and
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.40.33807\include\utility(247,54): warning C4244:         [
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.40.33807\include\utility(247,54): warning C4244:             _Ty2=float
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.40.33807\include\utility(247,54): warning C4244:         ]
   Utility.cpp
-C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Headers\Utility.h(4,10): error C1083: Impossible d'ouvrir le fichier include : 'SFML/System/Vector2.hpp' : No such file or directory
+  Génération de code en cours
+  Previous IPDB not found, fall back to full compilation.
+C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Utility.cpp(32): warning C4172: retourne l'adresse d'une variable locale ou : possibilities temporaire
+C:\Users\thoma\Documents\Projets\MultiGameIA3\MultiGameIA3\Source\Board.cpp(649): warning C4715: 'Board::getGameState' : les chemins de contrôle ne retournent pas tous une valeur
+  All 1063 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Fin de la génération du code
+  MultiGameIA3.vcxproj -> C:\Users\thoma\Documents\Projets\MultiGameIA3\x64\Release\MultiGameIA3.exe
