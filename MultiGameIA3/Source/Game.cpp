@@ -18,7 +18,7 @@ Game::Game()
 	Player::init();
 
 	window = new sf::RenderWindow();
-	window->create(sf::VideoMode(800, 700), "Chess master", sf::Style::Titlebar | sf::Style::Close);
+	window->create(sf::VideoMode(800, 700), "Game window", sf::Style::Titlebar | sf::Style::Close);
 	window->setPosition(sf::Vector2i(0, 0));
 
 	board = new Board();
@@ -43,7 +43,7 @@ Game::Game(Player::PlayerType whitePlayer, Player::PlayerType blackPlayer)
 	Player::init();
 
 	window = new sf::RenderWindow();
-	window->create(sf::VideoMode(540, 540), "Chess master", sf::Style::Titlebar | sf::Style::Close);
+	window->create(sf::VideoMode(540, 540), "Game window", sf::Style::Titlebar | sf::Style::Close);
 	window->setPosition(sf::Vector2i(0, 0));
 
 	board = new Board();
