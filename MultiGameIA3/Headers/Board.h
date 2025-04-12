@@ -51,11 +51,13 @@ class Board {
 		bool					isEquality();
 		State					getGameState();
 		
-		void					movePiece(Move &move);
 		void					computeValidMoves(int idPlayer);
 		void					printValidMoves();
+		bool					play(int index);
 		bool					play(Move &move, bool checkValidity);
 		bool					undo();
+
+		void					movePiece(Move& move);
 		void					unMovePiece(Move &move);
 
 		Piece*					getPiece(int x, int y) const;
@@ -67,11 +69,14 @@ class Board {
 		void					getMoves(int x, int y, std::vector<Move> &moves, bool checkConsidered);
 		std::vector<Move>		getMoves(int x, int y, bool checkConsidered);
 		std::vector<Move>		getAllMoves(int idPlayer, bool checkConsidered);
+		int						getNumberMoves();
 		bool					isAnyMovePossible(int idPlayer);
 
+		std::pair<bool, float>	getEvaluationEndGame();
 		float					getEvaluation();
 
 		std::string				getMoveSymbol(Move move);
+		std::string				getMoveSymbol(int index);
 		void					printMove(Move move);
 
 		uint64_t				hashBoard() const;
@@ -124,7 +129,7 @@ class Board {
 		Piece*							piecesOnBoard[8][8];
 		std::vector<Move>				history;
 		std::vector<std::string>		historyBoard;
-		std::vector<Move>				validMoves;
+		std::stack< std::vector<Move>>  historyMoves;
 
 		sf::RectangleShape				squareBoard;
 		sf::Texture						boardTexture;

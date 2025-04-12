@@ -10,7 +10,6 @@ class Player {
 	public:
 		enum PlayerType {
 			Human,
-			Random,
 			MinMax,
 			MinMaxDebug,
 			AlphaBeta
@@ -29,7 +28,7 @@ class Player {
 	public :
 											Player() = delete;
 		static void							init();
-		static Move							play(Board* board, PlayerType type, int idPlayer);
+		static int							play(Board* board, PlayerType type, int idPlayer);
 		static float						playRandom(Board* board, int idPlayer);
 		static std::pair<int, float>		playMinMaxSimple(Board* board, int level, int idPlayer);
 		static void							playMinMax(Board* board, int level, int idPlayer, Node* parent);

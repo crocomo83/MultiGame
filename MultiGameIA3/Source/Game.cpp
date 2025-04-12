@@ -203,14 +203,15 @@ void Game::handleEvent() {
 }
 
 void Game::computePlay() {
-	Move move = Player::play(board, players[currentPlayer].type, players[currentPlayer].id);
-	if (board->play(move, true)) {
-		std::cout << (currentPlayer == 0 ? "white" : "black") << " play " << board->getMoveSymbol(move) << std::endl;
+	int indexDecision = Player::play(board, players[currentPlayer].type, players[currentPlayer].id);
+	std::string moveSymbol = board->getMoveSymbol(indexDecision); // impératif de faire cela avant le play
+	if (board->play(indexDecision)) {
+		std::cout << (currentPlayer == 0 ? "white" : "black") << " play " << moveSymbol << std::endl;
 		std::cout << std::endl;
 		swapPlayer();
 	}
 	else {
-		std::cerr << "can't play : " << board->getMoveSymbol(move) << std::endl;
+		std::cerr << "can't play : " << moveSymbol << std::endl;
 		board->printValidMoves();
 	}
 }

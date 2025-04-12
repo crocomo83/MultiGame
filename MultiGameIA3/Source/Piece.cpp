@@ -9,7 +9,7 @@ bool equalMoves(Move move1, Move move2) {
 }
 
 std::string getSymbolPosition(sf::Vector2i pos) {
-	std::string posY = std::to_string(8 - pos.y);
+	std::string posY = std::to_string(pos.y + 1);
 	switch (pos.x) {
 	case 0:
 		return "a" + posY;

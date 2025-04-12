@@ -17,18 +17,15 @@ const float weightMoves = 0.2f;
 const float weightRandom = 0;
 
 Board::Board()
-	: validMoves()
-	, repetitiveMoves()
+	: repetitiveMoves()
 	, history()
 	, historyBoard()
+	, historyMoves()
 {
 	selectedPawn = sf::Vector2i(-1, -1);
 	mousePos = sf::Vector2f(-1, -1);
 
 	repetitiveMoves.push(0);
-
-	history.reserve(1000);
-	historyBoard.reserve(1000);
 
 	init();
 	initFont();
@@ -37,6 +34,10 @@ Board::Board()
 	initHighlights();
 	initializeZobristTable();
 	initDebug();
+
+	history.reserve(1000);
+	historyBoard.reserve(1000);
+	computeValidMoves(0);
 }
 
 void Board::init() {
@@ -206,6 +207,7 @@ void Board::initDebug(){
 }
 
 bool Board::isValidMove(Move move) {
+	std::vector<Move> validMoves = historyMoves.top();
 	for (int i = 0; i < validMoves.size(); i++) {
 		if (equalMoves(move, validMoves[i])) {
 			return true;
@@ -291,6 +293,11 @@ std::vector<Move> Board::getAllMoves(int idPlayer, bool checkConsidered) {
 	return moves;
 }
 
+int Board::getNumberMoves() {
+	std::vector<Move> validMoves = historyMoves.top();
+	return validMoves.size();
+}
+
 bool Board::isAnyMovePossible(int idPlayer) {
 	for (int i = 0; i < 16; i++) {
 		Piece* piece = pieces[idPlayer][i];
@@ -305,21 +312,20 @@ bool Board::isAnyMovePossible(int idPlayer) {
 }
 
 void Board::computeValidMoves(int idPlayer) {
-	validMoves.clear();
-	for (int idPlayer = 0; idPlayer < 2; idPlayer++) {
-		for (int i = 0; i < 16; i++) {
-			Piece* piece = pieces[idPlayer][i];
-			if (piece->player == idPlayer) {
-				getMoves(piece->pos.x, piece->pos.y, validMoves, true);
-			}
-			
+	std::vector<Move> validMoves;
+	for (int i = 0; i < 16; i++) {
+		Piece* piece = pieces[idPlayer][i];
+		if (!piece->taken) {
+			getMoves(piece->pos.x, piece->pos.y, validMoves, true);
 		}
 	}
+	historyMoves.push(validMoves);
 }
 
 void Board::printValidMoves() {
 	std::cout << "Valid Moves : ";
 	std::vector<Move>::iterator it;
+	std::vector<Move> validMoves = historyMoves.top();
 	for (it = validMoves.begin(); it != validMoves.end(); ++it) {
 		std::cout << getMoveSymbol(*it) << " / ";
 	}
@@ -392,8 +398,14 @@ bool Board::play(Move &move, bool checkValidity) {
 
 	history.push_back(move);
 	historyBoard.push_back(generateBoardId());
+	computeValidMoves(otherPlayer(move.player));
 
 	return true;
+}
+
+bool Board::play(int index) {
+	std::vector<Move> validMoves = historyMoves.top();
+	return play(validMoves[index], false);
 }
 
 bool Board::undo() {
@@ -414,6 +426,7 @@ bool Board::undo() {
 
 	history.pop_back();
 	historyBoard.pop_back();
+	historyMoves.pop();
 
 	return true;
 }
@@ -674,15 +687,8 @@ bool Board::isThreatenedBy(sf::Vector2i pos, int idPlayer) const{
 }
 
 bool Board::isCheck(int idPlayer) {
-	std::vector<Move> moves = getAllMoves(idPlayer, false);
-	for (int i = 0; i < moves.size(); i++) {
-		Move move = moves[i];
-		Piece* target = getPiece(move.end);
-		if (target != nullptr && target->type == King && target->player != idPlayer) {
-			return true;
-		}
-	}
-	return false;
+	Piece* king = pieces[otherPlayer(idPlayer)][12];
+	return isThreatenedBy(king->pos, idPlayer);
 }
 
 Board::State Board::getGameState() {
@@ -711,6 +717,21 @@ Board::State Board::getGameState() {
 	}
 	else if (isEquality()) {
 		return Board::State::Equality;
+	}
+	return Board::State::Normal;
+}
+
+std::pair<bool, float> Board::getEvaluationEndGame() {
+	State state = getGameState();
+	switch (state) {
+	case(Normal):
+		return { false, -1 };
+	case(CheckMateWhite):
+		return { true, -1000 };
+	case(CheckMateBlack):
+		return { true, 1000 };
+	case(Equality):
+		return { true, 0 };
 	}
 }
 
@@ -861,9 +882,11 @@ void Board::getMoves(int x, int y, std::vector<Move> &moves, bool checkConsidere
 }
 
 bool Board::testMove(Move &move) {
-	play(move, false);
-	bool check = isCheck(otherPlayer(move.player));
-	undo();
+	movePiece(move);
+	int idPlayer = move.player;
+	Piece* king = pieces[idPlayer][12];
+	bool check = isThreatenedBy(king->pos, otherPlayer(idPlayer));
+	unMovePiece(move);
 	return !check;
 }
 
@@ -1136,6 +1159,11 @@ std::string Board::getMoveSymbol(Move move) {
 	}
 
 	return symbol;
+}
+
+std::string Board::getMoveSymbol(int index) {
+	std::vector<Move> validMoves = historyMoves.top();
+	return getMoveSymbol(validMoves[index]);
 }
 
 void Board::printMove(Move move) {
