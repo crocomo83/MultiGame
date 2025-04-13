@@ -12,6 +12,7 @@ public:
 
 	void setMainMenu();
 	void setChessMenu();
+	void setPower4Menu();
 	void run();
 
 private:

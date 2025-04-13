@@ -1,162 +1,65 @@
 #include "../Headers/Game.h"
-#include "../Headers/Board.h"
+#include "../Headers/ChessBoard.h"
+#include "../Headers/Power4Board.h"
 #include "../Headers/Utility.h"
 
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <iomanip>
 
-Game::Game()
+Game::Game(GameType gameType, Player::PlayerType player1, Player::PlayerType player2)
 : xMouse(-1)
 , yMouse(-1)
 , currentPlayer(0)
 , hasSwap(true)
-, debug(true)
 , selectedPiece(nullptr)
 , currentMoveOnMouse(-1)
+, gameOver(false)
 {
 	Player::init();
 
 	window = new sf::RenderWindow();
-	window->create(sf::VideoMode(800, 700), "Game window", sf::Style::Titlebar | sf::Style::Close);
-	window->setPosition(sf::Vector2i(0, 0));
 
-	board = new Board();
-	players[0].type = Player::PlayerType::Human;
-	players[0].id = 0;
-	players[1].type = Player::PlayerType::Human;
-	players[1].id = 1;
+	if (gameType == GameType::Chess) {
+		window->create(sf::VideoMode(540, 540), "Game window", sf::Style::Titlebar | sf::Style::Close);
+		window->setPosition(sf::Vector2i(0, 0));
 
-	initFont();
-	initDebug();
-}
-
-Game::Game(Player::PlayerType whitePlayer, Player::PlayerType blackPlayer)
-: xMouse(-1)
-, yMouse(-1)
-, currentPlayer(0)
-, hasSwap(true)
-, debug(false)
-, selectedPiece(nullptr)
-, currentMoveOnMouse(-1)
-{
-	Player::init();
-
-	window = new sf::RenderWindow();
-	window->create(sf::VideoMode(540, 540), "Game window", sf::Style::Titlebar | sf::Style::Close);
-	window->setPosition(sf::Vector2i(0, 0));
-
-	board = new Board();
-	players[0].type = whitePlayer;
-	players[0].id = 0;
-	players[1].type = blackPlayer;
-	players[1].id = 1;
-}
-
-void Game::initDebug() {
-	moveTexts.clear();
-	for (int i = 0; i < selectedMove.size() + 1; i++) {
-		std::vector <sf::Text> layerText;
-		for (int j = 0; j < 100; j++) {
-			sf::Text moveText;
-			moveText.setFont(*font);
-			moveText.setString("");
-			moveText.setCharacterSize(14);
-			moveText.setOutlineColor(sf::Color::White);
-			moveText.setPosition(sf::Vector2f(510 + i * 80, j * 15));
-			if (i != selectedMove.size() && j == selectedMove[i]) {
-				moveText.setOutlineThickness(1);
-			}
-
-			layerText.push_back(moveText);
-		}
-		moveTexts.push_back(layerText);
+		board = new ChessBoard();
 	}
-}
+	else if (gameType == GameType::Power4) {
+		window->create(sf::VideoMode(700, 700), "Game window", sf::Style::Titlebar | sf::Style::Close);
+		window->setPosition(sf::Vector2i(0, 0));
 
-void Game::initFont() {
-	font = new sf::Font();
-	if (!font->loadFromFile("arial.ttf"))
-	{
-		// erreur...
+		board = new Power4Board();
 	}
+	
+	players[0].type = player1;
+	players[0].id = 0;
+	players[1].type = player2;
+	players[1].id = 1;
 }
 
 void Game::run() {
-	board->update(xMouse, yMouse, currentPlayer);
-	render();
 	while (window->isOpen())
 	{
-		if (hasSwap) {
-			hasSwap = false;
-			checkGameOver();
-			board->computeValidMoves(currentPlayer);
-			if (debug) {
-				selectedMove.clear();
-				initDebug();
-				computeDebug();
-				updateDebug();
-			}
-		}
-		handleEvent();
 		board->update(xMouse, yMouse, currentPlayer);
 		render();
-	}
-}
 
-void Game::computeDebug() {
-	Node::Mode mode = (currentPlayer == 0 ? Node::Mode::Min : Node::Mode::Max);
-	lastIAPlay = Player::pool.createNode(0.0f, mode);
-	Player::playMinMax(board, 3, currentPlayer, lastIAPlay);
-
-	lastIAPlay->sortChildren();
-}
-
-void Game::updateDebug() {
-	int size = selectedMove.size();
-	for (int i = -1; i < size; i++) {
-		Node* toDisplay = lastIAPlay;
-		for (int j = 0; j < i + 1; j++) {
-			toDisplay = toDisplay->children[selectedMove[j]];
+		if (!gameOver && hasSwap) {
+			hasSwap = false;
+			std::string msgGameOver;
+			gameOver = board->isGameOver(msgGameOver);
+			if (gameOver) {
+				std::cout << msgGameOver << std::endl;
+			}
 		}
-		
-		std::vector<Node*>::iterator it;
-		int index = 0;
-		for (it = toDisplay->children.begin(); it != toDisplay->children.end(); ++it) {
-			Node* node = *it;
-			moveTexts[i+1][index].setString(node->moveSymbol + " : " + floatToStringWithDecimal(node->value, 1));
-			index++;
-		}
-		for (int j = index; j < 100; j++) {
-			moveTexts[i+1][j].setString("");
-		}
-	}
-}
 
-void Game::checkGameOver() {
-	Board::State state = board->getGameState();
-	switch (state) {
-		case Board::State::CheckMateWhite :
-			std::cout << "Check Mate, White win!" << std::endl;
-			break;
-		case Board::State::CheckMateBlack:
-			std::cout << "Check Mate, Black win!" << std::endl;
-			break;
-		case Board::State::Equality:
-			std::cout << "Equality" << std::endl;
-			break;
-		default:
-			return;
-	}
-
-	std::cout << "Game over" << std::endl;
-	while (true) {
-
+		handleEvent();
 	}
 }
 
 void Game::handleEvent() {
-	int player = currentPlayer;
+	int player = board->getCurrentPlayer();
 	sf::Event event;
 	while (window->pollEvent(event))
 	{
@@ -164,41 +67,18 @@ void Game::handleEvent() {
 			window->close();
 		}
 
-		if (debug) {
-			sf::Vector2i pos_mouse = sf::Mouse::getPosition(*window);
-			sf::Vector2f mouse_coord = window->mapPixelToCoords(pos_mouse);
-
-			std::vector<sf::Text> lastMoves = moveTexts[moveTexts.size() - 1];
-			currentMoveOnMouse = -1;
-			for (int i = 0; i < lastMoves.size(); i++) {
-				std::string str = lastMoves[i].getString();
-				if (lastMoves[i].getGlobalBounds().contains(mouse_coord)) {
-					moveTexts[moveTexts.size() - 1][i].setOutlineThickness(1);
-					currentMoveOnMouse = i;
-				}
-				else {
-					moveTexts[moveTexts.size() - 1][i].setOutlineThickness(0);
-				}
-				
-			}
-
-			if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-				if (currentMoveOnMouse != -1) {
-					selectedMove.push_back(currentMoveOnMouse);
-					currentMoveOnMouse = -1;
-					initDebug();
-					updateDebug();
-				}
-			}
-		}
-
-		if (Player::isHuman(players[player].type)) {
+		if (!gameOver && Player::isHuman(players[currentPlayer].type)) {
 			handleActionEvent(event);
 		}
 	}
 
-	if(!Player::isHuman(players[player].type)){
+	if(!gameOver && !Player::isHuman(players[currentPlayer].type)){
 		computePlay();
+	}
+
+	currentPlayer = board->getCurrentPlayer();
+	if (currentPlayer != player) {
+		hasSwap = true;
 	}
 }
 
@@ -217,31 +97,11 @@ void Game::computePlay() {
 }
 
 void Game::handleActionEvent(sf::Event &event) {
-	switch (event.type) {
-		case sf::Event::MouseMoved:
-			xMouse = event.mouseMove.x;
-			yMouse = event.mouseMove.y;
-			break;
-		case sf::Event::MouseButtonPressed:
-			if (event.mouseButton.button == sf::Mouse::Left) {
-				selectedPiece = board->select(xMouse, yMouse, currentPlayer);
-			}
-			break;
-		case sf::Event::MouseButtonReleased:
-			if (event.mouseButton.button == sf::Mouse::Left) {
-				if (board->unselect(xMouse, yMouse, selectedPiece)) {
-					swapPlayer();
-				}
-			}
-			break;
-		case sf::Event::KeyPressed :
-			if (debug && event.key.code == sf::Keyboard::U) {
-				if (board->undo()) {
-					swapPlayer();
-				}
-			}
-			break;
+	if (event.type == sf::Event::MouseMoved) {
+		xMouse = event.mouseMove.x;
+		yMouse = event.mouseMove.y;
 	}
+	board->handleEvent(sf::Vector2i(xMouse, yMouse), event);
 }
 
 void Game::swapPlayer() {
@@ -252,10 +112,5 @@ void Game::swapPlayer() {
 void Game::render() {
 	window->clear(sf::Color::White);
 	board->draw(*window);
-	for (int i = 0; i < moveTexts.size(); i++) {
-		for (int j = 0; j < moveTexts[i].size(); j++) {
-			window->draw(moveTexts[i][j]);
-		}
-	}
 	window->display();
 }

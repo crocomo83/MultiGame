@@ -138,7 +138,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="MultiGameIA3\Source\Board.cpp" />
+    <ClCompile Include="MultiGameIA3\Source\ChessBoard.cpp" />
     <ClCompile Include="MultiGameIA3\Source\Game.cpp" />
     <ClCompile Include="MultiGameIA3\Source\main.cpp" />
     <ClCompile Include="MultiGameIA3\Source\Menu.cpp" />
@@ -147,15 +147,18 @@
     <ClCompile Include="MultiGameIA3\Source\NodePool.cpp" />
     <ClCompile Include="MultiGameIA3\Source\Piece.cpp" />
     <ClCompile Include="MultiGameIA3\Source\Player.cpp" />
+    <ClCompile Include="MultiGameIA3\Source\Power4Board.cpp" />
     <ClCompile Include="MultiGameIA3\Source\Utility.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="MultiGameIA3\Headers\Board.h" />
+    <ClInclude Include="MultiGameIA3\Headers\ChessBoard.h" />
     <ClInclude Include="MultiGameIA3\Headers\Game.h" />
+    <ClInclude Include="MultiGameIA3\Headers\IBoard.h" />
     <ClInclude Include="MultiGameIA3\Headers\Menu.h" />
     <ClInclude Include="MultiGameIA3\Headers\MenuManager.h" />
     <ClInclude Include="MultiGameIA3\Headers\Node.h" />
     <ClInclude Include="MultiGameIA3\Headers\NodePool.h" />
+    <ClInclude Include="MultiGameIA3\Headers\Power4Board.h" />
     <ClInclude Include="MultiGameIA3\Headers\Utility.h" />
     <ClInclude Include="MultiGameIA3\Headers\Piece.h" />
     <ClInclude Include="MultiGameIA3\Headers\Player.h" />

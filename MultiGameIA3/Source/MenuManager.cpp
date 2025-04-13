@@ -19,7 +19,7 @@ void MenuManager::setMainMenu() {
 		});
 
 	menu->addOption("Puissance 4", [&]() {
-		std::cout << "TODO" << std::endl;
+		setPower4Menu();
 		});
 
 	menu->addOption("Quit", [&]() {
@@ -32,18 +32,33 @@ void MenuManager::setMainMenu() {
 void MenuManager::setChessMenu() {
 	menu->clearOptions();
 
-	menu->addOption("Player vs Computer", [&]() {
-		Game game(Player::PlayerType::Human, Player::PlayerType::MinMax);
+	menu->addOption("Player vs Computer", [&]() { 
+		Game game(Game::GameType::Chess, Player::PlayerType::Human, Player::PlayerType::MinMax);
 		game.run();
 		});
 
 	menu->addOption("Player vs Player", [&]() {
-		Game game(Player::PlayerType::Human, Player::PlayerType::Human);
+		Game game(Game::GameType::Chess, Player::PlayerType::Human, Player::PlayerType::Human);
 		game.run();
 		});
 
-	menu->addOption("Debug", [&]() {
-		Game game;
+	menu->addOption("Menu Principal", [&]() {
+		setMainMenu();
+		});
+
+	menu->prepareMenu();
+}
+
+void MenuManager::setPower4Menu() {
+	menu->clearOptions();
+
+	menu->addOption("Player vs Computer", [&]() {
+		Game game(Game::GameType::Power4, Player::PlayerType::Human, Player::PlayerType::MinMax);
+		game.run();
+		});
+
+	menu->addOption("Player vs Player", [&]() {
+		Game game(Game::GameType::Power4, Player::PlayerType::Human, Player::PlayerType::Human);
 		game.run();
 		});
 

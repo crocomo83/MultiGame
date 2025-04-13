@@ -1,45 +1,38 @@
 #pragma once
 
 #include "Player.h"
-#include "Board.h"
-#include "Node.h"
+#include "ChessBoard.h"
 
 class Game {
+	public:
+		enum GameType {
+			Chess,
+			Power4
+		};
 
 	public :
-							Game();
-							Game(Player::PlayerType whitePlayer, Player::PlayerType blackPlayer);
+							Game(GameType gameType, Player::PlayerType player1, Player::PlayerType player2);
 		void				run();
 
 	private :
-		void				initDebug();
-		void				initFont();
-
 		void				swapPlayer();
 		void				render();
 		void				handleEvent();
 		void				handleActionEvent(sf::Event &event);
 		void				computePlay();
-		void				checkGameOver();
-		void				computeDebug();
-		void				updateDebug();
 
 	private :
-		bool					debug;
+		bool					gameOver;
 		bool					hasSwap;
 		int						xMouse;
 		int						yMouse;
 		int						currentPlayer;
 
 		sf::RenderWindow*		window;
-		Board*					board;
+		IBoard*					board;
 		Player::Data			players[2];
 		Piece*					selectedPiece;
 
-		Node*					lastIAPlay;
-
-		sf::Font*							font;
-		std::vector<std::vector<sf::Text>>	moveTexts;
 		int									currentMoveOnMouse;
 		std::vector<int>					selectedMove;
 };

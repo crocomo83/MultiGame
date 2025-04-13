@@ -8,6 +8,7 @@
 
 #include "Piece.h"
 #include "Utility.h"
+#include "IBoard.h"
 
 #include <SFML\Graphics\Sprite.hpp>
 #include <SFML\Graphics\Texture.hpp>
@@ -16,7 +17,7 @@
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 
-class Board {
+class ChessBoard : public IBoard {
 
 	public : 
 		enum State {
@@ -35,15 +36,17 @@ class Board {
 		};
 
 	public : 
-								Board();
+								ChessBoard();
 
-		Piece*					select(int x, int y, int player);
-		bool					unselect(int x, int y, Piece* piece);
+		void					select(sf::Vector2i mousePos);
+		bool					unselect(sf::Vector2i mousePos);
+
+		bool					isGameOver(std::string& messageGameOver);
+		void					handleEvent(sf::Vector2i mousePos, sf::Event& event);
 
 		// Interface
 		void					draw(sf::RenderWindow& target);
 		void					update(int x, int y, int idPlayer);
-		void					updateDebug();
 
 		// Test de situations
 		bool					isCheck(int idPlayer);
@@ -88,7 +91,6 @@ class Board {
 		void					initFont();
 		void					initHighlights();
 		void					initializeZobristTable();
-		void					initDebug();
 
 		void					drawBoard(sf::RenderWindow& target);
 		void					setSpritePosition(sf::Sprite& sprite, sf::Vector2i pos);
@@ -118,7 +120,6 @@ class Board {
 		
 	private :
 		sf::Vector2i					selectedPawn;
-		sf::Vector2f					mousePos;
 
 		std::stack<short>				repetitiveMoves;
 
@@ -127,6 +128,7 @@ class Board {
 
 		Piece*							pieces[2][16];
 		Piece*							piecesOnBoard[8][8];
+
 		std::vector<Move>				history;
 		std::vector<std::string>		historyBoard;
 		std::stack< std::vector<Move>>  historyMoves;
@@ -144,8 +146,6 @@ class Board {
 		sf::Sprite						pieceSprites[2][6];
 
 		std::vector<sf::Text>			textsSquare;
-		std::map<std::string, sf::Text> debugTexts;
 
-		std::unordered_map<uint64_t, float> zobristCache;
-		uint64_t zobristTable[64][12];
+		uint64_t						zobristTable[64][12];
 };

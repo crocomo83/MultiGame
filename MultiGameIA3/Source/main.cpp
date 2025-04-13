@@ -1,5 +1,5 @@
 #include "../Headers/MenuManager.h"
-#include "../Headers/Game.h"
+#include "../Headers/ChessGame.h"
 
 int main()
 {
