@@ -190,9 +190,9 @@ void ChessBoard::initializeZobristTable() {
 	std::mt19937_64 rng(42);
 	std::uniform_int_distribution<uint64_t> dist;
 
-	for (int piece = 0; piece < 12; ++piece) {
-		for (int square = 0; square < 64; ++square) {
-			zobristTable[piece][square] = dist(rng);
+	for (int square = 0; square < 64; ++square) {
+		for (int piece = 0; piece < 12; ++piece) {
+			zobristTable[square][piece] = dist(rng);
 		}
 	}
 }
@@ -731,7 +731,7 @@ ChessBoard::State ChessBoard::getGameState() {
 	return ChessBoard::State::Normal;
 }
 
-std::pair<bool, float> ChessBoard::getEvaluationEndGame() {
+std::pair<bool, float> ChessBoard::getEvaluationEndGame(int level) {
 	State state = getGameState();
 	switch (state) {
 	case(Normal):
@@ -1188,7 +1188,7 @@ uint64_t ChessBoard::hashBoard() const {
 			if (piece) {
 				int squareIndex = y * 8 + x;
 				int pieceType = getType(piece);
-				hash ^= zobristTable[pieceType][squareIndex];
+				hash ^= zobristTable[squareIndex][pieceType];
 			}
 		}
 	}

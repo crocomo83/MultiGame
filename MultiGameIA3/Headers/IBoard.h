@@ -22,7 +22,7 @@ public:
 
 	virtual int						getNumberMoves() = 0;
 
-	virtual std::pair<bool, float>	getEvaluationEndGame() = 0;
+	virtual std::pair<bool, float>	getEvaluationEndGame(int level) = 0;
 	virtual float					getEvaluation() = 0;
 
 	virtual std::string				getMoveSymbol(int index) = 0;

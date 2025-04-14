@@ -11,7 +11,6 @@ class Player {
 		enum PlayerType {
 			Human,
 			MinMax,
-			MinMaxDebug,
 			AlphaBeta
 		};
 
@@ -27,10 +26,8 @@ class Player {
 
 	public :
 											Player() = delete;
-		static void							init();
 		static int							play(IBoard* board, PlayerType type, int idPlayer);
 		static std::pair<int, float>		playMinMaxSimple(IBoard* board, int level, int idPlayer);
-		static void							playMinMax(IBoard* board, int level, int idPlayer, Node* parent);
 		static float						playAlphaBeta(IBoard* board, int level, int idPlayer, bool root, float alpha, float beta);
 
 		static bool							isHuman(PlayerType type);

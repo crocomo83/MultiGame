@@ -75,7 +75,7 @@ class ChessBoard : public IBoard {
 		int						getNumberMoves();
 		bool					isAnyMovePossible(int idPlayer);
 
-		std::pair<bool, float>	getEvaluationEndGame();
+		std::pair<bool, float>	getEvaluationEndGame(int level);
 		float					getEvaluation();
 
 		std::string				getMoveSymbol(Move move);

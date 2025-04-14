@@ -29,36 +29,44 @@ public:
 	};
 
 public:
-	Power4Board();
+									Power4Board();
 
-	void					initBoard();
+	void							initBoard();
+	void							initializeZobristTable();
 
 	// Interface
-	void					draw(sf::RenderWindow& target);
-	void					update(int posX, int posY, int idPlayer);
+	void							draw(sf::RenderWindow& target);
+	void							update(int posX, int posY, int idPlayer);
 
-	bool					isGameOver(std::string& messageGameOver);
-	void					handleEvent(sf::Vector2i mousePos, sf::Event& event);
-	void					selectColumn(int mousePosX);
+	bool							isGameOver(std::string& messageGameOver);
+	void							handleEvent(sf::Vector2i mousePos, sf::Event& event);
+	void							selectColumn(int mousePosX);
 
 	// Test de situations
-	bool					play(int index);
-	bool					undo();
+	bool							isColumnFull(int column) const;
+	bool							playInColum(int index);
+	bool							play(int index);
+	bool							undo();
 
-	void					computeValidMoves(int idPlayer);
-	void					printValidMoves();
+	void							computeValidMoves(int idPlayer);
+	void							printValidMoves();
 
-	int						getNumberMoves();
+	std::vector<int>				getAllMoves() const;
+	int								getNumberMoves();
 
-	Power4Board::State		getGameState();
+	std::vector<std::vector<int>>	getAlignments() const;
+	std::vector<std::vector<int>>	getAlignmentsLastMove();
+	std::pair<int, int>				getSimpleCount(std::vector<std::vector<int>> allLines) const;
+	std::pair<int, int>				getLinesCount(std::vector<std::vector<int>> allLines, int count) const;
+	Power4Board::State				getGameState();
 
-	std::pair<bool, float>	getEvaluationEndGame();
-	float					getEvaluation();
-	float					eval();
+	std::pair<bool, float>			getEvaluationEndGame(int level);
+	float							getEvaluation();
+	float							eval() const;
 
-	std::string				getMoveSymbol(int index);
+	std::string						getMoveSymbol(int index);
 
-	uint64_t				hashBoard() const;
+	uint64_t						hashBoard() const;
 
 private:
 	sf::RectangleShape rectangle;
@@ -69,5 +77,5 @@ private:
 	std::vector<int> history;
 
 	std::unordered_map<uint64_t, float> zobristCache;
-	uint64_t zobristTable[64][12];
+	uint64_t zobristTable[42][3];
 };

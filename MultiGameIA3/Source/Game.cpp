@@ -16,8 +16,6 @@ Game::Game(GameType gameType, Player::PlayerType player1, Player::PlayerType pla
 , currentMoveOnMouse(-1)
 , gameOver(false)
 {
-	Player::init();
-
 	window = new sf::RenderWindow();
 
 	if (gameType == GameType::Chess) {
@@ -92,6 +90,7 @@ void Game::computePlay() {
 	}
 	else {
 		std::cerr << "can't play : " << moveSymbol << std::endl;
+		while (true);
 		board->printValidMoves();
 	}
 }
