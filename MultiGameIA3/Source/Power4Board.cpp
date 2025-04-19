@@ -393,10 +393,10 @@ std::pair<int, int> Power4Board::getLinesCount(std::vector<std::vector<int>> all
 
 	for (int i = 0; i < allLines.size(); i++) {
 		std::vector<int> line = allLines[i];
-		for (int j = 0; j < line.size() - count; j++) {
+		for (int j = 0; j < line.size() - 4; j++) {
 			int count0 = 0;
 			int count1 = 0;
-			for (int k = j; k < j + count + 1; k++) {
+			for (int k = j; k < j + 4 + 1; k++) {
 				int value = line[k];
 				if (value == 0) {
 					count0++;
@@ -405,10 +405,10 @@ std::pair<int, int> Power4Board::getLinesCount(std::vector<std::vector<int>> all
 					count1++;
 				}
 			}
-			if (count0 == 3 && count1 == 0) {
+			if (count0 == count && count1 == 0) {
 				countPawnPlayer.first++;
 			}
-			else if (count1 == 3 && count0 == 0) {
+			else if (count1 == count && count0 == 0) {
 				countPawnPlayer.second++;
 			}
 		}
