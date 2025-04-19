@@ -7,7 +7,7 @@
 #include <iostream>
 #include <iomanip>
 
-Game::Game(GameType gameType, Player::PlayerType player1, Player::PlayerType player2)
+Game::Game(GameType gameType, Player::PlayerType player1, Player::PlayerType player2, int level)
 : xMouse(-1)
 , yMouse(-1)
 , currentPlayer(0)
@@ -15,6 +15,7 @@ Game::Game(GameType gameType, Player::PlayerType player1, Player::PlayerType pla
 , selectedPiece(nullptr)
 , currentMoveOnMouse(-1)
 , gameOver(false)
+, levelIA(level)
 {
 	window = new sf::RenderWindow();
 
@@ -81,9 +82,12 @@ void Game::handleEvent() {
 }
 
 void Game::computePlay() {
-	int indexDecision = Player::play(board, players[currentPlayer].type, players[currentPlayer].id);
+	int indexDecision = Player::play(board, players[currentPlayer].type, players[currentPlayer].id, levelIA);
 	std::string moveSymbol = board->getMoveSymbol(indexDecision); // impératif de faire cela avant le play
-	if (board->play(indexDecision)) {
+	if (indexDecision == -1) {
+		std::cerr << "IA not initialised : can't play" << std::endl;
+	}
+	else if (board->play(indexDecision)) {
 		std::cout << (currentPlayer == 0 ? "white" : "black") << " play " << moveSymbol << std::endl;
 		std::cout << std::endl;
 		swapPlayer();

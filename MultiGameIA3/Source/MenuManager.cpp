@@ -33,7 +33,7 @@ void MenuManager::setChessMenu() {
 	menu->clearOptions();
 
 	menu->addOption("Player vs Computer", [&]() { 
-		Game game(Game::GameType::Chess, Player::PlayerType::Human, Player::PlayerType::MinMax);
+		Game game(Game::GameType::Chess, Player::PlayerType::Human, Player::PlayerType::MinMax, 4);
 		game.run();
 		});
 
@@ -53,7 +53,7 @@ void MenuManager::setPower4Menu() {
 	menu->clearOptions();
 
 	menu->addOption("Player vs Computer", [&]() {
-		Game game(Game::GameType::Power4, Player::PlayerType::Human, Player::PlayerType::MinMax);
+		Game game(Game::GameType::Power4, Player::PlayerType::Human, Player::PlayerType::MinMax, 5);
 		game.run();
 		});
 

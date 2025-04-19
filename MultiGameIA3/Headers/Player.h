@@ -26,7 +26,7 @@ class Player {
 
 	public :
 											Player() = delete;
-		static int							play(IBoard* board, PlayerType type, int idPlayer);
+		static int							play(IBoard* board, PlayerType type, int idPlayer, int level);
 		static std::pair<int, float>		playMinMaxSimple(IBoard* board, int level, int idPlayer);
 		static float						playAlphaBeta(IBoard* board, int level, int idPlayer, bool root, float alpha, float beta);
 

@@ -140,7 +140,11 @@ float Player::playAlphaBeta(IBoard* board, int level, int idPlayer, bool root, f
 	}
 }
 
-int Player::play(IBoard* board, PlayerType type, int idPlayer) {
+int Player::play(IBoard* board, PlayerType type, int idPlayer, int level) {
+	if (level == -1) {
+		return -1;
+	}
+
 	int index = -1;
 	nbTest = 0;
 
@@ -150,11 +154,11 @@ int Player::play(IBoard* board, PlayerType type, int idPlayer) {
 
 	if (type == PlayerType::MinMax) {
 		std::cout << "Play : " << "MinMax" << std::endl;
-		index = playMinMaxSimple(board, 5, idPlayer).first;
+		index = playMinMaxSimple(board, level, idPlayer).first;
 	}
 	else if (type == PlayerType::AlphaBeta) {
 		std::cout << "Play : " << "AlphaBeta" << std::endl;
-		index = playAlphaBeta(board, 4, idPlayer, true, -1000000, 10000000);
+		index = playAlphaBeta(board, level, idPlayer, true, -1000000, 10000000);
 	}
 	auto end = std::chrono::high_resolution_clock::now();
 

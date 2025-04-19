@@ -11,7 +11,7 @@ class Game {
 		};
 
 	public :
-							Game(GameType gameType, Player::PlayerType player1, Player::PlayerType player2);
+							Game(GameType gameType, Player::PlayerType player1, Player::PlayerType player2, int level = -1);
 		void				run();
 
 	private :
@@ -28,6 +28,7 @@ class Game {
 		int						yMouse;
 		int						currentPlayer;
 
+		int						levelIA;
 		sf::RenderWindow*		window;
 		IBoard*					board;
 		Player::Data			players[2];
