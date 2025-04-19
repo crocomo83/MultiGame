@@ -199,7 +199,7 @@ void Power4Board::draw(sf::RenderWindow& target) {
 	}
 }
 
-std::vector<std::vector<int>> Power4Board::getAlignmentsLastMove() {
+std::vector<std::vector<int>> Power4Board::getAlignmentsLastMove() const{
 	int lastColumnPlayed = history[history.size() - 1];
 	int lastRowPlayed = -1;
 
@@ -286,7 +286,18 @@ std::vector<std::vector<int>> Power4Board::getAlignments() const {
 	return allLines;
 }
 
-Power4Board::State Power4Board::getGameState() {
+bool Power4Board::isEquality() const{
+	bool isEquality = true;
+	for (int x = 0; x < 7; x++) {
+		if (!isColumnFull(x)) {
+			isEquality = false;
+			break;
+		}
+	}
+	return isEquality;
+}
+
+Power4Board::State Power4Board::getGameState() const {
 	if (history.size() == 0) {
 		return Power4Board::State::Normal;
 	}
@@ -317,7 +328,13 @@ Power4Board::State Power4Board::getGameState() {
 			}
 		}
 	}
-	return Power4Board::State::Normal;
+
+	if (isEquality()) {
+		return Power4Board::State::Equality;
+	}
+	else {
+		return Power4Board::State::Normal;
+	}
 }
 
 void Power4Board::computeValidMoves(int idPlayer) {

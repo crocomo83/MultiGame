@@ -55,10 +55,11 @@ public:
 	int								getNumberMoves();
 
 	std::vector<std::vector<int>>	getAlignments() const;
-	std::vector<std::vector<int>>	getAlignmentsLastMove();
+	std::vector<std::vector<int>>	getAlignmentsLastMove() const;
 	std::pair<int, int>				getSimpleCount(std::vector<std::vector<int>> allLines) const;
 	std::pair<int, int>				getLinesCount(std::vector<std::vector<int>> allLines, int count) const;
-	Power4Board::State				getGameState();
+	Power4Board::State				getGameState() const;
+	bool							isEquality() const;
 
 	std::pair<bool, float>			getEvaluationEndGame(int level);
 	float							getEvaluation();
