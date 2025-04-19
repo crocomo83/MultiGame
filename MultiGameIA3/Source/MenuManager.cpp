@@ -19,11 +19,11 @@ MenuManager::~MenuManager() {
 void MenuManager::setMainMenu() {
 	menu->clearOptions();
 
-	menu->addOption("Echecs", [&]() {
+	menu->addOption("Chess", [&]() {
 		setChessMenu();
 		});
 
-	menu->addOption("Puissance 4", [&]() {
+	menu->addOption("Power 4", [&]() {
 		setPower4Menu();
 		});
 
@@ -46,7 +46,7 @@ void MenuManager::setChessMenu() {
 		game.run();
 		});
 
-	menu->addOption("Menu Principal", [&]() {
+	menu->addOption("Main Menu", [&]() {
 		setMainMenu();
 		});
 
@@ -78,7 +78,7 @@ void MenuManager::setChessMenuVSComputer() {
 		}
 		});
 
-	menu->addOption("Menu Principal", [&]() {
+	menu->addOption("Main Menu", [&]() {
 		setMainMenu();
 		});
 
@@ -97,7 +97,7 @@ void MenuManager::setPower4Menu() {
 		game.run();
 		});
 
-	menu->addOption("Menu Principal", [&]() {
+	menu->addOption("Main Menu", [&]() {
 		setMainMenu();
 		});
 
@@ -129,7 +129,7 @@ void MenuManager::setPower4MenuVSComputer() {
 		}
 		});
 
-	menu->addOption("Menu Principal", [&]() {
+	menu->addOption("Main Menu", [&]() {
 		setMainMenu();
 		});
 
