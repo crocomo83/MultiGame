@@ -634,6 +634,9 @@ bool ChessBoard::isThreatenedBy(sf::Vector2i pos, int idPlayer) const{
 					if (piece->type == Tower || piece->type == Queen || (piece->type == King && nbIter == 1)) {
 						return true;
 					}
+					else {
+						break;
+					}
 				}
 				else {
 					break;
@@ -657,6 +660,9 @@ bool ChessBoard::isThreatenedBy(sf::Vector2i pos, int idPlayer) const{
 					if (piece->type == Bishop || piece->type == Queen || (piece->type == King && nbIter == 1)) {
 						return true;
 					}
+					else {
+						break;
+					}
 				}
 				else {
 					break;
@@ -679,7 +685,7 @@ bool ChessBoard::isThreatenedBy(sf::Vector2i pos, int idPlayer) const{
 
 	// On cherche un pion qui menace la case
 	// Sens d'avancee des pions
-	int sign = (idPlayer == 0 ? 1 : -1);
+	int sign = (idPlayer == 0 ? -1 : 1);
 
 	sf::Vector2i leftPos = pos + sf::Vector2i(-1, sign);
 	Piece* leftPawn = getPiece(leftPos);
