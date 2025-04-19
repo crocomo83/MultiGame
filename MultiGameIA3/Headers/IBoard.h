@@ -10,7 +10,7 @@ public:
 
 	// Interface
 	virtual void					draw(sf::RenderWindow& target) = 0;
-	virtual void					update(int x, int y, int idPlayer) = 0;
+	virtual void					update(sf::Vector2i pos, int idPlayer) = 0;
 
 	virtual bool					isGameOver(std::string& message) = 0;
 	virtual void					handleEvent(sf::Vector2i mousPos, sf::Event& event) = 0;
@@ -35,7 +35,7 @@ public:
 
 protected:
 	bool								gameOver;
-	sf::Vector2f						mousePos;
+	sf::Vector2i						mousePos;
 	int									idCurrentPlayer;
 	std::unordered_map<uint64_t, float> zobristCache;
 };

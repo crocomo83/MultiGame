@@ -24,8 +24,7 @@ class Game {
 	private :
 		bool					gameOver;
 		bool					hasSwap;
-		int						xMouse;
-		int						yMouse;
+		sf::Vector2i			posMouse;
 		int						currentPlayer;
 
 		int						levelIA;

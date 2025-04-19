@@ -37,3 +37,29 @@ std::string floatToStringWithDecimal(float value, int decimal) {
 	stream << std::fixed << std::setprecision(decimal) << value;
 	return stream.str();
 }
+
+sf::Vector2i PixelToChessBoard(sf::Vector2i posPixel, sf::Vector2i start, sf::Vector2i offset, bool reverse) {
+	int posX, posY;
+	if (reverse) {
+		posX = 7 - (int)((float)(posPixel.x - start.x) / offset.x);
+		posY = (int)((float)(posPixel.y - start.y) / offset.y);
+	}
+	else {
+		posX = (int)((float)(posPixel.x - start.x) / offset.x);
+		posY =  7 - (int)((float)(posPixel.y - start.y) / offset.y);
+	}
+	return sf::Vector2i(posX, posY);
+}
+
+sf::Vector2i CoordToPixelChessBoard(sf::Vector2i posBoard, sf::Vector2i start, sf::Vector2i offset, bool reverse) {
+	int posX, posY;
+	if (reverse) {
+		posX = start.x + (float)(7 - posBoard.x) * offset.x;
+		posY = start.y + (float)posBoard.y * offset.y;
+	}
+	else {
+		posX = start.x + (float)posBoard.x * offset.x;
+		posY = start.y + (float)(7 - posBoard.y) * offset.y;
+	}
+	return sf::Vector2i(posX, posY);
+}

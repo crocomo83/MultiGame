@@ -36,7 +36,7 @@ class ChessBoard : public IBoard {
 		};
 
 	public : 
-								ChessBoard();
+								ChessBoard(bool reverseBoard_);
 
 		void					select(sf::Vector2i mousePos);
 		bool					unselect(sf::Vector2i mousePos);
@@ -46,7 +46,7 @@ class ChessBoard : public IBoard {
 
 		// Interface
 		void					draw(sf::RenderWindow& target);
-		void					update(int x, int y, int idPlayer);
+		void					update(sf::Vector2i pos, int idPlayer);
 
 		// Test de situations
 		bool					isCheck(int idPlayer);
@@ -93,7 +93,7 @@ class ChessBoard : public IBoard {
 		void					initializeZobristTable();
 
 		void					drawBoard(sf::RenderWindow& target);
-		void					setSpritePosition(sf::Sprite& sprite, sf::Vector2i pos);
+		void					setSpritePosition(sf::Sprite& sprite, sf::Vector2i pos) const;
 		void					resetHighlights();
 
 		bool					testMove(Move &move);
@@ -119,6 +119,7 @@ class ChessBoard : public IBoard {
 		std::string				generateBoardId() const;
 		
 	private :
+		bool							reverseBoard;
 		sf::Vector2i					selectedPawn;
 
 		std::stack<short>				repetitiveMoves;

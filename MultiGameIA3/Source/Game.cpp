@@ -8,8 +8,7 @@
 #include <iomanip>
 
 Game::Game(GameType gameType, Player::PlayerType player1, Player::PlayerType player2, int level)
-: xMouse(-1)
-, yMouse(-1)
+: posMouse({-1, -1})
 , currentPlayer(0)
 , hasSwap(true)
 , selectedPiece(nullptr)
@@ -23,7 +22,8 @@ Game::Game(GameType gameType, Player::PlayerType player1, Player::PlayerType pla
 		window->create(sf::VideoMode(540, 540), "Game window", sf::Style::Titlebar | sf::Style::Close);
 		window->setPosition(sf::Vector2i(0, 0));
 
-		board = new ChessBoard();
+		bool reverse = !Player::isHuman(player1) && Player::isHuman(player2);
+		board = new ChessBoard(reverse);
 	}
 	else if (gameType == GameType::Power4) {
 		window->create(sf::VideoMode(700, 700), "Game window", sf::Style::Titlebar | sf::Style::Close);
@@ -41,7 +41,7 @@ Game::Game(GameType gameType, Player::PlayerType player1, Player::PlayerType pla
 void Game::run() {
 	while (window->isOpen())
 	{
-		board->update(xMouse, yMouse, currentPlayer);
+		board->update(posMouse, currentPlayer);
 		render();
 
 		if (!gameOver && hasSwap) {
@@ -101,10 +101,10 @@ void Game::computePlay() {
 
 void Game::handleActionEvent(sf::Event &event) {
 	if (event.type == sf::Event::MouseMoved) {
-		xMouse = event.mouseMove.x;
-		yMouse = event.mouseMove.y;
+		posMouse.x = event.mouseMove.x;
+		posMouse.y = event.mouseMove.y;
 	}
-	board->handleEvent(sf::Vector2i(xMouse, yMouse), event);
+	board->handleEvent(posMouse, event);
 }
 
 void Game::swapPlayer() {

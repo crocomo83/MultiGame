@@ -17,16 +17,17 @@ const float weightPieces = 1;
 const float weightMoves = 0.2f;
 const float weightRandom = 0;
 
-ChessBoard::ChessBoard()
+ChessBoard::ChessBoard(bool reverseBoard_)
 	: repetitiveMoves()
 	, history()
 	, historyBoard()
 	, historyMoves()
+	, reverseBoard(reverseBoard_)
 {
 	idCurrentPlayer = 0;
 	gameOver = false;
 	selectedPawn = sf::Vector2i(-1, -1);
-	mousePos = sf::Vector2f(-1, -1);
+	mousePos = sf::Vector2i(-1, -1);
 
 	repetitiveMoves.push(0);
 
@@ -253,35 +254,28 @@ bool ChessBoard::isCorrectMove(Move move) const{
 
 void ChessBoard::select(sf::Vector2i mousePos) {
 	if (selectedPawn.x == -1) {
-		int x = mousePos.x;
-		int y = mousePos.y;
-		int numX = (int)((float)(x - startX) / offsetX);
-		int numY = 7 - (int)((float)(y - startY) / offsetY);
+		sf::Vector2i posOnBoard = PixelToChessBoard(mousePos, sf::Vector2i(startX, startY), sf::Vector2i(offsetX, offsetY), reverseBoard);
 
-		if (!isOnBoard(numX, numY)) {
+		if (!isOnBoard(posOnBoard)) {
 			return;
 		}
 
-		Piece* piece = getPiece(numX, numY);
+		Piece* piece = getPiece(posOnBoard);
 		if (piece == nullptr || piece->player != idCurrentPlayer) {
 			return;
 		}
 
-		selectedPawn.x = numX;
-		selectedPawn.y = numY;
+		selectedPawn = posOnBoard;
 	}
 }
 
 bool ChessBoard::unselect(sf::Vector2i mousePos) {
 	bool played = false;
 	if (selectedPawn.x != -1) {
-		int x = mousePos.x;
-		int y = mousePos.y;
-		int numX = (int)((float)(x - startX) / offsetX);
-		int numY = 7 - (int)((float)(y - startY) / offsetY);
+		sf::Vector2i posOnBoard = PixelToChessBoard(mousePos, sf::Vector2i(startX, startY), sf::Vector2i(offsetX, offsetY), reverseBoard);
 
 		Piece* piece = getPiece(selectedPawn);
-		Move move = Move(piece, selectedPawn, sf::Vector2i(numX, numY));
+		Move move = Move(piece, selectedPawn, posOnBoard);
 
 		played = play(move, true);
 
@@ -543,7 +537,8 @@ void ChessBoard::unMovePiece(Move &move) {
 	}
 }
 
-void ChessBoard::update(int x, int y, int idPlayer) {
+void ChessBoard::update(sf::Vector2i pos, int idPlayer) {
+	mousePos = pos;
 	resetHighlights();
 
 	// red highlight
@@ -553,7 +548,6 @@ void ChessBoard::update(int x, int y, int idPlayer) {
 		colorSquare[lastMove.end.x][lastMove.end.y] = Color::Red;
 	}
 
-	mousePos = sf::Vector2f(x, y);
 	if (selectedPawn.x != -1) {
 		// blue highlight
 		std::vector<Move> moves = getMoves(selectedPawn.x, selectedPawn.y, true);
@@ -562,12 +556,12 @@ void ChessBoard::update(int x, int y, int idPlayer) {
 			colorSquare[move.end.x][move.end.y] = Color::Blue;
 		}
 		
+		sf::Vector2i posOnBoard = PixelToChessBoard(pos, sf::Vector2i(startX, startY), sf::Vector2i(offsetX, offsetY), reverseBoard);
+		Move move = Move(getPiece(selectedPawn), selectedPawn, posOnBoard);
+
 		// green highlight
-		int numX = (int)((float)(x - startX) / offsetX);
-		int numY = 7 - (int)((float)(y - startY) / offsetY);
-		Move move = Move(getPiece(selectedPawn), selectedPawn, sf::Vector2i(numX, numY));
 		if (isValidMove(move)) {
-			colorSquare[numX][numY] = Color::Green;
+			colorSquare[posOnBoard.x][posOnBoard.y] = Color::Green;
 		}
 	}
 }
@@ -615,8 +609,10 @@ void ChessBoard::draw(sf::RenderWindow& target) {
 	}
 }
 
-void ChessBoard::setSpritePosition(sf::Sprite& sprite, sf::Vector2i pos) {
-	sprite.setPosition(startX + (float)pos.x * offsetX, startY + (float)(7 - pos.y) * offsetY);
+void ChessBoard::setSpritePosition(sf::Sprite& sprite, sf::Vector2i pos) const {
+
+	sf::Vector2i posOnBoard = CoordToPixelChessBoard(pos, sf::Vector2i(startX, startY), sf::Vector2i(offsetX, offsetY), reverseBoard);
+	sprite.setPosition(posOnBoard.x, posOnBoard.y);
 }
 
 bool ChessBoard::isThreatenedBy(sf::Vector2i pos, int idPlayer) const{

@@ -36,7 +36,7 @@ public:
 
 	// Interface
 	void							draw(sf::RenderWindow& target);
-	void							update(int posX, int posY, int idPlayer);
+	void							update(sf::Vector2i pos, int idPlayer);
 
 	bool							isGameOver(std::string& messageGameOver);
 	void							handleEvent(sf::Vector2i mousePos, sf::Event& event);

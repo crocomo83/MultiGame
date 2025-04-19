@@ -107,7 +107,7 @@ bool Power4Board::undo() {
 	return true;
 }
 
-void Power4Board::update(int posX, int posY, int idPlayer) {
+void Power4Board::update(sf::Vector2i pos, int idPlayer) {
 	for (int x = 0; x < 7; x++) {
 		for (int y = 0; y < 6; y++) {
 			int value = pieceOnBoard[x][y];
