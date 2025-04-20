@@ -17,6 +17,8 @@ const float weightPieces = 1;
 const float weightMoves = 0.2f;
 const float weightRandom = 0;
 
+bool ChessBoard::temp = false;
+
 ChessBoard::ChessBoard(bool reverseBoard_)
 	: repetitiveMoves()
 	, history()
@@ -332,15 +334,6 @@ void ChessBoard::computeValidMoves(int idPlayer) {
 	historyMoves.push(validMoves);
 }
 
-void ChessBoard::printValidMoves() {
-	std::cout << "Valid Moves : ";
-	std::vector<Move> validMoves = historyMoves.top();
-	for (Move &move : validMoves) {
-		std::cout << getMoveSymbol(move) << " / " << tagToStr(move.tag) << std::endl;
-	}
-	std::cout << std::endl;
-}
-
 bool ChessBoard::play(Move& move, bool checkValidity) {
 	if (checkValidity) {
 		if (!isValidMove(move)) {
@@ -358,10 +351,11 @@ bool ChessBoard::play(Move& move, bool checkValidity) {
 	Piece* piece = getPiece(move.begin);
 
 	if (piece == nullptr) {
+		//std::cerr << "Erreur play : piece ne peut pas etre nulle" << std::endl;
+		//printBoard();
 		return false;
 	}
 
-	Move* towerMove;
 	switch (move.tag) {
 	case EnPassant:
 		move.destroyed = getPiece(endX, beginY);
@@ -375,12 +369,10 @@ bool ChessBoard::play(Move& move, bool checkValidity) {
 		piece->type = Queen;
 		break;
 	case KingSideCastling:
-		towerMove = new Move(getPiece(7, beginY), sf::Vector2i(5, beginY));
-		movePiece(*towerMove);
+		movePiece(sf::Vector2i(7, beginY), sf::Vector2i(5, beginY));
 		break;
 	case QueenSideCastling:
-		towerMove = new Move(getPiece(0, beginY), sf::Vector2i(3, beginY));
-		movePiece(*towerMove);
+		movePiece(sf::Vector2i(0, beginY), sf::Vector2i(3, beginY));
 		break;
 	}
 
@@ -397,9 +389,6 @@ bool ChessBoard::play(Move& move, bool checkValidity) {
 	idCurrentPlayer = otherPlayer(idCurrentPlayer);
 
 	history.push_back(move);
-	if (move.begin == sf::Vector2i(0, 0) && move.end == sf::Vector2i(0, 0)) {
-		std::cout << "problem" << std::endl;
-	}
 	historyBoard.push_back(generateBoardId());
 	computeValidMoves(idCurrentPlayer);
 
@@ -433,6 +422,12 @@ bool ChessBoard::undo() {
 
 	idCurrentPlayer = otherPlayer(idCurrentPlayer);
 
+	if (!temp && piecesOnBoard[7][0] == nullptr) {
+		temp = true;
+		std::cout << "Unmove destroyer de tour : " << std::endl;
+		printMove(move);
+	}
+
 	return true;
 }
 
@@ -459,12 +454,16 @@ void ChessBoard::undo(Move& move) {
 		piece->type = Pawn;
 		break;
 	case KingSideCastling:
-		towerMove = new Move(getPiece(5, beginY), sf::Vector2i(5, beginY));
+		std::cout << "Undo move 14 destroyer de tour : " << std::endl;
+		printMove(move);
+		towerMove = new Move(getPiece(7, beginY), sf::Vector2i(5, beginY));
 		towerMove->destroyed = nullptr;
 		unMovePiece(*towerMove);
+		std::cout << "Undo move 14 destroyer de tour : " << std::endl;
+		printMove(move);
 		break;
 	case QueenSideCastling:
-		towerMove = new Move(getPiece(3, beginY), sf::Vector2i(3, beginY));
+		towerMove = new Move(getPiece(0, beginY), sf::Vector2i(3, beginY));
 		towerMove->destroyed = nullptr;
 		unMovePiece(*towerMove);
 		break;
@@ -497,14 +496,19 @@ void ChessBoard::resetEnPassant(int idPlayer) const {
 	}
 }
 
+void ChessBoard::movePiece(sf::Vector2i start, sf::Vector2i end) {
+	Move move(getPiece(start), end);
+	movePiece(move);
+}
+
 void ChessBoard::movePiece(Move& move) {
 	if (move.tag != Tag::EnPassant) {
-		move.destroyed = getPiece(move.end.x, move.end.y);
+		move.destroyed = getPiece(move.end);
 		if (move.destroyed != nullptr) {
 			move.destroyed->taken = true;
 		}
 	}
-	Piece* piece = getPiece(move.begin.x, move.begin.y);
+	Piece* piece = getPiece(move.begin);
 	piece->pos = move.end;
 	piece->nbMove++;
 	piecesOnBoard[move.end.x][move.end.y] = piece;
@@ -836,14 +840,14 @@ float ChessBoard::evalMoves() {
 }
 
 Piece* ChessBoard::getPiece(sf::Vector2i pos) const {
-	if (pos.x < 0 || pos.x > 7 || pos.y < 0 || pos.y > 7) {
-		return nullptr;
-	}
-	return piecesOnBoard[pos.x][pos.y];
+	return getPiece(pos.x, pos.y);
 }
 
 Piece* ChessBoard::getPiece(int x, int y) const {
-	return getPiece(sf::Vector2i(x, y));
+	if (x < 0 || x > 7 || y < 0 || y > 7) {
+		return nullptr;
+	}
+	return piecesOnBoard[x][y];
 }
 
 std::vector<Move> ChessBoard::getMoves(sf::Vector2i pos, bool checkConsidered) {
@@ -1147,54 +1151,7 @@ std::string ChessBoard::generateBoardId() const {
 	for (int x = 0; x < 8; x++) {
 		for (int y = 0; y < 8; y++) {
 			Piece* piece = getPiece(x, y);
-			if (piece == nullptr) {
-				id += " ";
-			}
-			else if (piece->player == 0) {
-				switch (piece->type) {
-				case PieceType::King:
-					id += "R";
-					break;
-				case PieceType::Queen:
-					id += "D";
-					break;
-				case PieceType::Bishop:
-					id += "F";
-					break;
-				case PieceType::Knight:
-					id += "C";
-					break;
-				case PieceType::Tower:
-					id += "T";
-					break;
-				case PieceType::Pawn:
-					id += "P";
-					break;
-
-				}
-			}
-			else {
-				switch (piece->type) {
-				case PieceType::King:
-					id += "r";
-					break;
-				case PieceType::Queen:
-					id += "d";
-					break;
-				case PieceType::Bishop:
-					id += "f";
-					break;
-				case PieceType::Knight:
-					id += "c";
-					break;
-				case PieceType::Tower:
-					id += "t";
-					break;
-				case PieceType::Pawn:
-					id += "p";
-					break;
-				}
-			}
+			id += pieceToStr(piece);
 		}
 	}
 	return id;
@@ -1262,7 +1219,29 @@ std::string ChessBoard::getMoveSymbol(int index) {
 }
 
 void ChessBoard::printMove(Move move) {
-	std::cout << getMoveSymbol(move) << std::endl;
+	std::cout << getMoveSymbol(move) << " / " << tagToStr(move.tag) << std::endl;
+}
+
+void ChessBoard::printValidMoves() {
+	std::cout << "Valid Moves : ";
+	std::vector<Move> validMoves = historyMoves.top();
+	for (Move& move : validMoves) {
+		printMove(move);
+	}
+	std::cout << std::endl;
+}
+
+void ChessBoard::printBoard() const {
+	for (int y = 0; y < 8; y++) {
+		for (int x = 0; x < 8; x++) {
+			Piece* piece = getPiece(x, y);
+			std::cout << pieceToStr(piece);
+			if (x != 7) {
+				std::cout << "-";
+			}
+		}
+		std::cout << std::endl;
+	}
 }
 
 uint64_t ChessBoard::hashBoard() const {

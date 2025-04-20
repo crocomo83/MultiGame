@@ -28,6 +28,7 @@ public:
 	virtual std::string				getMoveSymbol(int index) = 0;
 
 	virtual uint64_t				hashBoard() const = 0;
+	virtual void					printBoard() const = 0;
 
 	virtual int	getCurrentPlayer() {
 		return idCurrentPlayer;

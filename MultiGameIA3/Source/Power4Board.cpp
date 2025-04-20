@@ -448,3 +448,7 @@ uint64_t Power4Board::hashBoard() const {
 	}
 	return hash;
 }
+
+void Power4Board::printBoard() const
+{
+}

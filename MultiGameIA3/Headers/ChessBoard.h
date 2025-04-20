@@ -55,12 +55,13 @@ class ChessBoard : public IBoard {
 		State					getGameState();
 		
 		void					computeValidMoves(int idPlayer);
-		void					printValidMoves();
+		
 		bool					play(int index);
 		bool					play(Move &move, bool checkValidity);
 		bool					undo();
 
 		void					movePiece(Move& move);
+		void					movePiece(sf::Vector2i start, sf::Vector2i end);
 		void					unMovePiece(Move &move);
 
 		Piece*					getPiece(sf::Vector2i pos) const;
@@ -82,7 +83,10 @@ class ChessBoard : public IBoard {
 
 		std::string				getMoveSymbol(Move move);
 		std::string				getMoveSymbol(int index);
+
 		void					printMove(Move move);
+		void					printValidMoves();
+		void					printBoard() const;
 
 		uint64_t				hashBoard() const;
 
@@ -151,4 +155,6 @@ class ChessBoard : public IBoard {
 		std::vector<sf::Text>			textsSquare;
 
 		uint64_t						zobristTable[64][12];
+
+		static bool						temp;
 };

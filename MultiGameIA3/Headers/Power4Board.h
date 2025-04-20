@@ -68,6 +68,7 @@ public:
 	std::string						getMoveSymbol(int index);
 
 	uint64_t						hashBoard() const;
+	void							printBoard() const;
 
 private:
 	sf::RectangleShape rectangle;

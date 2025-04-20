@@ -110,3 +110,55 @@ std::string tagToStr(Tag tag) {
 		return "QueenSideCastling";
 	}
 }
+
+std::string pieceToStr(Piece* piece) {
+	if (piece == nullptr) {
+		return " ";
+	}
+	else if (piece->player == 0) {
+		switch (piece->type) {
+		case PieceType::King:
+			return "R";
+			break;
+		case PieceType::Queen:
+			return "D";
+			break;
+		case PieceType::Bishop:
+			return "F";
+			break;
+		case PieceType::Knight:
+			return "C";
+			break;
+		case PieceType::Tower:
+			return "T";
+			break;
+		case PieceType::Pawn:
+			return "P";
+			break;
+
+		}
+	}
+	else {
+		switch (piece->type) {
+		case PieceType::King:
+			return "r";
+			break;
+		case PieceType::Queen:
+			return "d";
+			break;
+		case PieceType::Bishop:
+			return "f";
+			break;
+		case PieceType::Knight:
+			return "c";
+			break;
+		case PieceType::Tower:
+			return "t";
+			break;
+		case PieceType::Pawn:
+			return "p";
+			break;
+		}
+	}
+}
+

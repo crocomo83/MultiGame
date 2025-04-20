@@ -74,3 +74,4 @@ std::string getSymbolPosition(sf::Vector2i pos);
 std::string getId(Piece* piece);
 int getType(Piece* piece);
 std::string tagToStr(Tag tag);
+std::string pieceToStr(Piece* piece);
