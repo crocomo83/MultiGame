@@ -456,14 +456,14 @@ void ChessBoard::undo(Move& move) {
 	case KingSideCastling:
 		std::cout << "Undo move 14 destroyer de tour : " << std::endl;
 		printMove(move);
-		towerMove = new Move(getPiece(7, beginY), sf::Vector2i(5, beginY));
+		towerMove = new Move(getPiece(7, beginY), sf::Vector2i(5, beginY), sf::Vector2i(7, beginY));
 		towerMove->destroyed = nullptr;
 		unMovePiece(*towerMove);
 		std::cout << "Undo move 14 destroyer de tour : " << std::endl;
 		printMove(move);
 		break;
 	case QueenSideCastling:
-		towerMove = new Move(getPiece(0, beginY), sf::Vector2i(3, beginY));
+		towerMove = new Move(getPiece(0, beginY), sf::Vector2i(3, beginY), sf::Vector2i(0, beginY));
 		towerMove->destroyed = nullptr;
 		unMovePiece(*towerMove);
 		break;
@@ -551,7 +551,7 @@ void ChessBoard::update(sf::Vector2i pos, int idPlayer) {
 		}
 
 		sf::Vector2i posOnBoard = PixelToChessBoard(pos, sf::Vector2i(startX, startY), sf::Vector2i(offsetX, offsetY), reverseBoard);
-		Move move = Move(getPiece(selectedPawn), posOnBoard);
+		Move move = Move(getPiece(selectedPawn), selectedPawn, posOnBoard);
 
 		// green highlight
 		if (isValidMove(move)) {
@@ -922,7 +922,7 @@ bool ChessBoard::testMove(Move& move) {
 }
 
 void ChessBoard::addMove(sf::Vector2i start, sf::Vector2i end, std::vector<Move>& moves, bool checkConsidered, Tag tag) {
-	Move move = Move(getPiece(start), end);
+	Move move = Move(getPiece(start), start, end);
 	move.tag = tag;
 	if (isCorrectMove(move)) {
 		if (!checkConsidered) {

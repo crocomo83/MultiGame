@@ -57,8 +57,8 @@ struct Move {
 		, tag(EmptyMove)
 	{}
 
-	Move(Piece* piece_, sf::Vector2i end_)
-		: begin(piece_->pos)
+	Move(Piece* piece_, sf::Vector2i begin_, sf::Vector2i end_)
+		: begin(begin_)
 		, end(end_)
 		, piece(piece_)
 		, player(piece_->player)
