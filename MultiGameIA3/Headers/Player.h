@@ -35,4 +35,5 @@ class Player {
 	public:
 		static NodePool pool;
 		static int		nbTest;
+		static int		nbCut;
 };

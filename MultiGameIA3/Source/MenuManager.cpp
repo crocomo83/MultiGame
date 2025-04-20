@@ -2,7 +2,7 @@
 #include "../Headers/Game.h"
 
 const int chessLevelIA = 4;
-const int power4LevelIA = 5;
+const int power4LevelIA = 6;
 
 MenuManager::MenuManager(sf::RenderWindow* window_)
 	: window(window_)
@@ -56,24 +56,24 @@ void MenuManager::setChessMenu() {
 void MenuManager::setChessMenuVSComputer() {
 	menu->clearOptions();
 
-	menu->addOption("Player White", [&]() {
-		Game game(Game::GameType::Chess, Player::PlayerType::Human, Player::PlayerType::MinMax, chessLevelIA);
+	menu->addOption("Play White", [&]() {
+		Game game(Game::GameType::Chess, Player::PlayerType::Human, Player::PlayerType::AlphaBeta, chessLevelIA);
 		game.run();
 		});
 
-	menu->addOption("Player Black", [&]() {
-		Game game(Game::GameType::Chess, Player::PlayerType::MinMax, Player::PlayerType::Human, chessLevelIA);
+	menu->addOption("Play Black", [&]() {
+		Game game(Game::GameType::Chess, Player::PlayerType::AlphaBeta, Player::PlayerType::Human, chessLevelIA);
 		game.run();
 		});
 
-	menu->addOption("Player Random", [&]() {
+	menu->addOption("Play Random", [&]() {
 		int result = dist(rng);
 		if (result == 0) {
-			Game game(Game::GameType::Chess, Player::PlayerType::Human, Player::PlayerType::MinMax, chessLevelIA);
+			Game game(Game::GameType::Chess, Player::PlayerType::Human, Player::PlayerType::AlphaBeta, chessLevelIA);
 			game.run();
 		}
 		else {
-			Game game(Game::GameType::Chess, Player::PlayerType::MinMax, Player::PlayerType::Human, chessLevelIA);
+			Game game(Game::GameType::Chess, Player::PlayerType::AlphaBeta, Player::PlayerType::Human, chessLevelIA);
 			game.run();
 		}
 		});
@@ -108,23 +108,23 @@ void MenuManager::setPower4MenuVSComputer() {
 	menu->clearOptions();
 
 	menu->addOption("Play first", [&]() {
-		Game game(Game::GameType::Power4, Player::PlayerType::Human, Player::PlayerType::MinMax, power4LevelIA);
+		Game game(Game::GameType::Power4, Player::PlayerType::Human, Player::PlayerType::AlphaBeta, power4LevelIA);
 		game.run();
 		});
 
 	menu->addOption("Play second", [&]() {
-		Game game(Game::GameType::Power4, Player::PlayerType::MinMax, Player::PlayerType::Human, power4LevelIA);
+		Game game(Game::GameType::Power4, Player::PlayerType::AlphaBeta, Player::PlayerType::Human, power4LevelIA);
 		game.run();
 		});
 
 	menu->addOption("Play random", [&]() {
 		int result = dist(rng);
 		if (result == 0) {
-			Game game(Game::GameType::Power4, Player::PlayerType::Human, Player::PlayerType::MinMax, power4LevelIA);
+			Game game(Game::GameType::Power4, Player::PlayerType::Human, Player::PlayerType::AlphaBeta, power4LevelIA);
 			game.run();
 		}
 		else {
-			Game game(Game::GameType::Power4, Player::PlayerType::MinMax, Player::PlayerType::Human, power4LevelIA);
+			Game game(Game::GameType::Power4, Player::PlayerType::AlphaBeta, Player::PlayerType::Human, power4LevelIA);
 			game.run();
 		}
 		});

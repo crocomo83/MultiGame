@@ -6,6 +6,7 @@
 #include <chrono>
 
 int Player::nbTest = 0;
+int Player::nbCut = 0;
 
 bool Player::isHuman(PlayerType type) {
 	return type == PlayerType::Human;
@@ -92,52 +93,40 @@ float Player::playAlphaBeta(IBoard* board, int level, int idPlayer, bool root, f
 		best = 1000000;
 		for (int i = 0; i < n; i++) {
 			board->play(i);
-
 			float value = playAlphaBeta(board, level - 1, 1, false, alpha, beta);
+			board->undo();
 
 			if (value < best) {
 				best = value;
 				numBest = i;
+				if (best <= alpha) {
+					nbCut += (n - 1 - i);
+					return best;
+				}
+				beta = std::min(beta, best);
 			}
-
-			board->undo();
-
-			if (alpha >= best) {
-				return best;
-			}
-			beta = std::min(beta, best);
 		}
 	}
 	else {
 		best = -1000000;
 		for (int i = 0; i < n; i++) {
 			board->play(i);
-
 			float value = playAlphaBeta(board, level - 1, 0, false, alpha, beta);
+			board->undo();
 
 			if (value > best) {
 				best = value;
 				numBest = i;
+				if (best >= beta) {
+					nbCut += (n - 1 - i);
+					return best;
+				}
+				alpha = std::max(alpha, best);
 			}
-
-			board->undo();
-
-			if (best >= beta) {
-				return best;
-			}
-			alpha = std::max(alpha, best);
 		}
 	}
 
-	if (root) {
-		if (numBest == -1) {
-			std::cout << "Problem : " << idPlayer << std::endl;
-		}
-		return numBest;
-	}
-	else {
-		return best;
-	}
+	return (root ? numBest : best);
 }
 
 int Player::play(IBoard* board, PlayerType type, int idPlayer, int level) {
@@ -147,6 +136,7 @@ int Player::play(IBoard* board, PlayerType type, int idPlayer, int level) {
 
 	int index = -1;
 	nbTest = 0;
+	nbCut = 0;
 
 	auto start = std::chrono::high_resolution_clock::now();
 
@@ -155,10 +145,13 @@ int Player::play(IBoard* board, PlayerType type, int idPlayer, int level) {
 	if (type == PlayerType::MinMax) {
 		std::cout << "Play : " << "MinMax" << std::endl;
 		index = playMinMaxSimple(board, level, idPlayer).first;
+		std::cout << "Moves calcules : " << nbTest << std::endl;
 	}
 	else if (type == PlayerType::AlphaBeta) {
 		std::cout << "Play : " << "AlphaBeta" << std::endl;
 		index = playAlphaBeta(board, level, idPlayer, true, -1000000, 10000000);
+		float percentCut = (float)nbCut / (float)(nbCut + nbTest) * 100.0f;
+		std::cout << "Moves calcules : " << nbTest << " / " << (nbTest + nbCut) << ", percent cut : " << percentCut << "%" << std::endl;
 	}
 	auto end = std::chrono::high_resolution_clock::now();
 
@@ -166,7 +159,6 @@ int Player::play(IBoard* board, PlayerType type, int idPlayer, int level) {
 	double duration = std::chrono::duration<double, std::milli>(end - start).count();
 
 	std::cout << "Temps d'execution: " << duration << " ms" << std::endl;
-	std::cout << nbTest << " moves calcules" << std::endl;
 
 	std::cout << "play : " << index << std::endl;
 	return index;
