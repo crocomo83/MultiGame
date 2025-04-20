@@ -92,7 +92,7 @@ void ChessBoard::initText() {
 		text.setString(std::to_string(i));
 		text.setCharacterSize(25);
 		text.setFillColor(sf::Color::Black);
-		text.setPosition(sf::Vector2f(startTextNum) + sf::Vector2f(0, (8 - i)*offsetY));
+		text.setPosition(sf::Vector2f(startTextNum) + sf::Vector2f(0, (8 - i) * offsetY));
 
 		textsSquare.push_back(text);
 	}
@@ -217,16 +217,16 @@ bool ChessBoard::isGameOver(std::string& messageGameOver) {
 
 void ChessBoard::handleEvent(sf::Vector2i mousePos, sf::Event& event) {
 	switch (event.type) {
-		case sf::Event::MouseButtonPressed:
-			if (event.mouseButton.button == sf::Mouse::Left) {
-				select(mousePos);
-			}
-			break;
-		case sf::Event::MouseButtonReleased:
-			if (event.mouseButton.button == sf::Mouse::Left) {
-				unselect(mousePos);
-			}
-			break;
+	case sf::Event::MouseButtonPressed:
+		if (event.mouseButton.button == sf::Mouse::Left) {
+			select(mousePos);
+		}
+		break;
+	case sf::Event::MouseButtonReleased:
+		if (event.mouseButton.button == sf::Mouse::Left) {
+			unselect(mousePos);
+		}
+		break;
 	}
 }
 
@@ -240,12 +240,12 @@ bool ChessBoard::isValidMove(Move move) {
 	return false;
 }
 
-bool ChessBoard::isCorrectMove(Move move) const{
+bool ChessBoard::isCorrectMove(Move move) const {
 	if (!isOnBoard(move.end.x, move.end.y) || !isOnBoard(move.begin.x, move.begin.y)) {
 		return false;
 	}
 
-	Piece* target = getPiece(move.end.x, move.end.y);
+	Piece* target = getPiece(move.end);
 	if (target != nullptr && target->player == move.player) {
 		return false;
 	}
@@ -274,13 +274,14 @@ bool ChessBoard::unselect(sf::Vector2i mousePos) {
 	if (selectedPawn.x != -1) {
 		sf::Vector2i posOnBoard = PixelToChessBoard(mousePos, sf::Vector2i(startX, startY), sf::Vector2i(offsetX, offsetY), reverseBoard);
 
-		Piece* piece = getPiece(selectedPawn);
-		Move move = Move(piece, selectedPawn, posOnBoard);
+		Move move = getSpecificMove(selectedPawn, posOnBoard);
+
+		std::string symbol = getMoveSymbol(move);
 
 		played = play(move, true);
 
 		if (played) {
-			std::cout << (piece->player == 0 ? "white" : "black") << " play " << getMoveSymbol(move) << std::endl;
+			std::cout << (move.player == 0 ? "white" : "black") << " play " << symbol << std::endl;
 			std::cout << std::endl;
 		}
 
@@ -296,7 +297,7 @@ std::vector<Move> ChessBoard::getAllMoves(int idPlayer, bool checkConsidered) {
 	for (int i = 0; i < 16; i++) {
 		Piece* piece = pieces[idPlayer][i];
 		if (!piece->taken) {
-			getMoves(piece->pos.x, piece->pos.y, moves, checkConsidered);
+			getMoves(piece->pos, moves, checkConsidered);
 		}
 	}
 	return moves;
@@ -311,7 +312,7 @@ bool ChessBoard::isAnyMovePossible(int idPlayer) {
 	for (int i = 0; i < 16; i++) {
 		Piece* piece = pieces[idPlayer][i];
 		if (!piece->taken) {
-			std::vector<Move> moves = getMoves(piece->pos.x, piece->pos.y, true);
+			std::vector<Move> moves = getMoves(piece->pos, true);
 			if (!moves.empty()) {
 				return true;
 			}
@@ -325,7 +326,7 @@ void ChessBoard::computeValidMoves(int idPlayer) {
 	for (int i = 0; i < 16; i++) {
 		Piece* piece = pieces[idPlayer][i];
 		if (!piece->taken) {
-			getMoves(piece->pos.x, piece->pos.y, validMoves, true);
+			getMoves(piece->pos, validMoves, true);
 		}
 	}
 	historyMoves.push(validMoves);
@@ -333,15 +334,14 @@ void ChessBoard::computeValidMoves(int idPlayer) {
 
 void ChessBoard::printValidMoves() {
 	std::cout << "Valid Moves : ";
-	std::vector<Move>::iterator it;
 	std::vector<Move> validMoves = historyMoves.top();
-	for (it = validMoves.begin(); it != validMoves.end(); ++it) {
-		std::cout << getMoveSymbol(*it) << " / ";
+	for (Move &move : validMoves) {
+		std::cout << getMoveSymbol(move) << " / " << tagToStr(move.tag) << std::endl;
 	}
 	std::cout << std::endl;
 }
 
-bool ChessBoard::play(Move &move, bool checkValidity) {
+bool ChessBoard::play(Move& move, bool checkValidity) {
 	if (checkValidity) {
 		if (!isValidMove(move)) {
 			return false;
@@ -355,44 +355,33 @@ bool ChessBoard::play(Move &move, bool checkValidity) {
 	int endX = move.end.x;
 	int endY = move.end.y;
 
-	Piece* piece = getPiece(beginX, beginY);
+	Piece* piece = getPiece(move.begin);
 
 	if (piece == nullptr) {
 		return false;
 	}
-	else if (piece->type == Pawn) {
-		// En passant
-		if (abs(endX - beginX) == 1){
-			Piece* dest = getPiece(endX, endY);
-			if (dest == nullptr) {
-				move.destroyed = getPiece(endX, beginY);
-				move.destroyed->taken = true;
-				piecesOnBoard[endX][beginY] = nullptr;
-				move.tag = EnPassant;
-			}
-		}
-		// Pawn moved 2 cases
-		else if (abs(endY - beginY) == 2) {
-			piece->hasJustMoveTwoCases = true;
-			move.tag = JumpTwoCases;
-		}
-		// Pawn promoted
-		if (endY == 0 || endY == 7) {
-			piece->type = Queen;
-			move.tag = Promotion;
-		}
-	}
-	// Castling
-	else if (piece->type == King && abs(endX - beginX) >= 2) {
-		move.tag = Castling;
-		if (endX > beginX) {
-			Move move2(getPiece(7, beginY), sf::Vector2i(7, beginY), sf::Vector2i(5, beginY));
-			movePiece(move2);
-		}
-		else {
-			Move move2(getPiece(0, beginY), sf::Vector2i(0, beginY), sf::Vector2i(3, beginY));
-			movePiece(move2);
-		}
+
+	Move* towerMove;
+	switch (move.tag) {
+	case EnPassant:
+		move.destroyed = getPiece(endX, beginY);
+		move.destroyed->taken = true;
+		piecesOnBoard[endX][beginY] = nullptr;
+		break;
+	case JumpTwoCases:
+		piece->hasJustMoveTwoCases = true;
+		break;
+	case Promotion:
+		piece->type = Queen;
+		break;
+	case KingSideCastling:
+		towerMove = new Move(getPiece(7, beginY), sf::Vector2i(5, beginY));
+		movePiece(*towerMove);
+		break;
+	case QueenSideCastling:
+		towerMove = new Move(getPiece(0, beginY), sf::Vector2i(3, beginY));
+		movePiece(*towerMove);
+		break;
 	}
 
 	// Actual move
@@ -408,6 +397,9 @@ bool ChessBoard::play(Move &move, bool checkValidity) {
 	idCurrentPlayer = otherPlayer(idCurrentPlayer);
 
 	history.push_back(move);
+	if (move.begin == sf::Vector2i(0, 0) && move.end == sf::Vector2i(0, 0)) {
+		std::cout << "problem" << std::endl;
+	}
 	historyBoard.push_back(generateBoardId());
 	computeValidMoves(idCurrentPlayer);
 
@@ -426,9 +418,9 @@ bool ChessBoard::undo() {
 		return false;
 	}
 
-	Move &move = history[n - 1];
+	Move& move = history[n - 1];
 	if (n >= 2) {
-		Move &previousMove = history[n - 2];
+		Move& previousMove = history[n - 2];
 		undo(move, previousMove);
 	}
 	else {
@@ -444,39 +436,38 @@ bool ChessBoard::undo() {
 	return true;
 }
 
-void ChessBoard::undo(Move &move) {
+void ChessBoard::undo(Move& move) {
 	int beginX = move.end.x;
 	int beginY = move.end.y;
 	int endX = move.begin.x;
 	int endY = move.begin.y;
 
-	Piece* piece = getPiece(beginX, beginY);
+	Piece* piece = getPiece(move.end);
 
+	Move* towerMove;
 	switch (move.tag) {
-		case NoneTag:
-			break;
-		case JumpTwoCases:
-			piece->hasJustMoveTwoCases = false;
-			break;
-		case EnPassant:
-			piecesOnBoard[move.destroyed->pos.x][move.destroyed->pos.y] = move.destroyed;
-			move.destroyed->taken = false;
-			break;
-		case Promotion:
-			piece->type = Pawn;
-			break;
-		case Castling:
-			if (endX < beginX) {
-				Move move2(getPiece(5, beginY), sf::Vector2i(7, beginY), sf::Vector2i(5, beginY));
-				move2.destroyed = nullptr;
-				unMovePiece(move2);
-			}
-			else {
-				Move move2(getPiece(3, beginY), sf::Vector2i(0, beginY), sf::Vector2i(3, beginY));
-				move2.destroyed = nullptr;
-				unMovePiece(move2);
-			}
-			break;
+	case NoneTag:
+		break;
+	case JumpTwoCases:
+		piece->hasJustMoveTwoCases = false;
+		break;
+	case EnPassant:
+		piecesOnBoard[move.destroyed->pos.x][move.destroyed->pos.y] = move.destroyed;
+		move.destroyed->taken = false;
+		break;
+	case Promotion:
+		piece->type = Pawn;
+		break;
+	case KingSideCastling:
+		towerMove = new Move(getPiece(5, beginY), sf::Vector2i(5, beginY));
+		towerMove->destroyed = nullptr;
+		unMovePiece(*towerMove);
+		break;
+	case QueenSideCastling:
+		towerMove = new Move(getPiece(3, beginY), sf::Vector2i(3, beginY));
+		towerMove->destroyed = nullptr;
+		unMovePiece(*towerMove);
+		break;
 	}
 
 	// Actual move
@@ -488,10 +479,9 @@ void ChessBoard::undo(Move &move) {
 	else {
 		repetitiveMoves.top()--;
 	}
-	
 }
 
-void ChessBoard::undo(Move &move, Move &previousMove) {
+void ChessBoard::undo(Move& move, Move& previousMove) {
 	undo(move);
 
 	// Pawn moved 2 cases
@@ -507,7 +497,7 @@ void ChessBoard::resetEnPassant(int idPlayer) const {
 	}
 }
 
-void ChessBoard::movePiece(Move &move) {
+void ChessBoard::movePiece(Move& move) {
 	if (move.tag != Tag::EnPassant) {
 		move.destroyed = getPiece(move.end.x, move.end.y);
 		if (move.destroyed != nullptr) {
@@ -521,7 +511,7 @@ void ChessBoard::movePiece(Move &move) {
 	piecesOnBoard[move.begin.x][move.begin.y] = nullptr;
 }
 
-void ChessBoard::unMovePiece(Move &move) {
+void ChessBoard::unMovePiece(Move& move) {
 	Piece* piece = getPiece(move.end.x, move.end.y);
 	piece->pos = move.begin;
 	piece->nbMove--;
@@ -550,14 +540,14 @@ void ChessBoard::update(sf::Vector2i pos, int idPlayer) {
 
 	if (selectedPawn.x != -1) {
 		// blue highlight
-		std::vector<Move> moves = getMoves(selectedPawn.x, selectedPawn.y, true);
+		std::vector<Move> moves = getMoveOnPos(selectedPawn);
 		for (int i = 0; i < moves.size(); i++) {
 			Move move = moves[i];
 			colorSquare[move.end.x][move.end.y] = Color::Blue;
 		}
-		
+
 		sf::Vector2i posOnBoard = PixelToChessBoard(pos, sf::Vector2i(startX, startY), sf::Vector2i(offsetX, offsetY), reverseBoard);
-		Move move = Move(getPiece(selectedPawn), selectedPawn, posOnBoard);
+		Move move = Move(getPiece(selectedPawn), posOnBoard);
 
 		// green highlight
 		if (isValidMove(move)) {
@@ -615,7 +605,7 @@ void ChessBoard::setSpritePosition(sf::Sprite& sprite, sf::Vector2i pos) const {
 	sprite.setPosition(posOnBoard.x, posOnBoard.y);
 }
 
-bool ChessBoard::isThreatenedBy(sf::Vector2i pos, int idPlayer) const{
+bool ChessBoard::isThreatenedBy(sf::Vector2i pos, int idPlayer) const {
 	// On cherche une tour ou une dame ou un roi qui menacent la case
 	sf::Vector2i directionsLine[4] = { {1, 0}, {-1, 0}, {0, 1}, {0, -1} };
 
@@ -715,7 +705,7 @@ ChessBoard::State ChessBoard::getGameState() {
 	// Evite d'appeler ces fonction deux fois : pour checkmate et pat
 	bool check = isCheck(idPlayer);
 	bool opponentCanPlay = isAnyMovePossible(otherPlayer(idPlayer));
-	
+
 	if (check && !opponentCanPlay) {
 		if (idPlayer == 0) {
 			return ChessBoard::State::CheckMateWhite;
@@ -802,7 +792,7 @@ float ChessBoard::eval() {
 	return score;
 }
 
-float ChessBoard::evalPieces() const{
+float ChessBoard::evalPieces() const {
 	float total = 0;
 	for (int idPlayer = 0; idPlayer < 2; idPlayer++) {
 		for (int i = 0; i < 16; i++) {
@@ -810,21 +800,21 @@ float ChessBoard::evalPieces() const{
 			if (!piece->taken) {
 				float rawValue = 0;
 				switch (piece->type) {
-					case Pawn:
-						rawValue = 1;
-						break;
-					case Bishop:
-						rawValue = 3;
-						break;
-					case Knight:
-						rawValue = 3;
-						break;
-					case Tower:
-						rawValue = 5;
-						break;
-					case Queen:
-						rawValue = 9;
-						break;
+				case Pawn:
+					rawValue = 1;
+					break;
+				case Bishop:
+					rawValue = 3;
+					break;
+				case Knight:
+					rawValue = 3;
+					break;
+				case Tower:
+					rawValue = 5;
+					break;
+				case Queen:
+					rawValue = 9;
+					break;
 				}
 				if (piece->player == 0) {
 					total -= rawValue;
@@ -846,54 +836,79 @@ float ChessBoard::evalMoves() {
 }
 
 Piece* ChessBoard::getPiece(sf::Vector2i pos) const {
-	return getPiece(pos.x, pos.y);
-}
-
-Piece* ChessBoard::getPiece(int x, int y) const{
-	if (x < 0 || x > 7 || y < 0 || y > 7) {
+	if (pos.x < 0 || pos.x > 7 || pos.y < 0 || pos.y > 7) {
 		return nullptr;
 	}
-	return piecesOnBoard[x][y];
+	return piecesOnBoard[pos.x][pos.y];
 }
 
-std::vector<Move> ChessBoard::getMoves(int x, int y, bool checkConsidered) {
+Piece* ChessBoard::getPiece(int x, int y) const {
+	return getPiece(sf::Vector2i(x, y));
+}
+
+std::vector<Move> ChessBoard::getMoves(sf::Vector2i pos, bool checkConsidered) {
 	std::vector<Move> moves;
-	getMoves(x, y, moves, checkConsidered);
+	getMoves(pos, moves, checkConsidered);
 	return moves;
 }
 
-void ChessBoard::getMoves(int x, int y, std::vector<Move> &moves, bool checkConsidered) {
-	Piece* piece = getPiece(x, y);
+void ChessBoard::getMoves(sf::Vector2i pos, std::vector<Move>& moves, bool checkConsidered) {
+	Piece* piece = getPiece(pos);
 	if (piece == nullptr) {
 		return;
 	}
 	switch (piece->type)
 	{
 	case King:
-		getKingMoves(x, y, moves, checkConsidered);
+		getKingMoves(pos, moves, checkConsidered);
 		break;
 	case Queen:
-		getTowerMoves(x, y, moves, checkConsidered);
-		getBishopMoves(x, y, moves, checkConsidered);
+		getTowerMoves(pos, moves, checkConsidered);
+		getBishopMoves(pos, moves, checkConsidered);
 		break;
 	case Bishop:
-		getBishopMoves(x, y, moves, checkConsidered);
+		getBishopMoves(pos, moves, checkConsidered);
 		break;
 	case Knight:
-		getKnightMoves(x, y, moves, checkConsidered);
+		getKnightMoves(pos, moves, checkConsidered);
 		break;
 	case Tower:
-		getTowerMoves(x, y, moves, checkConsidered);
+		getTowerMoves(pos, moves, checkConsidered);
 		break;
 	case Pawn:
-		getPawnMoves(x, y, moves, checkConsidered);
+		getPawnMoves(pos, moves, checkConsidered);
 		break;
 	default:
 		break;
 	}
 }
 
-bool ChessBoard::testMove(Move &move) {
+std::vector<Move> ChessBoard::getMoveOnPos(sf::Vector2i pos) {
+	std::vector<Move> moves;
+	if (historyMoves.size() >= 1) {
+		std::vector<Move> allMoves = historyMoves.top();
+		for (Move& move : allMoves) {
+			if (move.begin == pos) {
+				moves.push_back(move);
+			}
+		}
+	}
+	return moves;
+}
+
+Move ChessBoard::getSpecificMove(sf::Vector2i start, sf::Vector2i end) {
+	if (historyMoves.size() >= 1) {
+		std::vector<Move> allMoves = historyMoves.top();
+		for (Move& move : allMoves) {
+			if (move.begin == start && move.end == end) {
+				return move;
+			}
+		}
+	}
+	return Move();
+}
+
+bool ChessBoard::testMove(Move& move) {
 	movePiece(move);
 	int idPlayer = move.player;
 	Piece* king = pieces[idPlayer][12];
@@ -902,8 +917,9 @@ bool ChessBoard::testMove(Move &move) {
 	return !check;
 }
 
-void ChessBoard::addMove(int startX, int startY, int endX, int endY, int player, std::vector<Move> &moves, bool checkConsidered) {
-	Move move = Move(getPiece(startX, startY), sf::Vector2i(startX, startY), sf::Vector2i(endX, endY));
+void ChessBoard::addMove(sf::Vector2i start, sf::Vector2i end, std::vector<Move>& moves, bool checkConsidered, Tag tag) {
+	Move move = Move(getPiece(start), end);
+	move.tag = tag;
 	if (isCorrectMove(move)) {
 		if (!checkConsidered) {
 			moves.push_back(move);
@@ -914,77 +930,95 @@ void ChessBoard::addMove(int startX, int startY, int endX, int endY, int player,
 	}
 }
 
-void ChessBoard::getPawnMoves(int x, int y, std::vector<Move> &moves, bool checkConsidered) {
-	Piece* piece = getPiece(x, y);
-	int player = piece->player;
+void ChessBoard::getPawnMoves(sf::Vector2i start, std::vector<Move>& moves, bool checkConsidered) {
+	Piece* piece = getPiece(start);
 
 	// Sens d'avancee des pions
 	int sign = (piece->player == 0 ? 1 : -1);
+
+	int x = start.x;
+	int y = start.y;
+	sf::Vector2i end;
+
+	Tag tag = (end.y == 1 || end.y == 6) ? Tag::Promotion : Tag::NoneTag;
 
 	if (isOnBoard(x, y + sign)) {
 		Piece* frontSpot = getPiece(x, y + sign);
 		if (frontSpot == nullptr) {
 			// Avancée d'une case
-			addMove(x, y, x, y + sign, player, moves, checkConsidered);
+			end.x = x;
+			end.y = y + sign;
+			addMove(start, end, moves, checkConsidered, tag);
 			if (piece->nbMove == 0) {
 				if (isOnBoard(x, y + 2 * sign)) {
 					Piece* nextSpot = getPiece(x, y + 2 * sign);
 					if (nextSpot == nullptr) {
 						// Avancée de deux cases
-						addMove(x, y, x, y + 2 * sign, player, moves, checkConsidered);
+						end.y = y + 2 * sign;
+						addMove(start, end, moves, checkConsidered, Tag::JumpTwoCases);
 					}
 				}
 			}
 		}
 	}
-	
+
 	// Prise
 	if (isOnBoard(x - 1, y + sign)) {
 		Piece* leftSpot = getPiece(x - 1, y + sign);
-		if (leftSpot != nullptr && leftSpot->player != player) {
-			addMove(x, y, x - 1, y + sign, player, moves, checkConsidered);
+		if (leftSpot != nullptr && leftSpot->player != piece->player) {
+			end.x = x - 1;
+			end.y = y + sign;
+			addMove(start, end, moves, checkConsidered, tag);
 		}
 	}
 	if (isOnBoard(x + 1, y + sign)) {
 		Piece* rightSpot = getPiece(x + 1, y + sign);
-		if (rightSpot != nullptr && rightSpot->player != player) {
-			addMove(x, y, x + 1, y + sign, player, moves, checkConsidered);
+		if (rightSpot != nullptr && rightSpot->player != piece->player) {
+			end.x = x + 1;
+			end.y = y + sign;
+			addMove(start, end, moves, checkConsidered, tag);
 		}
 	}
-	
+
 	// Prise en passant
 	if (isOnBoard(x - 1, y)) {
 		Piece* sideLeft = getPiece(x - 1, y);
 		if (sideLeft != nullptr && sideLeft->type == Pawn && sideLeft->player != piece->player && sideLeft->hasJustMoveTwoCases) {
-			addMove(x, y, x - 1, y + sign, player, moves, checkConsidered);
+			end.x = x - 1;
+			end.y = y + sign;
+			addMove(start, end, moves, checkConsidered, Tag::EnPassant);
 		}
 	}
 	if (isOnBoard(x + 1, y)) {
 		Piece* sideRight = getPiece(x + 1, y);
 		if (sideRight != nullptr && sideRight->type == Pawn && sideRight->player != piece->player && sideRight->hasJustMoveTwoCases) {
-			addMove(x, y, x + 1, y + sign, player, moves, checkConsidered);
+			end.x = x + 1;
+			end.y = y + sign;
+			addMove(start, end, moves, checkConsidered, Tag::EnPassant);
 		}
 	}
 }
 
-void ChessBoard::getKnightMoves(int x, int y, std::vector<Move> &moves, bool checkConsidered) {
-	// On cherche un cavalier qui menace la case
-	sf::Vector2i* possibilities = getKnightEmplacement(sf::Vector2i(x, y));
+void ChessBoard::getKnightMoves(sf::Vector2i start, std::vector<Move>& moves, bool checkConsidered) {
+	sf::Vector2i end;
 
-	Piece* movingPiece = getPiece(x, y);
+	// On cherche un cavalier qui menace la case
+	sf::Vector2i* possibilities = getKnightEmplacement(start);
+
+	Piece* movingPiece = getPiece(start);
 	for (int i = 0; i < 8; i++) {
-		sf::Vector2i newPos = possibilities[i];
-		if (isOnBoard(newPos)) {
-			Piece* piece = getPiece(newPos);
+		end = possibilities[i];
+		if (isOnBoard(end)) {
+			Piece* piece = getPiece(end);
 			if (piece == nullptr || piece->player != movingPiece->player) {
-				addMove(x, y, newPos.x, newPos.y, movingPiece->player, moves, checkConsidered);
+				addMove(start, end, moves, checkConsidered);
 			}
 		}
 	}
 }
 
-void ChessBoard::getBishopMoves(int x, int y, std::vector<Move> &moves, bool checkConsidered) {
-	Piece* movingPiece = getPiece(x, y);
+void ChessBoard::getBishopMoves(sf::Vector2i start, std::vector<Move>& moves, bool checkConsidered) {
+	Piece* movingPiece = getPiece(start);
 
 	// Les 4 diagonales possibles
 	sf::Vector2i directions[4] = { {1, 1}, {-1, -1}, {-1, 1}, {1, -1} };
@@ -994,8 +1028,8 @@ void ChessBoard::getBishopMoves(int x, int y, std::vector<Move> &moves, bool che
 	}
 }
 
-void ChessBoard::getTowerMoves(int x, int y, std::vector<Move> &moves, bool checkConsidered) {
-	Piece* movingPiece = getPiece(x, y);
+void ChessBoard::getTowerMoves(sf::Vector2i start, std::vector<Move>& moves, bool checkConsidered) {
+	Piece* movingPiece = getPiece(start);
 
 	// Les 4 directions possibles : Droite, Gauche, Bas, Haut
 	sf::Vector2i directions[4] = { {1, 0}, {-1, 0}, {0, 1}, {0, -1} };
@@ -1006,8 +1040,8 @@ void ChessBoard::getTowerMoves(int x, int y, std::vector<Move> &moves, bool chec
 }
 
 void ChessBoard::getDirectionMove(Piece* movingPiece, sf::Vector2i dir, std::vector<Move>& moves, bool checkConsidered) {
-	int x = movingPiece->pos.x;
-	int y = movingPiece->pos.y;
+	sf::Vector2i start(movingPiece->pos);
+	sf::Vector2i end;
 
 	int diffX = dir.x;
 	int diffY = dir.y;
@@ -1015,51 +1049,57 @@ void ChessBoard::getDirectionMove(Piece* movingPiece, sf::Vector2i dir, std::vec
 	bool next = true;
 	int j = 1;
 	do {
-		int newX = x + j * diffX;
-		int newY = y + j * diffY;
-		Piece* piece = getPiece(newX, newY);
+		end.x = start.x + j * diffX;
+		end.y = start.y + j * diffY;
+		Piece* piece = getPiece(end);
 
 		// On a atteint le bord => on arrete
-		if (!isOnBoard(newX, newY)) {
+		if (!isOnBoard(end)) {
 			next = false;
 		}
 
 		// Espace libre => on continue
 		else if (piece == nullptr) {
-			addMove(x, y, newX, newY, movingPiece->player, moves, checkConsidered);
+			addMove(start, end, moves, checkConsidered);
 			next = true;
 			j++;
 		}
 		// Piece présente => on arrête
 		else {
 			if (piece->player != movingPiece->player) {
-				addMove(x, y, newX, newY, movingPiece->player, moves, checkConsidered);
+				addMove(start, end, moves, checkConsidered);
 			}
 			next = false;
 		}
 	} while (next);
 }
 
-void ChessBoard::getKingMoves(int x, int y, std::vector<Move> &moves, bool checkConsidered) {
-	Piece* king = getPiece(x, y);
+void ChessBoard::getKingMoves(sf::Vector2i start, std::vector<Move>& moves, bool checkConsidered) {
+	int x = start.x;
+	int y = start.y;
+	sf::Vector2i end;
+
+	Piece* king = getPiece(start);
+
+	// Déplacement classiques
 	int idPlayer = king->player;
 	for (int diffX = -1; diffX < 2; diffX++) {
 		for (int diffY = -1; diffY < 2; diffY++) {
 			if (diffX == 0 && diffY == 0) {
 				continue;
 			}
-			int newX = x + diffX;
-			int newY = y + diffY;
-			if (isOnBoard(newX, newY)) {
-				Piece* piece = getPiece(newX, newY);
+			end.x = x + diffX;
+			end.y = y + diffY;
+			if (isOnBoard(end)) {
+				Piece* piece = getPiece(end);
 				if (piece == nullptr || piece->player != idPlayer) {
-					addMove(x, y, newX, newY, idPlayer, moves, checkConsidered);
+					addMove(start, end, moves, checkConsidered);
 				}
 			}
 		}
 	}
 
-	// Roque
+	// Roques
 	if (king->nbMove == 0) {
 		Piece* towerSmallRook = getPiece(7, y);
 		sf::Vector2i knightPos = sf::Vector2i(6, y);
@@ -1068,13 +1108,15 @@ void ChessBoard::getKingMoves(int x, int y, std::vector<Move> &moves, bool check
 		Piece* bishop = getPiece(bishopPos);
 		if (knight == nullptr
 			&& bishop == nullptr
-			&& towerSmallRook != nullptr 
+			&& towerSmallRook != nullptr
 			&& towerSmallRook->nbMove == 0
 			&& !isThreatenedBy(knightPos, otherPlayer(idPlayer))
 			&& !isThreatenedBy(bishopPos, otherPlayer(idPlayer))
 			&& !isThreatenedBy(king->pos, otherPlayer(idPlayer))
 			) {
-			addMove(x, y, x + 2, y, idPlayer, moves, checkConsidered);
+			end.x = x + 2;
+			end.y = y;
+			addMove(start, end, moves, checkConsidered, Tag::KingSideCastling);
 		}
 
 		Piece* towerBigRook = getPiece(0, y);
@@ -1084,16 +1126,18 @@ void ChessBoard::getKingMoves(int x, int y, std::vector<Move> &moves, bool check
 		Piece* knight2 = getPiece(knight2Pos);
 		Piece* bishop2 = getPiece(bishop2Pos);
 		Piece* queen = getPiece(queenPos);
-		if (bishop2 == nullptr 
-			&& knight2 == nullptr 
-			&& queen == nullptr 
-			&& towerBigRook != nullptr 
+		if (bishop2 == nullptr
+			&& knight2 == nullptr
+			&& queen == nullptr
+			&& towerBigRook != nullptr
 			&& towerBigRook->nbMove == 0
 			&& !isThreatenedBy(bishop2Pos, otherPlayer(idPlayer))
 			&& !isThreatenedBy(queenPos, otherPlayer(idPlayer))
 			&& !isThreatenedBy(king->pos, otherPlayer(idPlayer))
 			) {
-			addMove(x, y, x - 2, y, idPlayer, moves, checkConsidered);
+			end.x = x - 2;
+			end.y = y;
+			addMove(start, end, moves, checkConsidered, Tag::QueenSideCastling);
 		}
 	}
 }
@@ -1108,47 +1152,47 @@ std::string ChessBoard::generateBoardId() const {
 			}
 			else if (piece->player == 0) {
 				switch (piece->type) {
-					case PieceType::King:
-						id += "R";
-						break;
-					case PieceType::Queen:
-						id += "D";
-						break;
-					case PieceType::Bishop:
-						id += "F";
-						break;
-					case PieceType::Knight:
-						id += "C";
-						break;
-					case PieceType::Tower:
-						id += "T";
-						break;
-					case PieceType::Pawn:
-						id += "P";
-						break;
-					
+				case PieceType::King:
+					id += "R";
+					break;
+				case PieceType::Queen:
+					id += "D";
+					break;
+				case PieceType::Bishop:
+					id += "F";
+					break;
+				case PieceType::Knight:
+					id += "C";
+					break;
+				case PieceType::Tower:
+					id += "T";
+					break;
+				case PieceType::Pawn:
+					id += "P";
+					break;
+
 				}
 			}
 			else {
 				switch (piece->type) {
-					case PieceType::King:
-						id += "r";
-						break;
-					case PieceType::Queen:
-						id += "d";
-						break;
-					case PieceType::Bishop:
-						id += "f";
-						break;
-					case PieceType::Knight:
-						id += "c";
-						break;
-					case PieceType::Tower:
-						id += "t";
-						break;
-					case PieceType::Pawn:
-						id += "p";
-						break;
+				case PieceType::King:
+					id += "r";
+					break;
+				case PieceType::Queen:
+					id += "d";
+					break;
+				case PieceType::Bishop:
+					id += "f";
+					break;
+				case PieceType::Knight:
+					id += "c";
+					break;
+				case PieceType::Tower:
+					id += "t";
+					break;
+				case PieceType::Pawn:
+					id += "p";
+					break;
 				}
 			}
 		}
@@ -1157,11 +1201,50 @@ std::string ChessBoard::generateBoardId() const {
 }
 
 std::string ChessBoard::getMoveSymbol(Move move) {
-	std::string symbol = getId(move.piece);
-	if (move.destroyed != nullptr) {
-		symbol += "x";
+	std::string symbol = "";
+
+	if (move.tag == Tag::EmptyMove) {
+		return "";
 	}
-	symbol += getSymbolPosition(move.end);
+	if (move.tag == Tag::KingSideCastling) {
+		symbol += "O-o";
+	}
+	else if (move.tag == Tag::QueenSideCastling) {
+		symbol += "O-o-o";
+	}
+	else {
+		symbol += getId(move.piece);
+
+		// On lève une éventuelle ambiguïté
+		std::vector<Move> validMoves = historyMoves.top();
+		Move sameEndMove;
+		for (Move& otherMove : validMoves) {
+			if (move.piece->type == otherMove.piece->type && move.end == otherMove.end) {
+				if (move.begin != otherMove.begin) {
+					sameEndMove = otherMove;
+					break;
+				}
+			}
+		}
+
+		if (sameEndMove.tag != Tag::EmptyMove) {
+			if (move.begin.x != sameEndMove.begin.x) {
+				symbol += getSymbolPosX(move.begin.x);
+			}
+			else {
+				symbol += getSymbolPosY(move.begin.y);
+			}
+		}
+
+		if (move.destroyed != nullptr) {
+			symbol += "x";
+		}
+		symbol += getSymbolPosition(move.end);
+	}
+
+	if (move.tag == Tag::Promotion) {
+		symbol += "=D";
+	}
 
 	if (isCheckMate()) {
 		symbol += "#";

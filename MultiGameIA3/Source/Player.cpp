@@ -92,9 +92,16 @@ float Player::playAlphaBeta(IBoard* board, int level, int idPlayer, bool root, f
 	if (idPlayer == 0) {
 		best = 1000000;
 		for (int i = 0; i < n; i++) {
+			if (i == 29 && n == 31 && nbTest == 4156) {
+				std::cout << "nbTest" << " : " << nbTest << std::endl;
+			}
 			board->play(i);
 			float value = playAlphaBeta(board, level - 1, 1, false, alpha, beta);
 			board->undo();
+
+			if (n != board->getNumberMoves()) {
+				std::cout << i << " / " << n << " : " << "erreur de play/undo" << std::endl;
+			}
 
 			if (value < best) {
 				best = value;

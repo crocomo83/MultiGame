@@ -63,14 +63,16 @@ class ChessBoard : public IBoard {
 		void					movePiece(Move& move);
 		void					unMovePiece(Move &move);
 
-		Piece*					getPiece(int x, int y) const;
 		Piece*					getPiece(sf::Vector2i pos) const;
+		Piece*					getPiece(int x, int y) const;
 
-		void					addMove(int startX, int startY, int endX, int endY, int player, std::vector<Move> &moves, bool checkConsidered);
+		void					addMove(sf::Vector2i start, sf::Vector2i end, std::vector<Move>& moves, bool checkConsidered, Tag tag = Tag::NoneTag);
 		bool					isValidMove(Move move);
 		bool					isCorrectMove(Move move) const;
-		void					getMoves(int x, int y, std::vector<Move> &moves, bool checkConsidered);
-		std::vector<Move>		getMoves(int x, int y, bool checkConsidered);
+		void					getMoves(sf::Vector2i pos, std::vector<Move> &moves, bool checkConsidered);
+		std::vector<Move>		getMoves(sf::Vector2i pos, bool checkConsidered);
+		std::vector<Move>		getMoveOnPos(sf::Vector2i pos);
+		Move					getSpecificMove(sf::Vector2i start, sf::Vector2i end);
 		std::vector<Move>		getAllMoves(int idPlayer, bool checkConsidered);
 		int						getNumberMoves();
 		bool					isAnyMovePossible(int idPlayer);
@@ -108,11 +110,11 @@ class ChessBoard : public IBoard {
 		bool					isThreatenedBy(sf::Vector2i pos, int idPlayer) const;
 
 		void					resetEnPassant(int idPlayer) const;
-		void					getPawnMoves(int x, int y, std::vector<Move> &moves, bool checkConsidered);
-		void					getKnightMoves(int x, int y, std::vector<Move> &moves, bool checkConsidered);
-		void					getBishopMoves(int x, int y, std::vector<Move> &moves, bool checkConsidered);
-		void					getTowerMoves(int x, int y, std::vector<Move> &moves, bool checkConsidered);
-		void					getKingMoves(int x, int y, std::vector<Move> &moves, bool checkConsidered);
+		void					getPawnMoves(sf::Vector2i pos, std::vector<Move> &moves, bool checkConsidered);
+		void					getKnightMoves(sf::Vector2i pos, std::vector<Move> &moves, bool checkConsidered);
+		void					getBishopMoves(sf::Vector2i pos, std::vector<Move> &moves, bool checkConsidered);
+		void					getTowerMoves(sf::Vector2i pos, std::vector<Move> &moves, bool checkConsidered);
+		void					getKingMoves(sf::Vector2i pos, std::vector<Move> &moves, bool checkConsidered);
 		void					getDirectionMove(Piece* movingPiece, sf::Vector2i dir, std::vector<Move>& moves, bool checkConsidered);
 
 		// Lecture ecriture

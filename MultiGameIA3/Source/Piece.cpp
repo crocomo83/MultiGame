@@ -8,27 +8,35 @@ bool equalMoves(Move move1, Move move2) {
 		&& move1.player == move2.player;
 }
 
-std::string getSymbolPosition(sf::Vector2i pos) {
-	std::string posY = std::to_string(pos.y + 1);
-	switch (pos.x) {
+std::string getSymbolPosX(int x) {
+	switch (x) {
 	case 0:
-		return "a" + posY;
+		return "a";
 	case 1:
-		return "b" + posY;
+		return "b";
 	case 2:
-		return "c" + posY;
+		return "c";
 	case 3:
-		return "d" + posY;
+		return "d";
 	case 4:
-		return "e" + posY;
+		return "e";
 	case 5:
-		return "f" + posY;
+		return "f";
 	case 6:
-		return "g" + posY;
+		return "g";
 	case 7:
-		return "h" + posY;
+		return "h";
+	default:
+		return "ERROR";
 	}
-	return "ERROR";
+}
+
+std::string getSymbolPosY(int y) {
+	return std::to_string(y + 1);
+}
+
+std::string getSymbolPosition(sf::Vector2i pos) {
+	return getSymbolPosX(pos.x) + getSymbolPosY(pos.y);
 }
 
 std::string getId(Piece* piece) {
@@ -81,6 +89,24 @@ int getType(Piece* piece) {
 		case PieceType::Pawn:
 			return 12;
 		}
+	}	
+}
+
+std::string tagToStr(Tag tag) {
+	switch (tag) {
+	case NoneTag:
+		return "NoneTag";
+	case EmptyMove:
+		return "EmptyMove";
+	case JumpTwoCases:
+		return "JumpTwoCases";
+	case EnPassant:
+		return "EnPassant";
+	case Promotion:
+		return "Promotion";
+	case KingSideCastling:
+		return "KingSideCastling";
+	case QueenSideCastling:
+		return "QueenSideCastling";
 	}
-	
 }

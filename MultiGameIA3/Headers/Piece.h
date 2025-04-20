@@ -17,7 +17,9 @@ enum Tag {
 	JumpTwoCases,
 	EnPassant,
 	Promotion,
-	Castling
+	KingSideCastling,
+	QueenSideCastling,
+	EmptyMove
 };
 
 struct Piece {
@@ -52,11 +54,11 @@ struct Move {
 		, piece(nullptr)
 		, player(-1)
 		, destroyed(nullptr)
-		, tag(NoneTag)
+		, tag(EmptyMove)
 	{}
 
-	Move(Piece* piece_, sf::Vector2i begin_, sf::Vector2i end_)
-		: begin(begin_)
+	Move(Piece* piece_, sf::Vector2i end_)
+		: begin(piece_->pos)
 		, end(end_)
 		, piece(piece_)
 		, player(piece_->player)
@@ -66,6 +68,9 @@ struct Move {
 };
 
 bool equalMoves(Move move1, Move move2);
+std::string getSymbolPosX(int x);
+std::string getSymbolPosY(int y);
 std::string getSymbolPosition(sf::Vector2i pos);
 std::string getId(Piece* piece);
 int getType(Piece* piece);
+std::string tagToStr(Tag tag);
