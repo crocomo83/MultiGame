@@ -1,7 +1,7 @@
 #include "../Headers/MenuManager.h"
 #include "../Headers/Game.h"
 
-const int chessLevelIA = 3;
+const int chessLevelIA = 4;
 const int power4LevelIA = 6;
 
 MenuManager::MenuManager(sf::RenderWindow* window_)

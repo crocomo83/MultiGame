@@ -351,8 +351,8 @@ bool ChessBoard::play(Move& move, bool checkValidity) {
 	Piece* piece = getPiece(move.begin);
 
 	if (piece == nullptr) {
-		//std::cerr << "Erreur play : piece ne peut pas etre nulle" << std::endl;
-		//printBoard();
+		std::cerr << "Erreur play : piece ne peut pas etre nulle" << std::endl;
+		printBoard();
 		return false;
 	}
 
@@ -366,6 +366,7 @@ bool ChessBoard::play(Move& move, bool checkValidity) {
 		piece->hasJustMoveTwoCases = true;
 		break;
 	case Promotion:
+		std::cout << "play promotion" << std::endl;
 		piece->type = Queen;
 		break;
 	case KingSideCastling:
@@ -422,12 +423,6 @@ bool ChessBoard::undo() {
 
 	idCurrentPlayer = otherPlayer(idCurrentPlayer);
 
-	if (!temp && piecesOnBoard[7][0] == nullptr) {
-		temp = true;
-		std::cout << "Unmove destroyer de tour : " << std::endl;
-		printMove(move);
-	}
-
 	return true;
 }
 
@@ -454,16 +449,12 @@ void ChessBoard::undo(Move& move) {
 		piece->type = Pawn;
 		break;
 	case KingSideCastling:
-		std::cout << "Undo move 14 destroyer de tour : " << std::endl;
-		printMove(move);
-		towerMove = new Move(getPiece(7, beginY), sf::Vector2i(5, beginY), sf::Vector2i(7, beginY));
+		towerMove = new Move(getPiece(5, beginY), sf::Vector2i(7, beginY), sf::Vector2i(5, beginY));
 		towerMove->destroyed = nullptr;
 		unMovePiece(*towerMove);
-		std::cout << "Undo move 14 destroyer de tour : " << std::endl;
-		printMove(move);
 		break;
 	case QueenSideCastling:
-		towerMove = new Move(getPiece(0, beginY), sf::Vector2i(3, beginY), sf::Vector2i(0, beginY));
+		towerMove = new Move(getPiece(3, beginY), sf::Vector2i(0, beginY), sf::Vector2i(3, beginY));
 		towerMove->destroyed = nullptr;
 		unMovePiece(*towerMove);
 		break;
@@ -551,7 +542,7 @@ void ChessBoard::update(sf::Vector2i pos, int idPlayer) {
 		}
 
 		sf::Vector2i posOnBoard = PixelToChessBoard(pos, sf::Vector2i(startX, startY), sf::Vector2i(offsetX, offsetY), reverseBoard);
-		Move move = Move(getPiece(selectedPawn), selectedPawn, posOnBoard);
+		Move move = Move(getPiece(selectedPawn), posOnBoard);
 
 		// green highlight
 		if (isValidMove(move)) {
@@ -922,7 +913,7 @@ bool ChessBoard::testMove(Move& move) {
 }
 
 void ChessBoard::addMove(sf::Vector2i start, sf::Vector2i end, std::vector<Move>& moves, bool checkConsidered, Tag tag) {
-	Move move = Move(getPiece(start), start, end);
+	Move move = Move(getPiece(start), end);
 	move.tag = tag;
 	if (isCorrectMove(move)) {
 		if (!checkConsidered) {
@@ -944,7 +935,13 @@ void ChessBoard::getPawnMoves(sf::Vector2i start, std::vector<Move>& moves, bool
 	int y = start.y;
 	sf::Vector2i end;
 
-	Tag tag = (end.y == 1 || end.y == 6) ? Tag::Promotion : Tag::NoneTag;
+	Tag tag;
+	if ((y == 1 && sign == -1) || (y == 6 && sign == 1)) {
+		tag = Tag::Promotion;
+	}
+	else {
+		tag = Tag::NoneTag;
+	}
 
 	if (isOnBoard(x, y + sign)) {
 		Piece* frontSpot = getPiece(x, y + sign);

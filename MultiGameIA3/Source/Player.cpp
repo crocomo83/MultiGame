@@ -96,10 +96,6 @@ float Player::playAlphaBeta(IBoard* board, int level, int idPlayer, bool root, f
 			float value = playAlphaBeta(board, level - 1, 1, false, alpha, beta);
 			board->undo();
 
-			if (n != board->getNumberMoves()) {
-				std::cout << i << " / " << n << " : " << "erreur de play/undo" << std::endl;
-			}
-
 			if (value < best) {
 				best = value;
 				numBest = i;
@@ -163,7 +159,5 @@ int Player::play(IBoard* board, PlayerType type, int idPlayer, int level) {
 	double duration = std::chrono::duration<double, std::milli>(end - start).count();
 
 	std::cout << "Temps d'execution: " << duration << " ms" << std::endl;
-
-	std::cout << "play : " << index << std::endl;
 	return index;
 }

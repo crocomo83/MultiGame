@@ -65,6 +65,10 @@ struct Move {
 		, destroyed(nullptr)
 		, tag(NoneTag)
 	{}
+
+	Move(Piece* piece_, sf::Vector2i end_)
+		: Move(piece_, piece_->pos, end_)
+	{}
 };
 
 bool equalMoves(Move move1, Move move2);
