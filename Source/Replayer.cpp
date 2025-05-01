@@ -15,7 +15,7 @@ Replayer::Replayer(sf::RenderWindow* window_, std::string fileName_)
 
 	std::vector<std::string> splitStr = splitString(fileName, '_');
 	if (splitStr[0] == "Chess") {
-		bool reverse = headerLines[0] == "true";
+		bool reverse = headerLines[1] == "1";
 		board = new ChessBoard(reverse);
 	}
 	else if (splitStr[0] == "Power4") {
