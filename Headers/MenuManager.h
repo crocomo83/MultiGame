@@ -13,6 +13,8 @@ public:
 	~MenuManager();
 
 	void setMainMenu();
+	std::vector<std::string> listFilesInDirectory(const std::string& folderPath);
+	void setReplayList();
 	void setChessMenu();
 	void setChessMenuVSComputer();
 	void setPower4Menu();

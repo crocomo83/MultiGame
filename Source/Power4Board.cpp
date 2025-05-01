@@ -67,6 +67,11 @@ bool Power4Board::play(int index) {
 	return playInColum(validMoves[index]);
 }
 
+bool Power4Board::play(std::string move)
+{
+	return play(std::stoi(move));
+}
+
 bool Power4Board::isColumnFull(int column) const{
 	return pieceOnBoard[column][0] != -1;
 }
@@ -156,13 +161,14 @@ bool Power4Board::isGameOver(std::string& messageGameOver)
 	return false;
 }
 
-void Power4Board::handleEvent(sf::Vector2i mousePos, sf::Event& event)
+int Power4Board::handleEvent(sf::Vector2i mousePos, sf::Event& event)
 {
+	int indexDecision = -1;
 	selectColumn(mousePos.x);
 	switch (event.type) {
 	case sf::Event::MouseButtonReleased:
 		if (event.mouseButton.button == sf::Mouse::Left) {
-			playInColum(selectedColumn);
+			indexDecision = selectedColumn;
 		}
 		break;
 	case sf::Event::KeyPressed:
@@ -171,6 +177,7 @@ void Power4Board::handleEvent(sf::Vector2i mousePos, sf::Event& event)
 		}
 		break;
 	}
+	return indexDecision;
 }
 
 void Power4Board::selectColumn(int mousePosX) {
@@ -329,12 +336,7 @@ Power4Board::State Power4Board::getGameState() const {
 		}
 	}
 
-	if (isEquality()) {
-		return Power4Board::State::Equality;
-	}
-	else {
-		return Power4Board::State::Normal;
-	}
+	return isEquality() ? Power4Board::State::Equality : Power4Board::State::Normal;
 }
 
 void Power4Board::computeValidMoves(int idPlayer) {
@@ -435,6 +437,21 @@ float Power4Board::eval() const {
 
 std::string Power4Board::getMoveSymbol(int index) {
 	return std::to_string(index);
+}
+
+std::string Power4Board::getStringToWright(int indexMove) const
+{
+	std::vector<int> validMoves = getAllMoves();
+	int column = validMoves[indexMove];
+	std::cout << "value : " << column << std::endl;
+	return std::to_string(column);
+}
+
+std::string Power4Board::getHeader() const
+{
+	std::string res;
+	res += "Power4\n";
+	return res;
 }
 
 uint64_t Power4Board::hashBoard() const {

@@ -7,9 +7,10 @@
 class Menu {
 
 public:
-	Menu(sf::RenderWindow* window);
+	Menu(sf::RenderWindow* window, float spaceBetweenText_);
 	~Menu();
 	void addOption(const std::string& label, std::function<void()> action);
+	void setSpaceBetweenText(float value);
 	void clearOptions();
 	void run_menu();
 	void prepareMenu();
@@ -19,6 +20,7 @@ protected:
 	void draw_all();
 
 private:
+	float spaceBetweenText;
 	int pos;
 	bool pressed, theselect;
 

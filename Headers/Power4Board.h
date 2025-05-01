@@ -39,13 +39,14 @@ public:
 	void							update(sf::Vector2i pos, int idPlayer);
 
 	bool							isGameOver(std::string& messageGameOver);
-	void							handleEvent(sf::Vector2i mousePos, sf::Event& event);
+	int								handleEvent(sf::Vector2i mousePos, sf::Event& event);
 	void							selectColumn(int mousePosX);
 
 	// Test de situations
 	bool							isColumnFull(int column) const;
 	bool							playInColum(int index);
 	bool							play(int index);
+	bool							play(std::string moveStr);
 	bool							undo();
 
 	void							computeValidMoves(int idPlayer);
@@ -66,6 +67,8 @@ public:
 	float							eval() const;
 
 	std::string						getMoveSymbol(int index);
+	std::string						getStringToWright(int indexMove) const;
+	std::string						getHeader() const;
 
 	uint64_t						hashBoard() const;
 	void							printBoard() const;

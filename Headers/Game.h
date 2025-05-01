@@ -3,6 +3,9 @@
 #include "Player.h"
 #include "ChessBoard.h"
 
+#include <future>
+#include <fstream>
+
 class Game {
 	public:
 		enum GameType {
@@ -11,17 +14,22 @@ class Game {
 		};
 
 	public :
-							Game(GameType gameType, Player::PlayerType player1, Player::PlayerType player2, int level = -1);
+							Game(sf::RenderWindow* window_, GameType gameType, Player::PlayerType player1, Player::PlayerType player2, int level = -1);
+							~Game();
 		void				run();
 
 	private :
+		static std::string  gameTypeToString(GameType gameType);
+		void				writeLine(const std::string& texte);
+		void				initSave();
 		void				swapPlayer();
 		void				render();
-		void				handleEvent();
-		void				handleActionEvent(sf::Event &event);
-		void				computePlay();
+		int					handleEvent();
+		void				computePlay(int indexDecision);
 
 	private :
+		std::string				fileName;
+		std::ofstream			saveFile;
 		bool					gameOver;
 		bool					hasSwap;
 		sf::Vector2i			posMouse;

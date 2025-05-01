@@ -144,7 +144,7 @@ void ChessBoard::initSprites() {
 
 void ChessBoard::initFont() {
 	font = new sf::Font();
-	if (!font->loadFromFile("arial.ttf"))
+	if (!font->loadFromFile("Media/arial.ttf"))
 	{
 		std::cout << "error while loading font" << std::endl;
 	}
@@ -217,7 +217,8 @@ bool ChessBoard::isGameOver(std::string& messageGameOver) {
 	}
 }
 
-void ChessBoard::handleEvent(sf::Vector2i mousePos, sf::Event& event) {
+int ChessBoard::handleEvent(sf::Vector2i mousePos, sf::Event& event) {
+	int indexDecision = -1;
 	switch (event.type) {
 	case sf::Event::MouseButtonPressed:
 		if (event.mouseButton.button == sf::Mouse::Left) {
@@ -226,10 +227,11 @@ void ChessBoard::handleEvent(sf::Vector2i mousePos, sf::Event& event) {
 		break;
 	case sf::Event::MouseButtonReleased:
 		if (event.mouseButton.button == sf::Mouse::Left) {
-			unselect(mousePos);
+			indexDecision = unselect(mousePos);
 		}
 		break;
 	}
+	return indexDecision;
 }
 
 bool ChessBoard::isValidMove(Move move) {
@@ -271,27 +273,18 @@ void ChessBoard::select(sf::Vector2i mousePos) {
 	}
 }
 
-bool ChessBoard::unselect(sf::Vector2i mousePos) {
-	bool played = false;
+int ChessBoard::unselect(sf::Vector2i mousePos) {
+	int indexMove = -1;
 	if (selectedPawn.x != -1) {
 		sf::Vector2i posOnBoard = PixelToChessBoard(mousePos, sf::Vector2i(startX, startY), sf::Vector2i(offsetX, offsetY), reverseBoard);
 
-		Move move = getSpecificMove(selectedPawn, posOnBoard);
-
-		std::string symbol = getMoveSymbol(move);
-
-		played = play(move, true);
-
-		if (played) {
-			std::cout << (move.player == 0 ? "white" : "black") << " play " << symbol << std::endl;
-			std::cout << std::endl;
-		}
+		indexMove = getIndexMove(selectedPawn, posOnBoard);
 
 		resetHighlights();
 
 		selectedPawn = sf::Vector2i(-1, -1);
 	}
-	return played;
+	return indexMove;
 }
 
 std::vector<Move> ChessBoard::getAllMoves(int idPlayer, bool checkConsidered) {
@@ -366,7 +359,6 @@ bool ChessBoard::play(Move& move, bool checkValidity) {
 		piece->hasJustMoveTwoCases = true;
 		break;
 	case Promotion:
-		std::cout << "play promotion" << std::endl;
 		piece->type = Queen;
 		break;
 	case KingSideCastling:
@@ -399,6 +391,15 @@ bool ChessBoard::play(Move& move, bool checkValidity) {
 bool ChessBoard::play(int index) {
 	std::vector<Move> validMoves = historyMoves.top();
 	return play(validMoves[index], false);
+}
+
+bool ChessBoard::play(std::string moveStr)
+{
+	int beginX = moveStr[0] - '0';
+	int beginY = moveStr[1] - '0';
+	int endX = moveStr[2] - '0';
+	int endY = moveStr[3] - '0';
+	return play(getIndexMove({ beginX, beginY}, { endX, endY}));
 }
 
 bool ChessBoard::undo() {
@@ -903,6 +904,19 @@ Move ChessBoard::getSpecificMove(sf::Vector2i start, sf::Vector2i end) {
 	return Move();
 }
 
+int ChessBoard::getIndexMove(sf::Vector2i start, sf::Vector2i end) {
+	if (historyMoves.size() >= 1) {
+		std::vector<Move> allMoves = historyMoves.top();
+		for (int i = 0; i < allMoves.size(); i++) {
+			Move move = allMoves[i];
+			if (move.begin == start && move.end == end) {
+				return i;
+			}
+		}
+	}
+	return -1;
+}
+
 bool ChessBoard::testMove(Move& move) {
 	movePiece(move);
 	int idPlayer = move.player;
@@ -1213,6 +1227,24 @@ std::string ChessBoard::getMoveSymbol(Move move) {
 std::string ChessBoard::getMoveSymbol(int index) {
 	std::vector<Move> validMoves = historyMoves.top();
 	return getMoveSymbol(validMoves[index]);
+}
+
+std::string ChessBoard::getStringToWright(int indexMove) const
+{
+	std::vector<Move> validMoves = historyMoves.top();
+	Move chosenMove = validMoves[indexMove];
+	std::string res = std::to_string(chosenMove.begin.x) + std::to_string(chosenMove.begin.y) 
+		+ std::to_string(chosenMove.end.x) + std::to_string(chosenMove.end.y);
+	return res;
+}
+
+std::string ChessBoard::getHeader() const
+{
+	std::string res;
+	res += "Chess\n";
+	res += std::to_string(reverseBoard);
+	res += "\n";
+	return res;
 }
 
 void ChessBoard::printMove(Move move) {

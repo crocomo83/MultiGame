@@ -1,8 +1,15 @@
 #pragma once
 
 #include <iostream>
+#include <vector>
 #include <SFML/System/Vector2.hpp>
 
+#include <string_view>
+
+constexpr std::string_view HEADER_STR = "HEADER";
+constexpr std::string_view MOVES_STR = "MOVES";
+
+std::vector<std::string> splitString(const std::string& str, char delimiter);
 int otherPlayer(int idPlayer);
 bool isOnBoard(sf::Vector2i pos);
 bool isOnBoard(int x, int y);

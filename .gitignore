@@ -4,6 +4,6 @@
 *.obj
 *.tlog
 .vs
-Debug/*
-x64/*
-MultiGameIA3/x64/Release/*
+Debug/
+Release/
+Saves/

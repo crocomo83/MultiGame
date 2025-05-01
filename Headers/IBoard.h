@@ -13,11 +13,15 @@ public:
 	virtual void					update(sf::Vector2i pos, int idPlayer) = 0;
 
 	virtual bool					isGameOver(std::string& message) = 0;
-	virtual void					handleEvent(sf::Vector2i mousPos, sf::Event& event) = 0;
+	virtual int						handleEvent(sf::Vector2i mousPos, sf::Event& event) = 0;
+
+	virtual std::string				getStringToWright(int indexMove) const = 0;
+	virtual std::string				getHeader() const = 0;
 
 	virtual void					computeValidMoves(int idPlayer) = 0;
 	virtual void					printValidMoves() = 0;
 	virtual bool					play(int index) = 0;
+	virtual bool					play(std::string moveStr) = 0;
 	virtual bool					undo() = 0;
 
 	virtual int						getNumberMoves() = 0;

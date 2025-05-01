@@ -39,10 +39,10 @@ class ChessBoard : public IBoard {
 								ChessBoard(bool reverseBoard_);
 
 		void					select(sf::Vector2i mousePos);
-		bool					unselect(sf::Vector2i mousePos);
+		int						unselect(sf::Vector2i mousePos);
 
 		bool					isGameOver(std::string& messageGameOver);
-		void					handleEvent(sf::Vector2i mousePos, sf::Event& event);
+		int						handleEvent(sf::Vector2i mousePos, sf::Event& event);
 
 		// Interface
 		void					draw(sf::RenderWindow& target);
@@ -57,6 +57,7 @@ class ChessBoard : public IBoard {
 		void					computeValidMoves(int idPlayer);
 		
 		bool					play(int index);
+		bool					play(std::string moveStr);
 		bool					play(Move &move, bool checkValidity);
 		bool					undo();
 
@@ -74,6 +75,7 @@ class ChessBoard : public IBoard {
 		std::vector<Move>		getMoves(sf::Vector2i pos, bool checkConsidered);
 		std::vector<Move>		getMoveOnPos(sf::Vector2i pos);
 		Move					getSpecificMove(sf::Vector2i start, sf::Vector2i end);
+		int						getIndexMove(sf::Vector2i start, sf::Vector2i end);
 		std::vector<Move>		getAllMoves(int idPlayer, bool checkConsidered);
 		int						getNumberMoves();
 		bool					isAnyMovePossible(int idPlayer);
@@ -83,6 +85,8 @@ class ChessBoard : public IBoard {
 
 		std::string				getMoveSymbol(Move move);
 		std::string				getMoveSymbol(int index);
+		std::string				getStringToWright(int indexMove) const;
+		std::string				getHeader() const;
 
 		void					printMove(Move move);
 		void					printValidMoves();

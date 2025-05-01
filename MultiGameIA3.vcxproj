@@ -18,6 +18,34 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Headers\ChessBoard.h" />
+    <ClInclude Include="Headers\Game.h" />
+    <ClInclude Include="Headers\IBoard.h" />
+    <ClInclude Include="Headers\Menu.h" />
+    <ClInclude Include="Headers\MenuManager.h" />
+    <ClInclude Include="Headers\Node.h" />
+    <ClInclude Include="Headers\NodePool.h" />
+    <ClInclude Include="Headers\Piece.h" />
+    <ClInclude Include="Headers\Player.h" />
+    <ClInclude Include="Headers\Power4Board.h" />
+    <ClInclude Include="Headers\Replayer.h" />
+    <ClInclude Include="Headers\Utility.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\ChessBoard.cpp" />
+    <ClCompile Include="Source\Game.cpp" />
+    <ClCompile Include="Source\main.cpp" />
+    <ClCompile Include="Source\Menu.cpp" />
+    <ClCompile Include="Source\MenuManager.cpp" />
+    <ClCompile Include="Source\Node.cpp" />
+    <ClCompile Include="Source\NodePool.cpp" />
+    <ClCompile Include="Source\Piece.cpp" />
+    <ClCompile Include="Source\Player.cpp" />
+    <ClCompile Include="Source\Power4Board.cpp" />
+    <ClCompile Include="Source\Replayer.cpp" />
+    <ClCompile Include="Source\Utility.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
@@ -74,6 +102,10 @@
     <OutDir>$(SolutionDir)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\$(Configuration)\</IntDir>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(SolutionDir)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\$(Configuration)\</IntDir>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -127,6 +159,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\Users\thoma\Documents\SFML-2.6.1\include;</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -137,32 +170,6 @@
       <AdditionalDependencies>sfml-graphics.lib;sfml-window.lib;sfml-system.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="MultiGameIA3\Source\ChessBoard.cpp" />
-    <ClCompile Include="MultiGameIA3\Source\Game.cpp" />
-    <ClCompile Include="MultiGameIA3\Source\main.cpp" />
-    <ClCompile Include="MultiGameIA3\Source\Menu.cpp" />
-    <ClCompile Include="MultiGameIA3\Source\MenuManager.cpp" />
-    <ClCompile Include="MultiGameIA3\Source\Node.cpp" />
-    <ClCompile Include="MultiGameIA3\Source\NodePool.cpp" />
-    <ClCompile Include="MultiGameIA3\Source\Piece.cpp" />
-    <ClCompile Include="MultiGameIA3\Source\Player.cpp" />
-    <ClCompile Include="MultiGameIA3\Source\Power4Board.cpp" />
-    <ClCompile Include="MultiGameIA3\Source\Utility.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="MultiGameIA3\Headers\ChessBoard.h" />
-    <ClInclude Include="MultiGameIA3\Headers\Game.h" />
-    <ClInclude Include="MultiGameIA3\Headers\IBoard.h" />
-    <ClInclude Include="MultiGameIA3\Headers\Menu.h" />
-    <ClInclude Include="MultiGameIA3\Headers\MenuManager.h" />
-    <ClInclude Include="MultiGameIA3\Headers\Node.h" />
-    <ClInclude Include="MultiGameIA3\Headers\NodePool.h" />
-    <ClInclude Include="MultiGameIA3\Headers\Power4Board.h" />
-    <ClInclude Include="MultiGameIA3\Headers\Utility.h" />
-    <ClInclude Include="MultiGameIA3\Headers\Piece.h" />
-    <ClInclude Include="MultiGameIA3\Headers\Player.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

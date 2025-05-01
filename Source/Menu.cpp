@@ -2,18 +2,19 @@
 #include "../Headers/Game.h"
 #include "../Headers/Player.h"
 
-Menu::Menu(sf::RenderWindow* window_)
+Menu::Menu(sf::RenderWindow* window_, float spaceBetweenText_)
 	: window(window_)
 	, pos(0)
 	, pressed(false)
 	, theselect(false)
+	, spaceBetweenText(spaceBetweenText_)
 {
 	font = new sf::Font();
 	image = new sf::Texture();
 	backgroundSprite = new sf::Sprite();
 
-	pos_mouse = { 0,0 };
-	mouse_coord = { 0, 0 };
+	pos_mouse = {0, 0};
+	mouse_coord = {0, 0};
 }
 
 Menu::~Menu() {
@@ -24,6 +25,10 @@ Menu::~Menu() {
 
 void Menu::addOption(const std::string& label, std::function<void()> action) {
 	entries.emplace_back(label, action);
+}
+
+void Menu::setSpaceBetweenText(float value) {
+	spaceBetweenText = value;
 }
 
 void Menu::clearOptions() {
@@ -40,7 +45,6 @@ void Menu::prepareMenu() {
 
 	float posX = 250;
 	float initPosY = 150;
-	float deltaPosY = 80;
 
 	for (std::size_t i = 0; i < entries.size(); ++i) {
 		sf::Text text;
@@ -48,13 +52,14 @@ void Menu::prepareMenu() {
 		text.setString(entries[i].first);
 		text.setCharacterSize(24);
 		text.setOutlineColor(sf::Color::Black);
-		text.setPosition({ posX, initPosY + i * deltaPosY });
+		text.setPosition({ posX, initPosY + i * spaceBetweenText });
 		texts.push_back(text);
 		coords.push_back(text.getPosition());
 	}
 
-	for (auto& text : texts)
+	for (auto& text : texts) {
 		text.setOutlineThickness(1);
+	}
 }
 
 void Menu::loop_events() {
@@ -67,9 +72,10 @@ void Menu::loop_events() {
 		pos_mouse = sf::Mouse::getPosition(*window);
 		mouse_coord = window->mapPixelToCoords(pos_mouse);
 
-		for (auto& text : texts)
+		for (auto& text : texts) {
 			text.setOutlineThickness(1);
-
+		}
+		
 		pos = -1;
 		for (int i = 0; i < texts.size(); ++i) {
 			if (texts[i].getGlobalBounds().contains(mouse_coord)) {
@@ -78,9 +84,9 @@ void Menu::loop_events() {
 			}
 		}
 
-		if (event.type == sf::Event::MouseButtonReleased 
-			&& event.mouseButton.button == sf::Mouse::Left 
-			&& pos >= 0) 
+		if (event.type == sf::Event::MouseButtonReleased
+			&& event.mouseButton.button == sf::Mouse::Left
+			&& pos >= 0)
 		{
 			entries[pos].second();
 		}
