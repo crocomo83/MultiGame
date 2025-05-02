@@ -6,6 +6,7 @@
 #include <vector>
 #include <string>
 #include <filesystem>
+#include <thread>
 
 namespace fs = std::filesystem;
 
@@ -46,8 +47,6 @@ void MenuManager::setMainMenu() {
 	menu->addOption("Quit", [&]() {
 		window->close();
 		});
-
-	menu->prepareMenu();
 }
 
 std::vector<std::string> MenuManager::listFilesInDirectory(const std::string& folderPath) {
@@ -71,10 +70,10 @@ void MenuManager::setReplayList() {
 	menu->clearOptions();
 	menu->setSpaceBetweenText(spaceBetweenTextList);
 
-	std::vector<std::string> fileNames = listFilesInDirectory("Saves");
+	std::vector<std::string> fileNames = listFilesInDirectory(std::string(SAVES_STR));
 	for (std::string fileName : fileNames) {
 		menu->addOption(fileName, [fileName, this]() {
-			Replayer replayer(window, fileName);
+			Replayer replayer(fileName);
 			replayer.run();
 			});
 	}
@@ -82,8 +81,6 @@ void MenuManager::setReplayList() {
 	menu->addOption("Main Menu", [&]() {
 		setMainMenu();
 		});
-
-	menu->prepareMenu();
 }
 
 void MenuManager::setChessMenu() {
@@ -102,8 +99,6 @@ void MenuManager::setChessMenu() {
 	menu->addOption("Main Menu", [&]() {
 		setMainMenu();
 		});
-
-	menu->prepareMenu();
 }
 
 void MenuManager::setChessMenuVSComputer() {
@@ -135,8 +130,6 @@ void MenuManager::setChessMenuVSComputer() {
 	menu->addOption("Main Menu", [&]() {
 		setMainMenu();
 		});
-
-	menu->prepareMenu();
 }
 
 void MenuManager::setPower4Menu() {
@@ -155,8 +148,6 @@ void MenuManager::setPower4Menu() {
 	menu->addOption("Main Menu", [&]() {
 		setMainMenu();
 		});
-
-	menu->prepareMenu();
 }
 
 void MenuManager::setPower4MenuVSComputer() {
@@ -188,10 +179,19 @@ void MenuManager::setPower4MenuVSComputer() {
 	menu->addOption("Main Menu", [&]() {
 		setMainMenu();
 		});
-
-	menu->prepareMenu();
 }
 
-void MenuManager::run() {
-	menu->run_menu();
+void MenuManager::update(sf::Vector2i mousePos) {
+	menu->update(mousePos);
+}
+
+void MenuManager::render(sf::RenderWindow* window)
+{
+	menu->render(window);
+}
+
+int MenuManager::handleEvent(sf::Event event)
+{
+	menu->handleEvent(event);
+	return 0;
 }

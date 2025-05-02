@@ -21,11 +21,14 @@
   <ItemGroup>
     <ClInclude Include="Headers\ChessBoard.h" />
     <ClInclude Include="Headers\Game.h" />
+    <ClInclude Include="Headers\GameMenu.h" />
     <ClInclude Include="Headers\IBoard.h" />
+    <ClInclude Include="Headers\IDrawable.h" />
+    <ClInclude Include="Headers\MainLoop.h" />
     <ClInclude Include="Headers\Menu.h" />
-    <ClInclude Include="Headers\MenuManager.h" />
     <ClInclude Include="Headers\Node.h" />
     <ClInclude Include="Headers\NodePool.h" />
+    <ClInclude Include="Headers\OptionSelector.h" />
     <ClInclude Include="Headers\Piece.h" />
     <ClInclude Include="Headers\Player.h" />
     <ClInclude Include="Headers\Power4Board.h" />
@@ -35,11 +38,13 @@
   <ItemGroup>
     <ClCompile Include="Source\ChessBoard.cpp" />
     <ClCompile Include="Source\Game.cpp" />
+    <ClCompile Include="Source\GameMenu.cpp" />
     <ClCompile Include="Source\main.cpp" />
+    <ClCompile Include="Source\MainLoop.cpp" />
     <ClCompile Include="Source\Menu.cpp" />
-    <ClCompile Include="Source\MenuManager.cpp" />
     <ClCompile Include="Source\Node.cpp" />
     <ClCompile Include="Source\NodePool.cpp" />
+    <ClCompile Include="Source\OptionSelector.cpp" />
     <ClCompile Include="Source\Piece.cpp" />
     <ClCompile Include="Source\Player.cpp" />
     <ClCompile Include="Source\Power4Board.cpp" />

@@ -2,11 +2,12 @@
 
 #include "Player.h"
 #include "ChessBoard.h"
+#include "IDrawable.h"
 
 #include <future>
 #include <fstream>
 
-class Game {
+class Game : public IDrawable {
 	public:
 		enum GameType {
 			Chess,
@@ -14,17 +15,19 @@ class Game {
 		};
 
 	public :
-							Game(sf::RenderWindow* window_, GameType gameType, Player::PlayerType player1, Player::PlayerType player2, int level = -1);
+							Game(GameType gameType, Player::PlayerType player1, Player::PlayerType player2, int level = -1);
 							~Game();
-		void				run();
+
+		// IDrawable methods
+		void				update(sf::Vector2i mousePosition) override;
+		void				render(sf::RenderWindow& window) override;
+		int					handleEvent(const sf::Event& event) override;
 
 	private :
 		static std::string  gameTypeToString(GameType gameType);
 		void				writeLine(const std::string& texte);
 		void				initSave();
 		void				swapPlayer();
-		void				render();
-		int					handleEvent();
 		void				computePlay(int indexDecision);
 
 	private :
@@ -32,11 +35,10 @@ class Game {
 		std::ofstream			saveFile;
 		bool					gameOver;
 		bool					hasSwap;
-		sf::Vector2i			posMouse;
+		sf::Vector2i			mousePos;
 		int						currentPlayer;
 
 		int						levelIA;
-		sf::RenderWindow*		window;
 		IBoard*					board;
 		Player::Data			players[2];
 		Piece*					selectedPiece;

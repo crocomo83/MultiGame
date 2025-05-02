@@ -45,6 +45,78 @@ ChessBoard::ChessBoard(bool reverseBoard_)
 	computeValidMoves(0);
 }
 
+void ChessBoard::update(sf::Vector2i mousePosition) {
+	mousePos = mousePosition;
+	resetHighlights();
+
+	// red highlight
+	if (history.size() > 0) {
+		Move& lastMove = history[history.size() - 1];
+		colorSquare[lastMove.begin.x][lastMove.begin.y] = Color::Red;
+		colorSquare[lastMove.end.x][lastMove.end.y] = Color::Red;
+	}
+
+	if (selectedPawn.x != -1) {
+		// blue highlight
+		std::vector<Move> moves = getMoveOnPos(selectedPawn);
+		for (int i = 0; i < moves.size(); i++) {
+			Move move = moves[i];
+			colorSquare[move.end.x][move.end.y] = Color::Blue;
+		}
+
+		sf::Vector2i posOnBoard = PixelToChessBoard(mousePos, sf::Vector2i(startX, startY), sf::Vector2i(offsetX, offsetY), reverseBoard);
+		Move move = Move(getPiece(selectedPawn), posOnBoard);
+
+		// green highlight
+		if (isValidMove(move)) {
+			colorSquare[posOnBoard.x][posOnBoard.y] = Color::Green;
+		}
+	}
+}
+
+void ChessBoard::render(sf::RenderWindow& window) {
+	drawBoard(window);
+
+	for (int idPlayer = 0; idPlayer < 2; idPlayer++) {
+		for (int i = 0; i < 16; i++) {
+			Piece* piece = pieces[idPlayer][i];
+			if (piece->pos != selectedPawn && !piece->taken) {
+				setSpritePosition(pieceSprites[idPlayer][piece->type], piece->pos);
+				window.draw(pieceSprites[idPlayer][piece->type]);
+			}
+		}
+	}
+
+	if (selectedPawn.x != -1) {
+		Piece* selectedPiece = getPiece(selectedPawn);
+		if (selectedPiece == nullptr) {
+			std::cerr << "Erreur: selectedPiece est NULL!" << std::endl;
+		}
+		else {
+			sf::Sprite* sprite = &pieceSprites[selectedPiece->player][selectedPiece->type];
+			sprite->setPosition(mousePos.x - sprite->getLocalBounds().width / 2, mousePos.y - sprite->getLocalBounds().height / 2);
+			window.draw(*sprite);
+		}
+	}
+}
+
+int ChessBoard::handleEvent(const sf::Event& event) {
+	int indexDecision = -1;
+	switch (event.type) {
+	case sf::Event::MouseButtonPressed:
+		if (event.mouseButton.button == sf::Mouse::Left) {
+			select(mousePos);
+		}
+		break;
+	case sf::Event::MouseButtonReleased:
+		if (event.mouseButton.button == sf::Mouse::Left) {
+			indexDecision = unselect(mousePos);
+		}
+		break;
+	}
+	return indexDecision;
+}
+
 void ChessBoard::init() {
 	for (int i = 0; i < 8; i++) {
 		pieces[0][i] = new Piece(Pawn, 0, sf::Vector2i(i, 1));
@@ -215,23 +287,6 @@ bool ChessBoard::isGameOver(std::string& messageGameOver) {
 	default:
 		return false;
 	}
-}
-
-int ChessBoard::handleEvent(sf::Vector2i mousePos, sf::Event& event) {
-	int indexDecision = -1;
-	switch (event.type) {
-	case sf::Event::MouseButtonPressed:
-		if (event.mouseButton.button == sf::Mouse::Left) {
-			select(mousePos);
-		}
-		break;
-	case sf::Event::MouseButtonReleased:
-		if (event.mouseButton.button == sf::Mouse::Left) {
-			indexDecision = unselect(mousePos);
-		}
-		break;
-	}
-	return indexDecision;
 }
 
 bool ChessBoard::isValidMove(Move move) {
@@ -523,35 +578,6 @@ void ChessBoard::unMovePiece(Move& move) {
 	}
 }
 
-void ChessBoard::update(sf::Vector2i pos, int idPlayer) {
-	mousePos = pos;
-	resetHighlights();
-
-	// red highlight
-	if (history.size() > 0) {
-		Move& lastMove = history[history.size() - 1];
-		colorSquare[lastMove.begin.x][lastMove.begin.y] = Color::Red;
-		colorSquare[lastMove.end.x][lastMove.end.y] = Color::Red;
-	}
-
-	if (selectedPawn.x != -1) {
-		// blue highlight
-		std::vector<Move> moves = getMoveOnPos(selectedPawn);
-		for (int i = 0; i < moves.size(); i++) {
-			Move move = moves[i];
-			colorSquare[move.end.x][move.end.y] = Color::Blue;
-		}
-
-		sf::Vector2i posOnBoard = PixelToChessBoard(pos, sf::Vector2i(startX, startY), sf::Vector2i(offsetX, offsetY), reverseBoard);
-		Move move = Move(getPiece(selectedPawn), posOnBoard);
-
-		// green highlight
-		if (isValidMove(move)) {
-			colorSquare[posOnBoard.x][posOnBoard.y] = Color::Green;
-		}
-	}
-}
-
 void ChessBoard::drawBoard(sf::RenderWindow& target) {
 	for (int x = 0; x < 8; x++) {
 		for (int y = 0; y < 8; y++) {
@@ -566,32 +592,6 @@ void ChessBoard::drawBoard(sf::RenderWindow& target) {
 
 	for (auto& text : textsSquare) {
 		target.draw(text);
-	}
-}
-
-void ChessBoard::draw(sf::RenderWindow& target) {
-	drawBoard(target);
-
-	for (int idPlayer = 0; idPlayer < 2; idPlayer++) {
-		for (int i = 0; i < 16; i++) {
-			Piece* piece = pieces[idPlayer][i];
-			if (piece->pos != selectedPawn && !piece->taken) {
-				setSpritePosition(pieceSprites[idPlayer][piece->type], piece->pos);
-				target.draw(pieceSprites[idPlayer][piece->type]);
-			}
-		}
-	}
-
-	if (selectedPawn.x != -1) {
-		Piece* selectedPiece = getPiece(selectedPawn);
-		if (selectedPiece == nullptr) {
-			std::cerr << "Erreur: selectedPiece est NULL!" << std::endl;
-		}
-		else {
-			sf::Sprite* sprite = &pieceSprites[selectedPiece->player][selectedPiece->type];
-			sprite->setPosition(mousePos.x - sprite->getLocalBounds().width / 2, mousePos.y - sprite->getLocalBounds().height / 2);
-			target.draw(*sprite);
-		}
 	}
 }
 

@@ -9,6 +9,7 @@
 #include "Piece.h"
 #include "Utility.h"
 #include "IBoard.h"
+#include "IDrawable.h"
 
 #include <SFML\Graphics\Sprite.hpp>
 #include <SFML\Graphics\Texture.hpp>
@@ -29,49 +30,51 @@ public:
 	};
 
 public:
-									Power4Board();
+							Power4Board();
 
+	// ===== IDrawable methods =====
+	void					update(sf::Vector2i mousePosition) override;
+	void					render(sf::RenderWindow& window) override;
+	int						handleEvent(const sf::Event& event) override;
+
+	// ===== IBoard methods =====
+	bool					isGameOver(std::string& message) override;
+	
+	void					printValidMoves() override;
+	bool					play(int index) override;
+	bool					play(std::string moveStr) override;
+	bool					undo() override;
+
+	int						getNumberMoves() override;
+	std::string				getStringToWright(int indexMove) const override;
+	std::string				getHeader() const override;
+	std::pair<bool, float>	getEvaluationEndGame(int level) override;
+	float					getEvaluation() override;
+	std::string				getMoveSymbol(int index) override;
+
+	uint64_t				hashBoard() const override;
+	void					printBoard() const override;
+
+	// ===== Power4Board methods =====
 	void							initBoard();
 	void							initializeZobristTable();
 
-	// Interface
-	void							draw(sf::RenderWindow& target);
-	void							update(sf::Vector2i pos, int idPlayer);
-
-	bool							isGameOver(std::string& messageGameOver);
-	int								handleEvent(sf::Vector2i mousePos, sf::Event& event);
 	void							selectColumn(int mousePosX);
 
 	// Test de situations
 	bool							isColumnFull(int column) const;
 	bool							playInColum(int index);
-	bool							play(int index);
-	bool							play(std::string moveStr);
-	bool							undo();
-
-	void							computeValidMoves(int idPlayer);
-	void							printValidMoves();
 
 	std::vector<int>				getAllMoves() const;
-	int								getNumberMoves();
-
 	std::vector<std::vector<int>>	getAlignments() const;
 	std::vector<std::vector<int>>	getAlignmentsLastMove() const;
 	std::pair<int, int>				getSimpleCount(std::vector<std::vector<int>> allLines) const;
 	std::pair<int, int>				getLinesCount(std::vector<std::vector<int>> allLines, int count) const;
 	Power4Board::State				getGameState() const;
+
 	bool							isEquality() const;
 
-	std::pair<bool, float>			getEvaluationEndGame(int level);
-	float							getEvaluation();
 	float							eval() const;
-
-	std::string						getMoveSymbol(int index);
-	std::string						getStringToWright(int indexMove) const;
-	std::string						getHeader() const;
-
-	uint64_t						hashBoard() const;
-	void							printBoard() const;
 
 private:
 	sf::RectangleShape rectangle;

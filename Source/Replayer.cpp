@@ -3,22 +3,19 @@
 #include "../Headers/ChessBoard.h";
 #include "../Headers/Power4Board.h"
 
-Replayer::Replayer(sf::RenderWindow* window_, std::string fileName_)
-	: window(window_)
-	, fileName(fileName_)
+Replayer::Replayer(std::string fileName_)
+	: fileName(fileName_)
 	, board(nullptr)
 	, currentPlayer(0)
-	, posMouse({ -1, -1 })
 	, indexMove(0)
 {
 	readSavedFile();
 
-	std::vector<std::string> splitStr = splitString(fileName, '_');
-	if (splitStr[0] == "Chess") {
+	if (headerLines[0] == "Chess") {
 		bool reverse = headerLines[1] == "1";
 		board = new ChessBoard(reverse);
 	}
-	else if (splitStr[0] == "Power4") {
+	else if (headerLines[0] == "Power4") {
 		board = new Power4Board();
 	}
 	else {
@@ -28,12 +25,15 @@ Replayer::Replayer(sf::RenderWindow* window_, std::string fileName_)
 
 Replayer::~Replayer()
 {
+	if (saveFile.is_open()) {
+		saveFile.close();
+	}
 }
 
 void Replayer::readSavedFile() {
-	saveFile.open("Saves/" + fileName);
+	saveFile.open(std::string(SAVES_STR) + "/" + fileName);
 	if (!saveFile) {
-		std::cerr << "Saves/" << fileName << " not found !" << std::endl;
+		std::cerr << SAVES_STR << "/" << fileName << " not found !" << std::endl;
 		return;
 	}
 
@@ -56,50 +56,31 @@ void Replayer::readSavedFile() {
 	}
 }
 
-void Replayer::run()
+void Replayer::update(sf::Vector2i mousePosition)
 {
-	while (window->isOpen())
-	{
-		handleEvent();
-		board->update(posMouse, currentPlayer);
-		render();
-	}
+	board->update(mousePosition);
 }
 
-void Replayer::handleEvent() {
-	sf::Event event;
-	while (window->pollEvent(event))
-	{
-		if (event.type == sf::Event::Closed) {
-			window->close();
-		}
-
-		if (event.type == sf::Event::MouseMoved) {
-			posMouse.x = event.mouseMove.x;
-			posMouse.y = event.mouseMove.y;
-		}
-
-		if (event.type == sf::Event::KeyPressed) {
-			if (event.key.code == sf::Keyboard::Right) {
-				if (indexMove < movesLines.size()) {
-					board->play(movesLines[indexMove]);
-					indexMove++;
-				}
-				else {
-					std::cout << "Save finished : can't play" << std::endl;
-				}
+int Replayer::handleEvent(const sf::Event& event) {
+	if (event.type == sf::Event::KeyPressed) {
+		if (event.key.code == sf::Keyboard::Right) {
+			if (indexMove < movesLines.size()) {
+				board->play(movesLines[indexMove]);
+				indexMove++;
 			}
-			else if (event.key.code == sf::Keyboard::Left) {
-				if (board->undo()) {
-					indexMove--;
-				}
+			else {
+				std::cout << "Save finished : can't play" << std::endl;
+			}
+		}
+		else if (event.key.code == sf::Keyboard::Left) {
+			if (board->undo()) {
+				indexMove--;
 			}
 		}
 	}
+	return 0;
 }
 
-void Replayer::render() {
-	window->clear(sf::Color::White);
-	board->draw(*window);
-	window->display();
+void Replayer::render(sf::RenderWindow& window) {
+	board->render(window);
 }

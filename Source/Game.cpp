@@ -15,16 +15,15 @@
 #include <sstream>
 #include <ctime>
 
-Game::Game(sf::RenderWindow* window_, GameType gameType, Player::PlayerType player1, Player::PlayerType player2, int level)
-: window(window_)
-, posMouse({-1, -1})
-, currentPlayer(0)
+Game::Game(GameType gameType, Player::PlayerType player1, Player::PlayerType player2, int level)
+: currentPlayer(0)
 , hasSwap(true)
 , selectedPiece(nullptr)
 , currentMoveOnMouse(-1)
 , gameOver(false)
 , levelIA(level)
 {
+	mousePos = { -1, -1 };
 	fileName = gameTypeToString(gameType);
 	if (gameType == GameType::Chess) {
 		bool reverse = !Player::isHuman(player1) && Player::isHuman(player2);
@@ -51,13 +50,13 @@ Game::~Game(){
 void Game::initSave() {
 	// Vérifie si le dossier existe
 	struct _stat info;
-	if (_stat("Saves", &info) != 0) {
+	if (_stat(SAVES_STR.data(), &info) != 0) {
 		// Le dossier n'existe pas, on le crée
-		_mkdir("Saves");
+		_mkdir(SAVES_STR.data());
 	}
 	else if (!(info.st_mode & _S_IFDIR)) {
 		// Existe mais ce n'est pas un dossier (problème)
-		std::cout << "Erreur : 'Saves' existe mais n'est pas un dossier !" << std::endl;
+		std::cout << "Erreur : '" << SAVES_STR << "' existe mais n'est pas un dossier !" << std::endl;
 		return;
 	}
 
@@ -71,11 +70,11 @@ void Game::initSave() {
 	fileName += "_";
 	fileName += oss.str();
 
-	saveFile.open("Saves/" + fileName);
+	saveFile.open(std::string(SAVES_STR) + "/" + fileName);
 
-	writeLine("HEADER");
+	writeLine(std::string(HEADER_STR));
 	writeLine(board->getHeader());
-	writeLine("MOVES");
+	writeLine(std::string(MOVES_STR));
 	
 	std::cout << "save file : " << fileName << std::endl;
 }
@@ -98,53 +97,39 @@ void Game::writeLine(const std::string& texte) {
 	}
 }
 
-void Game::run() {
+void Game::update(sf::Vector2i mousePosition) {
+	mousePos = mousePosition;
 	int indexDecision = -1;
-	while (window->isOpen())
-	{
-		board->update(posMouse, currentPlayer);
-		render();
+	board->update(mousePos);
 
-		if (!gameOver && hasSwap) {
-			hasSwap = false;
-			std::string msgGameOver;
-			gameOver = board->isGameOver(msgGameOver);
-			if (gameOver) {
-				std::cout << msgGameOver << std::endl;
-			}
+	if (!gameOver && hasSwap) {
+		hasSwap = false;
+		std::string msgGameOver;
+		gameOver = board->isGameOver(msgGameOver);
+		if (gameOver) {
+			std::cout << msgGameOver << std::endl;
 		}
+	}
 
-		indexDecision = handleEvent();
+	//indexDecision = handleEvent();
 
-		if (!gameOver && !Player::isHuman(players[currentPlayer].type)) {
-			indexDecision = Player::play(board, players[currentPlayer].type, players[currentPlayer].id, levelIA);
-		}
+	if (!gameOver && !Player::isHuman(players[currentPlayer].type)) {
+		indexDecision = Player::play(board, players[currentPlayer].type, players[currentPlayer].id, levelIA);
+	}
 
-		// Someone has played
-		if (indexDecision != -1) {
-			computePlay(indexDecision);
-			swapPlayer();
-			indexDecision = -1;
-		}
+	// Someone has played
+	if (indexDecision != -1) {
+		computePlay(indexDecision);
+		swapPlayer();
+		indexDecision = -1;
 	}
 }
 
-int Game::handleEvent() {
+int Game::handleEvent(const sf::Event& event) {
 	int indexDecision = -1;
-	sf::Event event;
-	while (window->pollEvent(event))
-	{
-		if (event.type == sf::Event::Closed) {
-			window->close();
-		}
 
-		if (!gameOver && Player::isHuman(players[currentPlayer].type)) {
-			if (event.type == sf::Event::MouseMoved) {
-				posMouse.x = event.mouseMove.x;
-				posMouse.y = event.mouseMove.y;
-			}
-			indexDecision = board->handleEvent(posMouse, event);
-		}
+	if (!gameOver && Player::isHuman(players[currentPlayer].type)) {
+		indexDecision = board->handleEvent(event);
 	}
 	return indexDecision;
 }
@@ -170,8 +155,6 @@ void Game::swapPlayer() {
 	hasSwap = true;
 }
 
-void Game::render() {
-	window->clear(sf::Color::White);
-	board->draw(*window);
-	window->display();
+void Game::render(sf::RenderWindow& window) {
+	board->render(window);
 }

@@ -2,12 +2,11 @@
 #include "../Headers/Game.h"
 #include "../Headers/Player.h"
 
-Menu::Menu(sf::RenderWindow* window_, float spaceBetweenText_)
-	: window(window_)
-	, pos(0)
-	, pressed(false)
-	, theselect(false)
-	, spaceBetweenText(spaceBetweenText_)
+Menu::Menu(float spaceBetweenText_)
+: pos(0)
+, pressed(false)
+, theselect(false)
+, spaceBetweenText(spaceBetweenText_)
 {
 	font = new sf::Font();
 	image = new sf::Texture();
@@ -62,51 +61,37 @@ void Menu::prepareMenu() {
 	}
 }
 
-void Menu::loop_events() {
-	sf::Event event;
-	while (window->pollEvent(event)) {
-		if (event.type == sf::Event::Closed) {
-			window->close();
-		}
-
-		pos_mouse = sf::Mouse::getPosition(*window);
-		mouse_coord = window->mapPixelToCoords(pos_mouse);
-
-		for (auto& text : texts) {
-			text.setOutlineThickness(1);
-		}
+int Menu::handleEvent(const sf::Event& event) {
+	for (auto& text : texts) {
+		text.setOutlineThickness(1);
+	}
 		
-		pos = -1;
-		for (int i = 0; i < texts.size(); ++i) {
-			if (texts[i].getGlobalBounds().contains(mouse_coord)) {
-				texts[i].setOutlineThickness(4);
-				pos = i;
-			}
-		}
-
-		if (event.type == sf::Event::MouseButtonReleased
-			&& event.mouseButton.button == sf::Mouse::Left
-			&& pos >= 0)
-		{
-			entries[pos].second();
+	pos = -1;
+	for (int i = 0; i < texts.size(); ++i) {
+		if (texts[i].getGlobalBounds().contains((sf::Vector2f)pos_mouse)) {
+			texts[i].setOutlineThickness(4);
+			pos = i;
+			std::cout << "set pos : " << i << std::endl;
 		}
 	}
+
+	if (event.type == sf::Event::MouseButtonReleased
+		&& event.mouseButton.button == sf::Mouse::Left
+		&& pos >= 0)
+	{
+		entries[pos].second();
+	}
+	return 0;
 }
 
 
-void Menu::draw_all() {
-	window->clear();
-	window->draw(*backgroundSprite);
+void Menu::render(sf::RenderWindow& window) {
+	window.draw(*backgroundSprite);
 	for (auto t : texts) {
-		window->draw(t);
+		window.draw(t);
 	}
-	window->display();
 }
 
-void Menu::run_menu() {
-	prepareMenu();
-	while (window->isOpen()) {
-		loop_events();
-		draw_all();
-	}
+void Menu::update(sf::Vector2i mousePosition) {
+	pos_mouse = mousePosition;
 }

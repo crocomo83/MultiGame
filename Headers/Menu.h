@@ -1,30 +1,32 @@
 #pragma once
 
+#include "IDrawable.h"
+
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <functional>
 
-class Menu {
+class Menu : public IDrawable {
 
 public:
-	Menu(sf::RenderWindow* window, float spaceBetweenText_);
+	Menu(float spaceBetweenText_);
 	~Menu();
+
+	// IDrawable methods
+	void update(sf::Vector2i mousePosition) override;
+	void render(sf::RenderWindow& window) override;
+	int	 handleEvent(const sf::Event& event) override;
+
 	void addOption(const std::string& label, std::function<void()> action);
 	void setSpaceBetweenText(float value);
 	void clearOptions();
-	void run_menu();
 	void prepareMenu();
-
-protected:
-	void loop_events();
-	void draw_all();
 
 private:
 	float spaceBetweenText;
 	int pos;
 	bool pressed, theselect;
 
-	sf::RenderWindow* window;
 	sf::Font* font;
 	sf::Texture* image;
 	sf::Sprite* backgroundSprite;

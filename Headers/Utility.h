@@ -6,8 +6,15 @@
 
 #include <string_view>
 
+constexpr int chessLevelIA = 4;
+constexpr int power4LevelIA = 6;
+
+constexpr float spaceBetweenTextMenu = 80;
+constexpr float spaceBetweenTextList = 30;
+
 constexpr std::string_view HEADER_STR = "HEADER";
 constexpr std::string_view MOVES_STR = "MOVES";
+constexpr std::string_view SAVES_STR = "Saves";
 
 std::vector<std::string> splitString(const std::string& str, char delimiter);
 int otherPlayer(int idPlayer);

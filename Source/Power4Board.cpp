@@ -17,6 +17,65 @@ Power4Board::Power4Board()
 	initializeZobristTable();
 }
 
+void Power4Board::update(sf::Vector2i mousePosition) {
+	mousePos = mousePosition;
+	for (int x = 0; x < 7; x++) {
+		for (int y = 0; y < 6; y++) {
+			int value = pieceOnBoard[x][y];
+			switch (value) {
+			case -1:
+				colorCircles[x][y].setFillColor(sf::Color::White);
+				break;
+			case 0:
+				colorCircles[x][y].setFillColor(sf::Color::Yellow);
+				break;
+			case 1:
+				colorCircles[x][y].setFillColor(sf::Color::Red);
+				break;
+			}
+		}
+	}
+
+	if (selectedColumn != -1) {
+		for (int y = 5; y >= 0; y--) {
+			int value = pieceOnBoard[selectedColumn][y];
+			if (value == -1) {
+				colorCircles[selectedColumn][y].setFillColor(sf::Color::Green);
+				break;
+			}
+		}
+	}
+}
+
+void Power4Board::render(sf::RenderWindow& window) {
+	window.draw(rectangle);
+
+	for (int x = 0; x < 7; x++) {
+		for (int y = 0; y < 6; y++) {
+			window.draw(colorCircles[x][y]);
+		}
+	}
+}
+
+int Power4Board::handleEvent(const sf::Event& event)
+{
+	int indexDecision = -1;
+	selectColumn(mousePos.x);
+	switch (event.type) {
+	case sf::Event::MouseButtonReleased:
+		if (event.mouseButton.button == sf::Mouse::Left) {
+			indexDecision = selectedColumn;
+		}
+		break;
+	case sf::Event::KeyPressed:
+		if (event.key.code == sf::Keyboard::U) {
+			undo();
+		}
+		break;
+	}
+	return indexDecision;
+}
+
 void Power4Board::initBoard() {
 	rectangle.setSize(sf::Vector2f(500, 440));
 	rectangle.setFillColor(sf::Color::Blue);
@@ -112,35 +171,6 @@ bool Power4Board::undo() {
 	return true;
 }
 
-void Power4Board::update(sf::Vector2i pos, int idPlayer) {
-	for (int x = 0; x < 7; x++) {
-		for (int y = 0; y < 6; y++) {
-			int value = pieceOnBoard[x][y];
-			switch (value) {
-			case -1:
-				colorCircles[x][y].setFillColor(sf::Color::White);
-				break;
-			case 0:
-				colorCircles[x][y].setFillColor(sf::Color::Yellow);
-				break;
-			case 1:
-				colorCircles[x][y].setFillColor(sf::Color::Red);
-				break;
-			}
-		}
-	}
-
-	if (selectedColumn != -1) {
-		for (int y = 5; y >= 0; y--) {
-			int value = pieceOnBoard[selectedColumn][y];
-			if (value == -1) {
-				colorCircles[selectedColumn][y].setFillColor(sf::Color::Green);
-				break;
-			}
-		}
-	}
-}
-
 bool Power4Board::isGameOver(std::string& messageGameOver)
 {
 	Power4Board::State gameState = getGameState();
@@ -161,25 +191,6 @@ bool Power4Board::isGameOver(std::string& messageGameOver)
 	return false;
 }
 
-int Power4Board::handleEvent(sf::Vector2i mousePos, sf::Event& event)
-{
-	int indexDecision = -1;
-	selectColumn(mousePos.x);
-	switch (event.type) {
-	case sf::Event::MouseButtonReleased:
-		if (event.mouseButton.button == sf::Mouse::Left) {
-			indexDecision = selectedColumn;
-		}
-		break;
-	case sf::Event::KeyPressed:
-		if (event.key.code == sf::Keyboard::U) {
-			undo();
-		}
-		break;
-	}
-	return indexDecision;
-}
-
 void Power4Board::selectColumn(int mousePosX) {
 	int x = mousePosX;
 	if (x >= startX) {
@@ -193,16 +204,6 @@ void Power4Board::selectColumn(int mousePosX) {
 	}
 	else {
 		selectedColumn = -1;
-	}
-}
-
-void Power4Board::draw(sf::RenderWindow& target) {
-	target.draw(rectangle);
-
-	for (int x = 0; x < 7; x++) {
-		for (int y = 0; y < 6; y++) {
-			target.draw(colorCircles[x][y]);
-		}
 	}
 }
 
@@ -337,9 +338,6 @@ Power4Board::State Power4Board::getGameState() const {
 	}
 
 	return isEquality() ? Power4Board::State::Equality : Power4Board::State::Normal;
-}
-
-void Power4Board::computeValidMoves(int idPlayer) {
 }
 
 void Power4Board::printValidMoves() {

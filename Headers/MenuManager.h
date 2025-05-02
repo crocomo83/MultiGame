@@ -1,16 +1,22 @@
 #pragma once
 
-#include "../Headers/Menu.h"
+#include "Menu.h"
+#include "IGameState.h"
 
 #include <SFML/Graphics.hpp>
 #include <random>
 #include <ctime>
 
-class MenuManager {
+class MenuManager : public IGameState{
 
 public:
 	MenuManager(sf::RenderWindow* window_);
 	~MenuManager();
+
+	// IGameState methods
+	void update(sf::Vector2i mousePos) override;
+	void render(sf::RenderWindow* window) override;
+	int	 handleEvent(sf::Event event) override;
 
 	void setMainMenu();
 	std::vector<std::string> listFilesInDirectory(const std::string& folderPath);
@@ -19,7 +25,6 @@ public:
 	void setChessMenuVSComputer();
 	void setPower4Menu();
 	void setPower4MenuVSComputer();
-	void run();
 
 private:
 	std::mt19937 rng;

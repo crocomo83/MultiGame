@@ -1,28 +1,32 @@
 #pragma once
+
+#include "IBoard.h"
+#include "IDrawable.h"
+
 #include <string>
 #include <fstream>
 #include <SFML/Graphics.hpp>
-#include "IBoard.h"
 
-class Replayer {
+
+class Replayer : public IDrawable {
 
 public:
-						Replayer(sf::RenderWindow* window_, std::string fileName);
+						Replayer(std::string fileName);
 						~Replayer();
-	void				readSavedFile();
-	void				run();
-	void				handleEvent();
 
-	void				render();
+	void				readSavedFile();
+
+	// IDrawable methods
+	void				update(sf::Vector2i mousePosition) override;
+	void				render(sf::RenderWindow& window) override;
+	int					handleEvent(const sf::Event& event) override;
 
 private:
-	sf::RenderWindow*	window;
 	std::string			fileName;
 	std::ifstream		saveFile;
 	IBoard*				board;
 	std::vector <std::string> headerLines;
 	std::vector <std::string> movesLines;
 	int	currentPlayer;
-	sf::Vector2i posMouse;
 	int indexMove;
 };

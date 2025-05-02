@@ -9,6 +9,7 @@
 #include "Piece.h"
 #include "Utility.h"
 #include "IBoard.h"
+#include "IDrawable.h"
 
 #include <SFML\Graphics\Sprite.hpp>
 #include <SFML\Graphics\Texture.hpp>
@@ -17,7 +18,7 @@
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 
-class ChessBoard : public IBoard {
+class ChessBoard : public IBoard, IDrawable {
 
 	public : 
 		enum State {
@@ -38,15 +39,32 @@ class ChessBoard : public IBoard {
 	public : 
 								ChessBoard(bool reverseBoard_);
 
+		// ===== IDrawable methods =====
+		void					update(sf::Vector2i mousePosition) override;
+		void					render(sf::RenderWindow& window) override;
+		int						handleEvent(const sf::Event& event) override;
+
+		// ===== IBoard methods =====
+		bool					isGameOver(std::string& message) override;
+
+		void					printValidMoves() override;
+		bool					play(int index) override;
+		bool					play(std::string moveStr) override;
+		bool					undo() override;
+
+		int						getNumberMoves() override;
+		std::string				getStringToWright(int indexMove) const override;
+		std::string				getHeader() const override;
+		std::pair<bool, float>	getEvaluationEndGame(int level) override;
+		float					getEvaluation() override;
+		std::string				getMoveSymbol(int index) override;
+
+		uint64_t				hashBoard() const override;
+		void					printBoard() const override;
+
+		// ===== ChessBoard methods =====
 		void					select(sf::Vector2i mousePos);
 		int						unselect(sf::Vector2i mousePos);
-
-		bool					isGameOver(std::string& messageGameOver);
-		int						handleEvent(sf::Vector2i mousePos, sf::Event& event);
-
-		// Interface
-		void					draw(sf::RenderWindow& target);
-		void					update(sf::Vector2i pos, int idPlayer);
 
 		// Test de situations
 		bool					isCheck(int idPlayer);
@@ -56,10 +74,7 @@ class ChessBoard : public IBoard {
 		
 		void					computeValidMoves(int idPlayer);
 		
-		bool					play(int index);
-		bool					play(std::string moveStr);
 		bool					play(Move &move, bool checkValidity);
-		bool					undo();
 
 		void					movePiece(Move& move);
 		void					movePiece(sf::Vector2i start, sf::Vector2i end);
@@ -77,22 +92,11 @@ class ChessBoard : public IBoard {
 		Move					getSpecificMove(sf::Vector2i start, sf::Vector2i end);
 		int						getIndexMove(sf::Vector2i start, sf::Vector2i end);
 		std::vector<Move>		getAllMoves(int idPlayer, bool checkConsidered);
-		int						getNumberMoves();
 		bool					isAnyMovePossible(int idPlayer);
 
-		std::pair<bool, float>	getEvaluationEndGame(int level);
-		float					getEvaluation();
-
 		std::string				getMoveSymbol(Move move);
-		std::string				getMoveSymbol(int index);
-		std::string				getStringToWright(int indexMove) const;
-		std::string				getHeader() const;
 
 		void					printMove(Move move);
-		void					printValidMoves();
-		void					printBoard() const;
-
-		uint64_t				hashBoard() const;
 
 	private :
 		void					init();
