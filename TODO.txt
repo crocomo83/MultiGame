@@ -5,12 +5,11 @@
 ================== BUGS ==================
 
 ================== NOUVELLES FEATURES ==================
+- meilleure fonction d'évaluation !!!
 - handleEvent devrait être void
-- Ajout retour au menu dans le replayer ?
 - faire une partie test ia vs ia, écrire les coups dans un fichier, s'en servir de test prévisions moves + perf
 - passer joueur en enum, mieux nan ?
 - désengorger le Board !
-- meilleure fonction d'évaluation !!!
 - afficher pièces capturées
 - afficher historique de coups
 
