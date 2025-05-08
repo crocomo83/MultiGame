@@ -9,7 +9,7 @@ file(GLOB_RECURSE SOURCES "Source/*.cpp")
 add_executable(MultiGame ${SOURCES})
 
 # Trouver SFML
-find_package(SFML 2.5 COMPONENTS graphics window system REQUIRED)
+find_package(SFML COMPONENTS graphics window system REQUIRED)
 
 # Lier SFML
 target_link_libraries(MultiGame PRIVATE sfml-graphics sfml-window sfml-system)
