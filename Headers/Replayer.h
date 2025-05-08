@@ -1,7 +1,8 @@
 #pragma once
 
-#include "IBoard.h"
-#include "IDrawable.h"
+#include "BasicBoard.h"
+#include "Graphics/IDrawable.h"
+#include "Graphics/Menu.h"
 
 #include <string>
 #include <fstream>
@@ -20,11 +21,12 @@ public:
 	void				update(sf::Vector2i mousePosition) override;
 	void				render(sf::RenderWindow& window) override;
 	int					handleEvent(const sf::Event& event) override;
+	void				reset() override;
 
 private:
 	std::string			fileName;
 	std::ifstream		saveFile;
-	IBoard*				board;
+	BasicBoard*				board;
 	std::vector <std::string> headerLines;
 	std::vector <std::string> movesLines;
 	int	currentPlayer;

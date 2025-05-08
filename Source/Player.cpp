@@ -12,7 +12,7 @@ bool Player::isHuman(PlayerType type) {
 	return type == PlayerType::Human;
 }
 
-std::pair<int, float> Player::playMinMaxSimple(IBoard* board, int level, int idPlayer) {
+std::pair<int, float> Player::playMinMaxSimple(BasicBoard* board, int level, int idPlayer) {
 	nbTest++;
 
 	std::pair<bool, float> resEndGame = board->getEvaluationEndGame(level);
@@ -66,7 +66,7 @@ std::pair<int, float> Player::playMinMaxSimple(IBoard* board, int level, int idP
 	return { numBest, best };
 }
 
-float Player::playAlphaBeta(IBoard* board, int level, int idPlayer, bool root, float alpha_, float beta_) {
+float Player::playAlphaBeta(BasicBoard* board, int level, int idPlayer, bool root, float alpha_, float beta_) {
 	nbTest++;
 
 	std::pair<bool, float> resEndGame = board->getEvaluationEndGame(level);
@@ -129,7 +129,7 @@ float Player::playAlphaBeta(IBoard* board, int level, int idPlayer, bool root, f
 	return (root ? numBest : best);
 }
 
-int Player::play(IBoard* board, PlayerType type, int idPlayer, int level) {
+int Player::play(BasicBoard* board, PlayerType type, int idPlayer, int level) {
 	if (level == -1) {
 		return -1;
 	}

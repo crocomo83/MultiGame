@@ -8,8 +8,8 @@
 
 #include "Piece.h"
 #include "Utility.h"
-#include "IBoard.h"
-#include "IDrawable.h"
+#include "BasicBoard.h"
+#include "Graphics/IDrawable.h"
 
 #include <SFML\Graphics\Sprite.hpp>
 #include <SFML\Graphics\Texture.hpp>
@@ -18,23 +18,14 @@
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 
-class ChessBoard : public IBoard, IDrawable {
-
-	public : 
-		enum State {
-			Normal,
-			CheckMateWhite, 
-			CheckMateBlack, 
-			Equality
-		};
-
-		enum Color {
-			Blue,
-			Green,
-			Red,
-			White,
-			Black
-		};
+class ChessBoard : public BasicBoard, IDrawable {
+	enum Color {
+		Blue,
+		Green,
+		Red,
+		White,
+		Black
+	};
 
 	public : 
 								ChessBoard(bool reverseBoard_);
@@ -43,9 +34,10 @@ class ChessBoard : public IBoard, IDrawable {
 		void					update(sf::Vector2i mousePosition) override;
 		void					render(sf::RenderWindow& window) override;
 		int						handleEvent(const sf::Event& event) override;
+		void					reset() override;
 
-		// ===== IBoard methods =====
-		bool					isGameOver(std::string& message) override;
+		// ===== BasicBoard methods =====
+		bool					isGameOver() override;
 
 		void					printValidMoves() override;
 		bool					play(int index) override;
@@ -58,6 +50,10 @@ class ChessBoard : public IBoard, IDrawable {
 		std::pair<bool, float>	getEvaluationEndGame(int level) override;
 		float					getEvaluation() override;
 		std::string				getMoveSymbol(int index) override;
+		std::string				getPlayerName(int player) const override;
+		BasicBoard::State		getGameState() const;
+		
+		void					computeGameState() override;
 
 		uint64_t				hashBoard() const override;
 		void					printBoard() const override;
@@ -67,10 +63,9 @@ class ChessBoard : public IBoard, IDrawable {
 		int						unselect(sf::Vector2i mousePos);
 
 		// Test de situations
-		bool					isCheck(int idPlayer);
+		bool					isCheck(int idPlayer) const;
 		bool					isCheckMate();
 		bool					isEquality();
-		State					getGameState();
 		
 		void					computeValidMoves(int idPlayer);
 		
@@ -147,6 +142,7 @@ class ChessBoard : public IBoard, IDrawable {
 		std::vector<Move>				history;
 		std::vector<std::string>		historyBoard;
 		std::stack< std::vector<Move>>  historyMoves;
+		std::vector<State>				historyState;
 
 		sf::RectangleShape				squareBoard;
 		sf::Texture						boardTexture;

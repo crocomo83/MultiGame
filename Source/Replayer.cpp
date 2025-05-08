@@ -81,6 +81,10 @@ int Replayer::handleEvent(const sf::Event& event) {
 	return 0;
 }
 
+void Replayer::reset()
+{
+}
+
 void Replayer::render(sf::RenderWindow& window) {
 	board->render(window);
 }

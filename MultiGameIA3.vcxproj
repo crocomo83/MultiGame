@@ -21,14 +21,16 @@
   <ItemGroup>
     <ClInclude Include="Headers\ChessBoard.h" />
     <ClInclude Include="Headers\Game.h" />
-    <ClInclude Include="Headers\GameMenu.h" />
-    <ClInclude Include="Headers\IBoard.h" />
-    <ClInclude Include="Headers\IDrawable.h" />
+    <ClInclude Include="Headers\BasicBoard.h" />
+    <ClInclude Include="Headers\Graphics\Container.h" />
+    <ClInclude Include="Headers\Graphics\IDrawable.h" />
+    <ClInclude Include="Headers\Graphics\Image.h" />
+    <ClInclude Include="Headers\Graphics\Menu.h" />
+    <ClInclude Include="Headers\Graphics\OptionSelector.h" />
+    <ClInclude Include="Headers\Graphics\ScrollBar.h" />
     <ClInclude Include="Headers\MainLoop.h" />
-    <ClInclude Include="Headers\Menu.h" />
     <ClInclude Include="Headers\Node.h" />
     <ClInclude Include="Headers\NodePool.h" />
-    <ClInclude Include="Headers\OptionSelector.h" />
     <ClInclude Include="Headers\Piece.h" />
     <ClInclude Include="Headers\Player.h" />
     <ClInclude Include="Headers\Power4Board.h" />
@@ -36,15 +38,18 @@
     <ClInclude Include="Headers\Utility.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\BasicBoard.cpp" />
     <ClCompile Include="Source\ChessBoard.cpp" />
     <ClCompile Include="Source\Game.cpp" />
-    <ClCompile Include="Source\GameMenu.cpp" />
+    <ClCompile Include="Source\Graphics\Container.cpp" />
+    <ClCompile Include="Source\Graphics\Image.cpp" />
+    <ClCompile Include="Source\Graphics\Menu.cpp" />
+    <ClCompile Include="Source\Graphics\OptionSelector.cpp" />
+    <ClCompile Include="Source\Graphics\ScrollBar.cpp" />
     <ClCompile Include="Source\main.cpp" />
     <ClCompile Include="Source\MainLoop.cpp" />
-    <ClCompile Include="Source\Menu.cpp" />
     <ClCompile Include="Source\Node.cpp" />
     <ClCompile Include="Source\NodePool.cpp" />
-    <ClCompile Include="Source\OptionSelector.cpp" />
     <ClCompile Include="Source\Piece.cpp" />
     <ClCompile Include="Source\Player.cpp" />
     <ClCompile Include="Source\Power4Board.cpp" />
@@ -146,6 +151,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\Users\thoma\Documents\SFML-2.6.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

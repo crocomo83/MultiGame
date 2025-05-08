@@ -8,8 +8,8 @@
 
 #include "Piece.h"
 #include "Utility.h"
-#include "IBoard.h"
-#include "IDrawable.h"
+#include "BasicBoard.h"
+#include "Graphics/IDrawable.h"
 
 #include <SFML\Graphics\Sprite.hpp>
 #include <SFML\Graphics\Texture.hpp>
@@ -19,15 +19,7 @@
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/CircleShape.hpp>
 
-class Power4Board : public IBoard {
-
-public:
-	enum State {
-		Normal,
-		YellowWin,
-		RedWin,
-		Equality
-	};
+class Power4Board : public BasicBoard {
 
 public:
 							Power4Board();
@@ -36,9 +28,10 @@ public:
 	void					update(sf::Vector2i mousePosition) override;
 	void					render(sf::RenderWindow& window) override;
 	int						handleEvent(const sf::Event& event) override;
+	void					reset() override;
 
-	// ===== IBoard methods =====
-	bool					isGameOver(std::string& message) override;
+	// ===== BasicBoard methods =====
+	bool					isGameOver() override;
 	
 	void					printValidMoves() override;
 	bool					play(int index) override;
@@ -51,6 +44,8 @@ public:
 	std::pair<bool, float>	getEvaluationEndGame(int level) override;
 	float					getEvaluation() override;
 	std::string				getMoveSymbol(int index) override;
+	std::string				getPlayerName(int player) const override;
+	BasicBoard::State		getGameState() const override;
 
 	uint64_t				hashBoard() const override;
 	void					printBoard() const override;
@@ -70,11 +65,13 @@ public:
 	std::vector<std::vector<int>>	getAlignmentsLastMove() const;
 	std::pair<int, int>				getSimpleCount(std::vector<std::vector<int>> allLines) const;
 	std::pair<int, int>				getLinesCount(std::vector<std::vector<int>> allLines, int count) const;
-	Power4Board::State				getGameState() const;
 
 	bool							isEquality() const;
 
 	float							eval() const;
+
+private:
+	void							computeGameState();
 
 private:
 	sf::RectangleShape rectangle;
@@ -83,6 +80,7 @@ private:
 	int selectedColumn;
 
 	std::vector<int> history;
+	std::vector<State> historyState;
 
 	std::unordered_map<uint64_t, float> zobristCache;
 	uint64_t zobristTable[42][3];

@@ -10,15 +10,19 @@ const float offsetY = 70;
 const float radius = 30;
 
 Power4Board::Power4Board()
-	: selectedColumn(-1)
+	: BasicBoard()
+	, selectedColumn(-1)
 {
 	gameOver = false;
 	initBoard();
 	initializeZobristTable();
+
+	historyState.push_back(State::Playing);
 }
 
 void Power4Board::update(sf::Vector2i mousePosition) {
 	mousePos = mousePosition;
+	selectColumn(mousePos.x);
 	for (int x = 0; x < 7; x++) {
 		for (int y = 0; y < 6; y++) {
 			int value = pieceOnBoard[x][y];
@@ -59,21 +63,29 @@ void Power4Board::render(sf::RenderWindow& window) {
 
 int Power4Board::handleEvent(const sf::Event& event)
 {
-	int indexDecision = -1;
-	selectColumn(mousePos.x);
+	int columnPlayed = -1;
 	switch (event.type) {
-	case sf::Event::MouseButtonReleased:
-		if (event.mouseButton.button == sf::Mouse::Left) {
-			indexDecision = selectedColumn;
+		case sf::Event::MouseButtonReleased:
+			if (event.mouseButton.button == sf::Mouse::Left) {
+				columnPlayed = selectedColumn;
+			}
+			break;
 		}
-		break;
-	case sf::Event::KeyPressed:
-		if (event.key.code == sf::Keyboard::U) {
-			undo();
-		}
-		break;
+	if (columnPlayed == -1) {
+		return columnPlayed;
 	}
-	return indexDecision;
+	std::vector<int> validMoves = getAllMoves();
+	for (int i = 0; i < validMoves.size(); i++) {
+		if (validMoves[i] == columnPlayed) {
+			return i;
+		}
+	}
+	std::cerr << "should not happen" << std::endl;
+	return -1;
+}
+
+void Power4Board::reset()
+{
 }
 
 void Power4Board::initBoard() {
@@ -149,6 +161,7 @@ bool Power4Board::playInColum(int index) {
 		}
 	}
 	history.push_back(index);
+	computeGameState();
 	idCurrentPlayer = otherPlayer(idCurrentPlayer);
 	return true;
 }
@@ -167,28 +180,30 @@ bool Power4Board::undo() {
 		}
 	}
 	history.pop_back();
+	historyState.pop_back();
 	idCurrentPlayer = otherPlayer(idCurrentPlayer);
 	return true;
 }
 
-bool Power4Board::isGameOver(std::string& messageGameOver)
-{
-	Power4Board::State gameState = getGameState();
-	switch (gameState) {
-	case(Normal):
+bool Power4Board::isGameOver() {
+	State currentState = getGameState();
+	switch (currentState) {
+	case Player1Win:
+	case Player2Win:
+	case Equality:
+		return true;
+	default:
 		return false;
-	case(YellowWin):
-		messageGameOver = "Yellow win";
-		return true;
-	case(RedWin):
-		messageGameOver = "Red win";
-		return true;
-	case(Equality):
-		messageGameOver = "Equality";
-		return true;
 	}
+}
 
-	return false;
+std::string Power4Board::getPlayerName(int player) const {
+	if (player == 0) {
+		return "Yellow";
+	}
+	else {
+		return "Red";
+	}
 }
 
 void Power4Board::selectColumn(int mousePosX) {
@@ -305,11 +320,21 @@ bool Power4Board::isEquality() const{
 	return isEquality;
 }
 
-Power4Board::State Power4Board::getGameState() const {
-	if (history.size() == 0) {
-		return Power4Board::State::Normal;
+BasicBoard::State Power4Board::getGameState() const{
+	if (historyState.size() == 0) {
+		return State::Playing;
 	}
-	
+	return historyState[historyState.size() - 1];
+}
+
+void Power4Board::computeGameState()
+{
+	// Debut de partie
+	if (history.size() == 0) {
+		historyState.push_back(State::Playing);
+		return;
+	}
+
 	std::vector<std::vector<int>> lines = getAlignmentsLastMove();
 
 	for (int i = 0; i < lines.size(); i++) {
@@ -322,7 +347,8 @@ Power4Board::State Power4Board::getGameState() const {
 				if (value == idPlayer) {
 					count++;
 					if (count == 4) {
-						return (idPlayer == 0 ? Power4Board::State::YellowWin : Power4Board::State::RedWin);
+						historyState.push_back((idPlayer == 0 ? Power4Board::State::Player1Win : Power4Board::State::Player2Win));
+						return;
 					}
 				}
 				else {
@@ -337,20 +363,20 @@ Power4Board::State Power4Board::getGameState() const {
 		}
 	}
 
-	return isEquality() ? Power4Board::State::Equality : Power4Board::State::Normal;
+	historyState.push_back((isEquality() ? Power4Board::State::Equality : Power4Board::State::Playing));
 }
 
 void Power4Board::printValidMoves() {
 }
 
 std::pair<bool, float> Power4Board::getEvaluationEndGame(int level) {
-	Power4Board::State gameState = getGameState();
-	switch (gameState) {
-	case(Normal):
+	State state = getGameState();
+	switch (state) {
+	case(Playing):
 		return { false, 0 };
-	case(YellowWin):
+	case(Player1Win):
 		return { true, -1000 - level };
-	case(RedWin):
+	case(Player2Win):
 		return { true, 1000 + level };
 	case(Equality):
 		return { true, 0 };
@@ -441,15 +467,12 @@ std::string Power4Board::getStringToWright(int indexMove) const
 {
 	std::vector<int> validMoves = getAllMoves();
 	int column = validMoves[indexMove];
-	std::cout << "value : " << column << std::endl;
 	return std::to_string(column);
 }
 
 std::string Power4Board::getHeader() const
 {
-	std::string res;
-	res += "Power4\n";
-	return res;
+	return "Power4\n";
 }
 
 uint64_t Power4Board::hashBoard() const {

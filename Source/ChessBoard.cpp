@@ -20,17 +20,15 @@ const float weightRandom = 0;
 bool ChessBoard::temp = false;
 
 ChessBoard::ChessBoard(bool reverseBoard_)
-	: repetitiveMoves()
+	: BasicBoard()
+	, repetitiveMoves()
 	, history()
 	, historyBoard()
 	, historyMoves()
+	, historyState()
 	, reverseBoard(reverseBoard_)
+	, selectedPawn({-1, -1})
 {
-	idCurrentPlayer = 0;
-	gameOver = false;
-	selectedPawn = sf::Vector2i(-1, -1);
-	mousePos = sf::Vector2i(-1, -1);
-
 	repetitiveMoves.push(0);
 
 	init();
@@ -103,18 +101,22 @@ void ChessBoard::render(sf::RenderWindow& window) {
 int ChessBoard::handleEvent(const sf::Event& event) {
 	int indexDecision = -1;
 	switch (event.type) {
-	case sf::Event::MouseButtonPressed:
-		if (event.mouseButton.button == sf::Mouse::Left) {
-			select(mousePos);
+		case sf::Event::MouseButtonPressed:
+			if (event.mouseButton.button == sf::Mouse::Left) {
+				select(mousePos);
+			}
+			break;
+		case sf::Event::MouseButtonReleased:
+			if (event.mouseButton.button == sf::Mouse::Left) {
+				indexDecision = unselect(mousePos);
+			}
+			break;
 		}
-		break;
-	case sf::Event::MouseButtonReleased:
-		if (event.mouseButton.button == sf::Mouse::Left) {
-			indexDecision = unselect(mousePos);
-		}
-		break;
-	}
 	return indexDecision;
+}
+
+void ChessBoard::reset()
+{
 }
 
 void ChessBoard::init() {
@@ -156,6 +158,7 @@ void ChessBoard::init() {
 	}
 
 	historyBoard.push_back(generateBoardId());
+	historyState.push_back(State::Playing);
 }
 
 void ChessBoard::initText() {
@@ -272,20 +275,24 @@ void ChessBoard::initializeZobristTable() {
 	}
 }
 
-bool ChessBoard::isGameOver(std::string& messageGameOver) {
-	ChessBoard::State state = getGameState();
-	switch (state) {
-	case ChessBoard::State::CheckMateWhite:
-		messageGameOver = "Check Mate, White win!";
-		return true;
-	case ChessBoard::State::CheckMateBlack:
-		messageGameOver = "Check Mate, Black win!";
-		return true;
-	case ChessBoard::State::Equality:
-		messageGameOver = "Equality";
-		return true;
-	default:
-		return false;
+bool ChessBoard::isGameOver() {
+	State currentState = getGameState();
+	switch (currentState) {
+		case ChessBoard::State::Player1Win:
+		case ChessBoard::State::Player2Win:
+		case ChessBoard::State::Equality:
+			return true;
+		default:
+			return false;
+	}
+}
+
+std::string ChessBoard::getPlayerName(int player) const{
+	if (player == 0) {
+		return "White";
+	}
+	else {
+		return "Black";
 	}
 }
 
@@ -332,10 +339,7 @@ int ChessBoard::unselect(sf::Vector2i mousePos) {
 	int indexMove = -1;
 	if (selectedPawn.x != -1) {
 		sf::Vector2i posOnBoard = PixelToChessBoard(mousePos, sf::Vector2i(startX, startY), sf::Vector2i(offsetX, offsetY), reverseBoard);
-
 		indexMove = getIndexMove(selectedPawn, posOnBoard);
-
-		resetHighlights();
 
 		selectedPawn = sf::Vector2i(-1, -1);
 	}
@@ -438,6 +442,7 @@ bool ChessBoard::play(Move& move, bool checkValidity) {
 
 	history.push_back(move);
 	historyBoard.push_back(generateBoardId());
+	computeGameState();
 	computeValidMoves(idCurrentPlayer);
 
 	return true;
@@ -476,6 +481,7 @@ bool ChessBoard::undo() {
 	history.pop_back();
 	historyBoard.pop_back();
 	historyMoves.pop();
+	historyState.pop_back();
 
 	idCurrentPlayer = otherPlayer(idCurrentPlayer);
 
@@ -684,15 +690,16 @@ bool ChessBoard::isThreatenedBy(sf::Vector2i pos, int idPlayer) const {
 	return false;
 }
 
-bool ChessBoard::isCheck(int idPlayer) {
+bool ChessBoard::isCheck(int idPlayer) const {
 	Piece* king = pieces[otherPlayer(idPlayer)][12];
 	return isThreatenedBy(king->pos, idPlayer);
 }
 
-ChessBoard::State ChessBoard::getGameState() {
+void ChessBoard::computeGameState() {
 	// Debut de partie
 	if (history.empty()) {
-		return ChessBoard::State::Normal;
+		historyState.push_back(BasicBoard::State::Playing);
+		return;
 	}
 
 	Move& lastMove = history[history.size() - 1];
@@ -704,29 +711,38 @@ ChessBoard::State ChessBoard::getGameState() {
 
 	if (check && !opponentCanPlay) {
 		if (idPlayer == 0) {
-			return ChessBoard::State::CheckMateWhite;
+			historyState.push_back(BasicBoard::State::Player1Win);
 		}
 		else {
-			return ChessBoard::State::CheckMateBlack;
+			historyState.push_back(BasicBoard::State::Player2Win);
 		}
 	}
 	else if (!check && !opponentCanPlay) {
-		return ChessBoard::State::Equality;
+		historyState.push_back(BasicBoard::State::Equality);
 	}
 	else if (isEquality()) {
-		return ChessBoard::State::Equality;
+		historyState.push_back(BasicBoard::State::Equality);
 	}
-	return ChessBoard::State::Normal;
+	else {
+		historyState.push_back(BasicBoard::State::Playing);
+	}
+}
+
+BasicBoard::State ChessBoard::getGameState() const {
+	if (historyState.size() == 0) {
+		return State::Playing;
+	}
+	return historyState[historyState.size() - 1];
 }
 
 std::pair<bool, float> ChessBoard::getEvaluationEndGame(int level) {
-	State state = getGameState();
-	switch (state) {
-	case(Normal):
+	State currentState = getGameState();
+	switch (currentState) {
+	case(Playing):
 		return { false, -1 };
-	case(CheckMateWhite):
+	case(Player1Win):
 		return { true, -1000 };
-	case(CheckMateBlack):
+	case(Player2Win):
 		return { true, 1000 };
 	case(Equality):
 		return { true, 0 };
