@@ -4,7 +4,6 @@
 #include <sstream>
 #include <iostream>
 #include <filesystem>
-#include <direct.h>
 #include <random>
 #include <SFML/Graphics.hpp>
 
