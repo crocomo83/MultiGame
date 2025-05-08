@@ -25,7 +25,7 @@ std::pair<int, float> Player::playMinMaxSimple(BasicBoard* board, int level, int
 		return { -1, valueBoard };
 	}
 
-	int n = board->getNumberMoves();
+	size_t n = board->getNumberMoves();
 
 	if (n == 0) {
 		std::cerr << "Pat ou checkmate aurait dus etre detectes !" << std::endl;
@@ -36,7 +36,7 @@ std::pair<int, float> Player::playMinMaxSimple(BasicBoard* board, int level, int
 	float best = (idPlayer == 0 ? 10000 : -10000);
 
 	if (idPlayer == 0) {
-		for (int i = 0; i < n; i++) {
+		for (int i = 0; i < n; ++i) {
 			board->play(i);
 
 			float value = playMinMaxSimple(board, level - 1, 1).second;

@@ -125,7 +125,7 @@ std::vector<int> Power4Board::getAllMoves() const{
 	return moves;
 }
 
-int Power4Board::getNumberMoves() {
+size_t Power4Board::getNumberMoves() {
 	return getAllMoves().size();
 }
 

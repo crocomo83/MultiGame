@@ -33,7 +33,7 @@ public:
 
 	virtual std::string				getStringToWright(int indexMove) const = 0;
 	virtual std::string				getHeader() const = 0;
-	virtual int						getNumberMoves() = 0;
+	virtual size_t					getNumberMoves() = 0;
 	virtual std::pair<bool, float>	getEvaluationEndGame(int level) = 0;
 	virtual float					getEvaluation() = 0;
 	virtual std::string				getMoveSymbol(int index) = 0;

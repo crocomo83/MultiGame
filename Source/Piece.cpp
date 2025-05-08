@@ -90,6 +90,7 @@ int getType(Piece* piece) {
 			return 12;
 		}
 	}	
+	return PieceType::None;
 }
 
 std::string tagToStr(Tag tag) {
@@ -108,6 +109,9 @@ std::string tagToStr(Tag tag) {
 		return "KingSideCastling";
 	case QueenSideCastling:
 		return "QueenSideCastling";
+	default:
+		std::cerr << "should not be call tagToStr" << std::endl;
+		return "NotFound";
 	}
 }
 
@@ -160,5 +164,7 @@ std::string pieceToStr(Piece* piece) {
 			break;
 		}
 	}
+	std::cerr << "should not be called pieceToStr" << std::endl;
+	return "ERROR";
 }
 

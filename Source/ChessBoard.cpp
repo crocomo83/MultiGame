@@ -8,10 +8,10 @@
 #include <random>
 #include <SFML/Graphics.hpp>
 
-const float startX = 30;
-const float startY = 30;
-const float offsetX = 60;
-const float offsetY = 60;
+const int startX = 30;
+const int startY = 30;
+const int offsetX = 60;
+const int offsetY = 60;
 
 const float weightPieces = 1;
 const float weightMoves = 0.2f;
@@ -357,7 +357,7 @@ std::vector<Move> ChessBoard::getAllMoves(int idPlayer, bool checkConsidered) {
 	return moves;
 }
 
-int ChessBoard::getNumberMoves() {
+size_t ChessBoard::getNumberMoves() {
 	std::vector<Move> validMoves = historyMoves.top();
 	return validMoves.size();
 }
@@ -463,7 +463,7 @@ bool ChessBoard::play(std::string moveStr)
 }
 
 bool ChessBoard::undo() {
-	int n = history.size();
+	size_t n = history.size();
 	if (n == 0) {
 		std::cout << "Can't undo : no move were made" << std::endl;
 		return false;
@@ -604,7 +604,7 @@ void ChessBoard::drawBoard(sf::RenderWindow& target) {
 void ChessBoard::setSpritePosition(sf::Sprite& sprite, sf::Vector2i pos) const {
 
 	sf::Vector2i posOnBoard = CoordToPixelChessBoard(pos, sf::Vector2i(startX, startY), sf::Vector2i(offsetX, offsetY), reverseBoard);
-	sprite.setPosition(posOnBoard.x, posOnBoard.y);
+	sprite.setPosition((float)posOnBoard.x, (float)posOnBoard.y);
 }
 
 bool ChessBoard::isThreatenedBy(sf::Vector2i pos, int idPlayer) const {
@@ -747,6 +747,8 @@ std::pair<bool, float> ChessBoard::getEvaluationEndGame(int level) {
 	case(Equality):
 		return { true, 0 };
 	}
+	std::cerr << "should not be call ChessBoard::getEvaluationEndGame" << std::endl;
+	return { true, 0 };
 }
 
 bool ChessBoard::isCheckMate() {
@@ -843,7 +845,7 @@ float ChessBoard::evalPieces() const {
 float ChessBoard::evalMoves() {
 	std::vector<Move> moves0 = getAllMoves(0, false);
 	std::vector<Move> moves1 = getAllMoves(1, false);
-	int diff = moves1.size() - moves0.size();
+	int diff = (int)moves1.size() - (int)moves0.size();
 	return (float)diff;
 }
 

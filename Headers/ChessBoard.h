@@ -44,14 +44,14 @@ class ChessBoard : public BasicBoard {
 		bool					play(std::string moveStr) override;
 		bool					undo() override;
 
-		int						getNumberMoves() override;
+		size_t					getNumberMoves() override;
 		std::string				getStringToWright(int indexMove) const override;
 		std::string				getHeader() const override;
 		std::pair<bool, float>	getEvaluationEndGame(int level) override;
 		float					getEvaluation() override;
 		std::string				getMoveSymbol(int index) override;
 		std::string				getPlayerName(int player) const override;
-		BasicBoard::State		getGameState() const;
+		BasicBoard::State		getGameState() const override;
 		
 		void					computeGameState() override;
 

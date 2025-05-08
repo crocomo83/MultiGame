@@ -1,6 +1,6 @@
 #include "../Headers/Replayer.h"
 #include "../Headers/Utility.h"
-#include "../Headers/ChessBoard.h";
+#include "../Headers/ChessBoard.h"
 #include "../Headers/Power4Board.h"
 
 Replayer::Replayer(std::string fileName_)

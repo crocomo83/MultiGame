@@ -38,7 +38,7 @@ public:
 	bool					play(std::string moveStr) override;
 	bool					undo() override;
 
-	int						getNumberMoves() override;
+	size_t					getNumberMoves() override;
 	std::string				getStringToWright(int indexMove) const override;
 	std::string				getHeader() const override;
 	std::pair<bool, float>	getEvaluationEndGame(int level) override;

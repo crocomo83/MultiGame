@@ -9,7 +9,8 @@ enum PieceType {
 	Bishop,
 	Knight,
 	Tower,
-	Pawn
+	Pawn, 
+	None
 };
 
 enum Tag {
