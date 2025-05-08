@@ -3,7 +3,11 @@
 #include "ScrollBar.h"
 #include "IDrawable.h"
 
-#include <SFML/Graphics.hpp>
+#include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Graphics/CircleShape.hpp>
+#include <SFML/Graphics/Text.hpp>
+#include <SFML/Window/Event.hpp>
+
 #include <vector>
 #include <string>
 #include <functional>

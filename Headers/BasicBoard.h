@@ -2,7 +2,7 @@
 
 #include "Graphics/IDrawable.h"
 
-#include <SFML\Graphics\RenderWindow.hpp>
+#include <SFML/Graphics/RenderWindow.hpp>
 #include <unordered_map>
 
 class BasicBoard : public IDrawable {

@@ -2,6 +2,9 @@
 
 #include "IDrawable.h"
 
+#include <SFML/Graphics/RectangleShape.hpp>
+#include <SFML/Graphics/CircleShape.hpp>
+
 class ScrollBar : public IDrawable {
 
 public:
