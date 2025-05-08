@@ -18,7 +18,7 @@
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 
-class ChessBoard : public BasicBoard, IDrawable {
+class ChessBoard : public BasicBoard {
 	enum Color {
 		Blue,
 		Green,
