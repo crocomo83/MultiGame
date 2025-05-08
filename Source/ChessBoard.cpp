@@ -27,6 +27,7 @@ ChessBoard::ChessBoard(bool reverseBoard_)
 	, historyState()
 	, reverseBoard(reverseBoard_)
 	, selectedPawn({-1, -1})
+	, pieceSprites{}
 {
 	repetitiveMoves.push(0);
 
@@ -78,8 +79,8 @@ void ChessBoard::render(sf::RenderWindow& window) {
 		for (int i = 0; i < 16; i++) {
 			Piece* piece = pieces[idPlayer][i];
 			if (piece->pos != selectedPawn && !piece->taken) {
-				setSpritePosition(pieceSprites[idPlayer][piece->type], piece->pos);
-				window.draw(pieceSprites[idPlayer][piece->type]);
+				setSpritePosition(pieceSprites[idPlayer * 6 + piece->type], piece->pos);
+				window.draw(pieceSprites[idPlayer * 6 + piece->type]);
 			}
 		}
 	}
@@ -90,7 +91,7 @@ void ChessBoard::render(sf::RenderWindow& window) {
 			std::cerr << "Erreur: selectedPiece est NULL!" << std::endl;
 		}
 		else {
-			sf::Sprite* sprite = &pieceSprites[selectedPiece->player][selectedPiece->type];
+			sf::Sprite* sprite = &pieceSprites[selectedPiece->player * 6 + selectedPiece->type];
 			sprite->setPosition(mousePos.x - sprite->getLocalBounds().width / 2, mousePos.y - sprite->getLocalBounds().height / 2);
 			window.draw(*sprite);
 		}
@@ -168,7 +169,7 @@ void ChessBoard::initText() {
 		text.setString(std::to_string(i));
 		text.setCharacterSize(25);
 		text.setFillColor(sf::Color::Black);
-		text.setPosition(sf::Vector2f(startTextNum) + sf::Vector2f(0, (8 - i) * offsetY));
+		text.setPosition(sf::Vector2f(startTextNum) + sf::Vector2f(0, (float)((8 - i) * offsetY)));
 
 		textsSquare.push_back(text);
 	}
@@ -181,7 +182,7 @@ void ChessBoard::initText() {
 		text.setString(bottomText[i]);
 		text.setCharacterSize(25);
 		text.setFillColor(sf::Color::Black);
-		text.setPosition(sf::Vector2f(startTextAlph) + sf::Vector2f(i * offsetX, 0));
+		text.setPosition(sf::Vector2f(startTextAlph) + sf::Vector2f((float)(i * offsetX), 0));
 
 		textsSquare.push_back(text);
 	}
@@ -191,19 +192,19 @@ void ChessBoard::initSprites() {
 
 	if (piecesTexture.loadFromFile("Media/Pieces_small_size.png"))
 	{
-		pieceSprites[1][0] = sf::Sprite(piecesTexture, sf::IntRect(14, 22, 61, 61));
-		pieceSprites[1][1] = sf::Sprite(piecesTexture, sf::IntRect(83, 22, 61, 61));
-		pieceSprites[1][2] = sf::Sprite(piecesTexture, sf::IntRect(152, 20, 61, 61));
-		pieceSprites[1][3] = sf::Sprite(piecesTexture, sf::IntRect(217, 20, 61, 61));
-		pieceSprites[1][4] = sf::Sprite(piecesTexture, sf::IntRect(278, 22, 61, 61));
-		pieceSprites[1][5] = sf::Sprite(piecesTexture, sf::IntRect(332, 24, 61, 61));
+		pieceSprites[0] = sf::Sprite(piecesTexture, sf::IntRect(14, 95, 61, 61));
+		pieceSprites[1] = sf::Sprite(piecesTexture, sf::IntRect(83, 95, 61, 61));
+		pieceSprites[2] = sf::Sprite(piecesTexture, sf::IntRect(152, 93, 61, 61));
+		pieceSprites[3] = sf::Sprite(piecesTexture, sf::IntRect(217, 93, 61, 61));
+		pieceSprites[4] = sf::Sprite(piecesTexture, sf::IntRect(278, 95, 61, 61));
+		pieceSprites[5] = sf::Sprite(piecesTexture, sf::IntRect(332, 97, 61, 61));
 
-		pieceSprites[0][0] = sf::Sprite(piecesTexture, sf::IntRect(14, 95, 61, 61));
-		pieceSprites[0][1] = sf::Sprite(piecesTexture, sf::IntRect(83, 95, 61, 61));
-		pieceSprites[0][2] = sf::Sprite(piecesTexture, sf::IntRect(152, 93, 61, 61));
-		pieceSprites[0][3] = sf::Sprite(piecesTexture, sf::IntRect(217, 93, 61, 61));
-		pieceSprites[0][4] = sf::Sprite(piecesTexture, sf::IntRect(278, 95, 61, 61));
-		pieceSprites[0][5] = sf::Sprite(piecesTexture, sf::IntRect(332, 97, 61, 61));
+		pieceSprites[6] = sf::Sprite(piecesTexture, sf::IntRect(14, 22, 61, 61));
+		pieceSprites[7] = sf::Sprite(piecesTexture, sf::IntRect(83, 22, 61, 61));
+		pieceSprites[8] = sf::Sprite(piecesTexture, sf::IntRect(152, 20, 61, 61));
+		pieceSprites[9] = sf::Sprite(piecesTexture, sf::IntRect(217, 20, 61, 61));
+		pieceSprites[10] = sf::Sprite(piecesTexture, sf::IntRect(278, 22, 61, 61));
+		pieceSprites[11] = sf::Sprite(piecesTexture, sf::IntRect(332, 24, 61, 61));
 	}
 	else {
 		std::cerr << "Error loading pieces" << std::endl;
@@ -660,7 +661,7 @@ bool ChessBoard::isThreatenedBy(sf::Vector2i pos, int idPlayer) const {
 	}
 
 	// On cherche un cavalier qui menace la case
-	sf::Vector2i* possibilities = getKnightEmplacement(pos);
+	std::array<sf::Vector2i, 8> possibilities = getKnightEmplacement(pos);
 
 	for (int i = 0; i < 8; i++) {
 		sf::Vector2i possibility = possibilities[i];
@@ -769,7 +770,7 @@ bool ChessBoard::isEquality() {
 
 	// position répétée 3 fois => égalité
 	std::string currentBoard = historyBoard[historyBoard.size() - 1];
-	int nbIdenticalBoard = std::count(historyBoard.begin(), historyBoard.end(), currentBoard);
+	int nbIdenticalBoard = static_cast<int>(std::count(historyBoard.begin(), historyBoard.end(), currentBoard));
 	if (nbIdenticalBoard == 3) {
 		return true;
 	}
@@ -1035,7 +1036,7 @@ void ChessBoard::getKnightMoves(sf::Vector2i start, std::vector<Move>& moves, bo
 	sf::Vector2i end;
 
 	// On cherche un cavalier qui menace la case
-	sf::Vector2i* possibilities = getKnightEmplacement(start);
+	std::array<sf::Vector2i, 8> possibilities = getKnightEmplacement(start);
 
 	Piece* movingPiece = getPiece(start);
 	for (int i = 0; i < 8; i++) {

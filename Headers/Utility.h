@@ -2,9 +2,10 @@
 
 #include <iostream>
 #include <vector>
-#include <SFML/System/Vector2.hpp>
-
+#include <array>
 #include <string_view>
+
+#include <SFML/System/Vector2.hpp>
 
 constexpr int chessLevelIA = 4;
 constexpr int power4LevelIA = 6;
@@ -20,7 +21,7 @@ std::vector<std::string> splitString(const std::string& str, char delimiter);
 int otherPlayer(int idPlayer);
 bool isOnBoard(sf::Vector2i pos);
 bool isOnBoard(int x, int y);
-sf::Vector2i* getKnightEmplacement(sf::Vector2i pos);
+std::array<sf::Vector2i, 8> getKnightEmplacement(sf::Vector2i pos);
 std::string floatToStringWithDecimal(float value, int decimal);
 sf::Vector2i PixelToChessBoard(sf::Vector2i posPixel, sf::Vector2i start, sf::Vector2i offset, bool reverse);
 sf::Vector2i CoordToPixelChessBoard(sf::Vector2i posBoard, sf::Vector2i start, sf::Vector2i offset, bool reverse);

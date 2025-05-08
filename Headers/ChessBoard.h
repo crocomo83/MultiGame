@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <vector>
 #include <stack>
+#include <array>
 
 #include "Piece.h"
 #include "Utility.h"
@@ -153,8 +154,7 @@ class ChessBoard : public BasicBoard {
 
 		sf::Font*						font;
 
-		sf::Sprite						boardSprite;
-		sf::Sprite						pieceSprites[2][6];
+		std::array<sf::Sprite, 12>		pieceSprites;
 
 		std::vector<sf::Text>			textsSquare;
 

@@ -28,8 +28,8 @@ bool isOnBoard(sf::Vector2i pos) {
 	return pos.x >= 0 && pos.x < 8 && pos.y >= 0 && pos.y < 8;
 }
 
-sf::Vector2i* getKnightEmplacement(sf::Vector2i pos) {
-	sf::Vector2i possibilities[8];
+std::array<sf::Vector2i, 8> getKnightEmplacement(sf::Vector2i pos) {
+	std::array<sf::Vector2i, 8>  possibilities;
 	int x = pos.x;
 	int y = pos.y;
 
