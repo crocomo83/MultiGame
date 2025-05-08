@@ -9,7 +9,10 @@ file(GLOB_RECURSE SOURCES "Source/*.cpp")
 add_executable(MultiGame ${SOURCES})
 
 # Trouver SFML
-find_package(SFML COMPONENTS graphics window system REQUIRED)
-
-# Lier SFML
-target_link_libraries(MultiGame PRIVATE sfml-graphics sfml-window sfml-system)
+target_link_libraries(MultiGame
+    PRIVATE
+        /opt/homebrew/lib/libsfml-graphics.dylib
+        /opt/homebrew/lib/libsfml-window.dylib
+        /opt/homebrew/lib/libsfml-system.dylib
+)
+include_directories(/opt/homebrew/include)
