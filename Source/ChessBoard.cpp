@@ -8,10 +8,8 @@
 #include <variant>
 #include <SFML/Graphics.hpp>
 
-const int startX = 30;
-const int startY = 30;
-const int offsetX = 60;
-const int offsetY = 60;
+const sf::Vector2i start = { 30, 30 };
+const sf::Vector2i offset = { 60, 60 };
 
 const float weightPieces = 1;
 const float weightMoves = 0.2f;
@@ -50,8 +48,8 @@ void ChessBoard::update(sf::Vector2i mousePosition) {
 	// red highlight
 	if (history.size() > 0) {
 		Move& lastMove = history[history.size() - 1];
-		colorSquare[lastMove.begin.x][lastMove.begin.y] = Color::Red;
-		colorSquare[lastMove.end.x][lastMove.end.y] = Color::Red;
+		colorRectangles[lastMove.begin.x][lastMove.begin.y].setFillColor(sf::Color::Red);
+		colorRectangles[lastMove.end.x][lastMove.end.y].setFillColor(sf::Color::Red);
 	}
 
 	if (selectedPawn.x != -1) {
@@ -59,16 +57,30 @@ void ChessBoard::update(sf::Vector2i mousePosition) {
 		std::vector<Move> moves = getMoveOnPos(selectedPawn);
 		for (int i = 0; i < moves.size(); i++) {
 			Move move = moves[i];
-			colorSquare[move.end.x][move.end.y] = Color::Blue;
+			colorRectangles[move.end.x][move.end.y].setFillColor(sf::Color::Cyan);
 		}
 
-		sf::Vector2i posOnBoard = PixelToChessBoard(mousePos, sf::Vector2i(startX, startY), sf::Vector2i(offsetX, offsetY), reverseBoard);
+		sf::Vector2i posOnBoard = PixelToChessBoard(mousePos, start, offset, reverseBoard);
 		Move move = Move(getPiece(selectedPawn), posOnBoard);
 
 		// green highlight
 		if (isValidMove(move)) {
-			colorSquare[posOnBoard.x][posOnBoard.y] = Color::Green;
+			colorRectangles[posOnBoard.x][posOnBoard.y].setFillColor(sf::Color::Green);
 		}
+	}
+}
+
+void ChessBoard::drawBoard(sf::RenderWindow& target) {
+	for (int x = 0; x < 8; x++) {
+		for (int y = 0; y < 8; y++) {
+			target.draw(colorRectangles[x][y]);
+		}
+	}
+
+	target.draw(squareBoard);
+
+	for (auto& text : textsSquare) {
+		target.draw(text);
 	}
 }
 
@@ -79,7 +91,8 @@ void ChessBoard::render(sf::RenderWindow& window) {
 		for (int i = 0; i < 16; i++) {
 			Piece* piece = pieces[idPlayer][i];
 			if (piece->pos != selectedPawn && !piece->taken) {
-				setSpritePosition(pieceSprites[idPlayer * 6 + piece->type], piece->pos);
+				sf::Vector2i pos = CoordToPixelChessBoard(piece->pos, start, offset, reverseBoard);
+				pieceSprites[idPlayer * 6 + piece->type]->setPosition((sf::Vector2f)pos);
 				window.draw(*pieceSprites[idPlayer * 6 + piece->type]);
 			}
 		}
@@ -167,7 +180,7 @@ void ChessBoard::initText() {
 	for (int i = 1; i < 9; i++) {
 		sf::Text text(*font, std::to_string(i), 25);
 		text.setFillColor(sf::Color::Black);
-		text.setPosition(sf::Vector2f(startTextNum) + sf::Vector2f(0, (float)((8 - i) * offsetY)));
+		text.setPosition(sf::Vector2f(startTextNum) + sf::Vector2f(0, (float)((8 - i) * offset.y)));
 
 		textsSquare.push_back(text);
 	}
@@ -177,7 +190,7 @@ void ChessBoard::initText() {
 	for (int i = 0; i < 8; i++) {
 		sf::Text text(*font, bottomText[i], 25);
 		text.setFillColor(sf::Color::Black);
-		text.setPosition(sf::Vector2f(startTextAlph) + sf::Vector2f((float)(i * offsetX), 0));
+		text.setPosition(sf::Vector2f(startTextAlph) + sf::Vector2f((float)(i * offset.x), 0));
 
 		textsSquare.push_back(text);
 	}
@@ -205,8 +218,8 @@ void ChessBoard::initSprites() {
 		std::cerr << "Error loading pieces" << std::endl;
 	}
 
-	squareBoard.setSize(sf::Vector2f(8 * offsetX, 8 * offsetY));
-	squareBoard.setPosition({ startX, startY });
+	squareBoard.setSize((sf::Vector2f)(8 * offset));
+	squareBoard.setPosition((sf::Vector2f)start);
 	squareBoard.setFillColor(sf::Color::Transparent);
 	squareBoard.setOutlineColor(sf::Color::Black);
 	squareBoard.setOutlineThickness(3);
@@ -221,31 +234,17 @@ void ChessBoard::initFont() {
 }
 
 void ChessBoard::initHighlights() {
-	std::map<Color, std::string> pathColor;
-	pathColor[Color::Blue] = "Media/blue.png";
-	pathColor[Color::Green] = "Media/green.png";
-	pathColor[Color::Red] = "Media/red.png";
-	pathColor[Color::White] = "Media/white.png";
-	pathColor[Color::Black] = "Media/black.png";
-
-	for (auto itr = pathColor.begin(); itr != pathColor.end(); ++itr) {
-		Color color = itr->first;
-		std::string path = itr->second;
-		highlights[color] = new sf::Texture();
-		if (highlights[color]->loadFromFile(path)) {
-			colorSprites[color] = new sf::Sprite(*(highlights[color]), sf::IntRect({ 0, 0 }, { offsetX, offsetY }));
-		}
-	}
-
 	for (int x = 0; x < 8; x++) {
 		for (int y = 0; y < 8; y++) {
+			sf::RectangleShape rectangle((sf::Vector2f)offset);
+			sf::Vector2i pos = CoordToPixelChessBoard({x, y}, start, offset, reverseBoard);
+			rectangle.setPosition((sf::Vector2f)pos);
+			colorRectangles[x][y] = rectangle;
 			if ((x + y) % 2 == 0) {
-				baseColorSquare[x][y] = Color::White;
-				colorSquare[x][y] = Color::White;
+				colorRectangles[x][y].setFillColor(sf::Color::White);
 			}
 			else {
-				baseColorSquare[x][y] = Color::Black;
-				colorSquare[x][y] = Color::Black;
+				colorRectangles[x][y].setFillColor(sf::Color::Black);
 			}
 		}
 	}
@@ -254,7 +253,12 @@ void ChessBoard::initHighlights() {
 void ChessBoard::resetHighlights() {
 	for (int x = 0; x < 8; x++) {
 		for (int y = 0; y < 8; y++) {
-			colorSquare[x][y] = baseColorSquare[x][y];
+			if ((x + y) % 2 == 0) {
+				colorRectangles[x][y].setFillColor(sf::Color::White);
+			}
+			else {
+				colorRectangles[x][y].setFillColor(sf::Color::Black);
+			}
 		}
 	}
 }
@@ -315,7 +319,7 @@ bool ChessBoard::isCorrectMove(Move move) const {
 
 void ChessBoard::select(sf::Vector2i mousePos) {
 	if (selectedPawn.x == -1) {
-		sf::Vector2i posOnBoard = PixelToChessBoard(mousePos, sf::Vector2i(startX, startY), sf::Vector2i(offsetX, offsetY), reverseBoard);
+		sf::Vector2i posOnBoard = PixelToChessBoard(mousePos, start, offset, reverseBoard);
 
 		if (!isOnBoard(posOnBoard)) {
 			return;
@@ -333,7 +337,7 @@ void ChessBoard::select(sf::Vector2i mousePos) {
 int ChessBoard::unselect(sf::Vector2i mousePos) {
 	int indexMove = -1;
 	if (selectedPawn.x != -1) {
-		sf::Vector2i posOnBoard = PixelToChessBoard(mousePos, sf::Vector2i(startX, startY), sf::Vector2i(offsetX, offsetY), reverseBoard);
+		sf::Vector2i posOnBoard = PixelToChessBoard(mousePos, start, offset, reverseBoard);
 		indexMove = getIndexMove(selectedPawn, posOnBoard);
 
 		selectedPawn = sf::Vector2i(-1, -1);
@@ -577,29 +581,6 @@ void ChessBoard::unMovePiece(Move& move) {
 	else {
 		piecesOnBoard[move.end.x][move.end.y] = nullptr;
 	}
-}
-
-void ChessBoard::drawBoard(sf::RenderWindow& target) {
-	for (int x = 0; x < 8; x++) {
-		for (int y = 0; y < 8; y++) {
-			Color color = colorSquare[x][y];
-			sf::Sprite* sprite = colorSprites[color];
-			setSpritePosition(sprite, sf::Vector2i(x, y));
-			target.draw(*sprite);
-		}
-	}
-
-	target.draw(squareBoard);
-
-	for (auto& text : textsSquare) {
-		target.draw(text);
-	}
-}
-
-void ChessBoard::setSpritePosition(sf::Sprite* sprite, sf::Vector2i pos) const {
-
-	sf::Vector2f posOnBoard = (sf::Vector2f)CoordToPixelChessBoard(pos, sf::Vector2i(startX, startY), sf::Vector2i(offsetX, offsetY), reverseBoard);
-	sprite->setPosition(posOnBoard);
 }
 
 bool ChessBoard::isThreatenedBy(sf::Vector2i pos, int idPlayer) const {

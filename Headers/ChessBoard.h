@@ -20,14 +20,6 @@
 #include <SFML/Graphics/RectangleShape.hpp>
 
 class ChessBoard : public BasicBoard {
-	enum Color {
-		Blue,
-		Green,
-		Red,
-		White,
-		Black
-	};
-
 	public : 
 								ChessBoard(bool reverseBoard_);
 
@@ -103,7 +95,6 @@ class ChessBoard : public BasicBoard {
 		void					initializeZobristTable();
 
 		void					drawBoard(sf::RenderWindow& target);
-		void					setSpritePosition(sf::Sprite* sprite, sf::Vector2i pos) const;
 		void					resetHighlights();
 
 		bool					testMove(Move &move);
@@ -134,8 +125,7 @@ class ChessBoard : public BasicBoard {
 
 		std::stack<short>				repetitiveMoves;
 
-		Color							colorSquare[8][8];
-		Color							baseColorSquare[8][8];
+		sf::RectangleShape				colorRectangles[8][8];
 
 		Piece*							pieces[2][16];
 		Piece*							piecesOnBoard[8][8];
@@ -148,9 +138,6 @@ class ChessBoard : public BasicBoard {
 		sf::RectangleShape				squareBoard;
 		sf::Texture						boardTexture;
 		sf::Texture						piecesTexture;
-
-		std::map<Color, sf::Texture*>	highlights;
-		std::map<Color, sf::Sprite*>	colorSprites;
 
 		sf::Font*						font;
 
