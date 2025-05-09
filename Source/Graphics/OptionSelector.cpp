@@ -39,7 +39,7 @@ OptionSelector::OptionSelector(const std::vector<std::string>& labels, const sf:
     scrollBar.setHeightInnerEllipsePercent((float)nbItemRenderedMax / (float)labels.size() * 100);
 }
 
-int OptionSelector::handleEvent(const sf::Event& event) {
+int OptionSelector::handleEvent(const std::optional<sf::Event> event) {
     if (enabled && event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
         for (int i = 0; i < options.size(); i++) {
             if (options[i].outerCircle.getGlobalBounds().contains((sf::Vector2f)mousePos)) {

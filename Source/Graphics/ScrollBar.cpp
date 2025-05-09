@@ -12,7 +12,7 @@ ScrollBar::ScrollBar(sf::Vector2f upPosition_, float height_, float thickness_)
 	globalEllipse.rectangle = outerRectangle;
 
 	sf::CircleShape upCircle(thickness / 2);
-	upCircle.setPosition(upPosition.x - thickness/2, upPosition.y - thickness/2);
+	upCircle.setPosition({ upPosition.x - thickness / 2, upPosition.y - thickness / 2 });
 	upCircle.setFillColor(sf::Color(150, 150, 150));
 	globalEllipse.upCircle = upCircle;
 
@@ -57,7 +57,7 @@ void ScrollBar::render(sf::RenderWindow& window)
 	window.draw(innerEllipse.downCircle);
 }
 
-int ScrollBar::handleEvent(const sf::Event& event)
+int ScrollBar::handleEvent(const std::optional<sf::Event> event)
 {
 	return 0;
 }

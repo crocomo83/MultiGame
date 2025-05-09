@@ -19,7 +19,7 @@ void Image::render(sf::RenderWindow& window)
 	window.draw(*image);
 }
 
-int Image::handleEvent(const sf::Event& event)
+int Image::handleEvent(const std::optional<sf::Event> event)
 {
 	return 0;
 }

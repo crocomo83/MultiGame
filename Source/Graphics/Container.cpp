@@ -25,7 +25,7 @@ void Container::render(sf::RenderWindow& window)
 	}
 }
 
-int Container::handleEvent(const sf::Event& event)
+int Container::handleEvent(const std::optional<sf::Event> event)
 {
 	for (IDrawable* widget : listWidgets) {
 		widget->handleEvent(event);

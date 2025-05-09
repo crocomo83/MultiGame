@@ -49,7 +49,7 @@ void Menu::prepareMenu(const sf::Font& font) {
 	}
 }
 
-int Menu::handleEvent(const sf::Event& event) {
+int Menu::handleEvent(const std::optional<sf::Event> event) {
 	if (event.type == sf::Event::MouseButtonReleased
 		&& event.mouseButton.button == sf::Mouse::Left
 		&& pos >= 0)

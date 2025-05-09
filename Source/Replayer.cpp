@@ -61,7 +61,7 @@ void Replayer::update(sf::Vector2i mousePosition)
 	board->update(mousePosition);
 }
 
-int Replayer::handleEvent(const sf::Event& event) {
+int Replayer::handleEvent(const std::optional<sf::Event> event) {
 	if (event.type == sf::Event::KeyPressed) {
 		if (event.key.code == sf::Keyboard::Right) {
 			if (indexMove < movesLines.size()) {

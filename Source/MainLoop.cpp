@@ -28,7 +28,7 @@ MainLoop::~MainLoop()
 
 void MainLoop::initFont() {
 	font = new sf::Font();
-	if (!font->loadFromFile("Media/arial.ttf"))
+	if (!font->openFromFile("Media/arial.ttf"))
 	{
 		std::cout << "error while loading font" << std::endl;
 	}
@@ -78,14 +78,15 @@ void MainLoop::render()
 
 void MainLoop::handleEvent()
 {
-	sf::Event event;
-	while (window->pollEvent(event)) {
-		if (event.type == sf::Event::Closed) {
+	while (const std::optional event = window->pollEvent())
+	{
+		if (event->is<sf::Event::Closed>())
+		{
 			window->close();
 		}
-		else if(event.type == sf::Event::MouseMoved) {
-			mousePos.x = event.mouseMove.x;
-			mousePos.y = event.mouseMove.y;
+		else if (const auto* mouseMoved = event->getIf<sf::Event::MouseMoved>())
+		{
+			mousePos = mouseMoved->position;
 		}
 		else {
 			states[appState]->handleEvent(event);

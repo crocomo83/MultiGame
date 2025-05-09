@@ -61,7 +61,7 @@ void Power4Board::render(sf::RenderWindow& window) {
 	}
 }
 
-int Power4Board::handleEvent(const sf::Event& event)
+int Power4Board::handleEvent(const std::optional<sf::Event> event)
 {
 	int columnPlayed = -1;
 	switch (event.type) {

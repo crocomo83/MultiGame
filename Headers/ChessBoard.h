@@ -34,7 +34,7 @@ class ChessBoard : public BasicBoard {
 		// ===== IDrawable methods =====
 		void					update(sf::Vector2i mousePosition) override;
 		void					render(sf::RenderWindow& window) override;
-		int						handleEvent(const sf::Event& event) override;
+		int						handleEvent(const std::optional<sf::Event> event) override;
 		void					reset() override;
 
 		// ===== BasicBoard methods =====
@@ -103,7 +103,7 @@ class ChessBoard : public BasicBoard {
 		void					initializeZobristTable();
 
 		void					drawBoard(sf::RenderWindow& target);
-		void					setSpritePosition(sf::Sprite& sprite, sf::Vector2i pos) const;
+		void					setSpritePosition(sf::Sprite* sprite, sf::Vector2i pos) const;
 		void					resetHighlights();
 
 		bool					testMove(Move &move);
@@ -154,7 +154,7 @@ class ChessBoard : public BasicBoard {
 
 		sf::Font*						font;
 
-		std::array<sf::Sprite, 12>		pieceSprites;
+		std::array<sf::Sprite*, 12>		pieceSprites;
 
 		std::vector<sf::Text>			textsSquare;
 

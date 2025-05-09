@@ -80,7 +80,7 @@ void Game::update(sf::Vector2i mousePosition) {
 	menu->update(mousePosition);
 }
 
-int Game::handleEvent(const sf::Event& event) {
+int Game::handleEvent(const std::optional<sf::Event> event) {
 	if (!gameOver && Player::isHuman(players[currentPlayer].type)) {
 		indexDecision = board->handleEvent(event);
 	}
