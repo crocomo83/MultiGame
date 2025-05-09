@@ -64,16 +64,17 @@ void Power4Board::render(sf::RenderWindow& window) {
 int Power4Board::handleEvent(const std::optional<sf::Event> event)
 {
 	int columnPlayed = -1;
-	switch (event.type) {
-		case sf::Event::MouseButtonReleased:
-			if (event.mouseButton.button == sf::Mouse::Left) {
-				columnPlayed = selectedColumn;
-			}
-			break;
+	if (const auto* mouseReleased = event->getIf<sf::Event::MouseButtonReleased>())
+	{
+		if (mouseReleased->button == sf::Mouse::Button::Left) {
+			columnPlayed = selectedColumn;
 		}
+	}
+
 	if (columnPlayed == -1) {
 		return columnPlayed;
 	}
+
 	std::vector<int> validMoves = getAllMoves();
 	for (int i = 0; i < validMoves.size(); i++) {
 		if (validMoves[i] == columnPlayed) {
@@ -91,13 +92,13 @@ void Power4Board::reset()
 void Power4Board::initBoard() {
 	rectangle.setSize(sf::Vector2f(500, 440));
 	rectangle.setFillColor(sf::Color::Blue);
-	rectangle.setPosition(50, 50);
+	rectangle.setPosition({ 50, 50 });
 
 	for (int x = 0; x < 7; x++) {
 		for (int y = 0; y < 6; y++) {
 			sf::CircleShape circle(radius);
 			circle.setFillColor(sf::Color::White);
-			circle.setPosition(startX + x * offsetX, startY + y * offsetY);
+			circle.setPosition({ startX + x * offsetX, startY + y * offsetY });
 			colorCircles[x][y] = circle;
 			pieceOnBoard[x][y] = -1;
 		}

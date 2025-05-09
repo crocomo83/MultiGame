@@ -101,19 +101,17 @@ void ChessBoard::render(sf::RenderWindow& window) {
 int ChessBoard::handleEvent(const std::optional<sf::Event> event) {
 	int indexDecision = -1;
 
-	if (const auto* mouseMoved = event->getIf<sf::Event::MouseMoved>())
+	if (const auto* mousePressed = event->getIf<sf::Event::MouseButtonPressed>())
 	{
-		mousePos = mouseMoved->position;
-	}
-
-	std::visit([&](auto&& e) {
-		using T = std::decay_t<decltype(e)>;
-
-		if constexpr (std::is_same_v<T, sf::Event::Closed>) {
-			std::cout << "Window closed event" << std::endl;
-			indexDecision = 0; // Exemple
+		if (mousePressed->button == sf::Mouse::Button::Left) {
+			select(mousePos);
 		}
-		}, event);
+	}
+	else if (const auto* mouseReleased = event->getIf<sf::Event::MouseButtonReleased>()) {
+		if (mouseReleased->button == sf::Mouse::Button::Left) {
+			indexDecision = unselect(mousePos);
+		}
+	}
 
 	return indexDecision;
 }

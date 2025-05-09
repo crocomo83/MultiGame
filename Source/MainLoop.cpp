@@ -82,7 +82,7 @@ void MainLoop::handleEvent()
 	{
 		if (event->is<sf::Event::Closed>())
 		{
-			window->close();
+			appState = AppState::Exit;
 		}
 		else if (const auto* mouseMoved = event->getIf<sf::Event::MouseMoved>())
 		{

@@ -5,6 +5,7 @@
 ================== BUGS ==================
 
 ================== NOUVELLES FEATURES ==================
+- virer sprites de media
 - meilleure fonction d'évaluation !!!
 - handleEvent devrait être void
 - faire une partie test ia vs ia, écrire les coups dans un fichier, s'en servir de test prévisions moves + perf

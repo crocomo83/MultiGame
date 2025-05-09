@@ -43,10 +43,7 @@ Game::Game(GameType gameType_, Player::PlayerType player1, Player::PlayerType pl
 	initSave();
 	setMenu();
 
-	gameOverText = new sf::Text();
-	gameOverText->setFont(*font);
-	gameOverText->setString("");
-	gameOverText->setCharacterSize(40);
+	gameOverText = new sf::Text(*font, "", 40);
 	gameOverText->setOutlineThickness(5);
 	gameOverText->setFillColor(sf::Color::Green);
 	gameOverText->setPosition({100, 250});

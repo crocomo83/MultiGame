@@ -34,10 +34,7 @@ void Menu::prepareMenu(const sf::Font& font) {
 	coords.clear();
 
 	for (std::size_t i = 0; i < entries.size(); ++i) {
-		sf::Text text;
-		text.setFont(font);
-		text.setString(entries[i].first);
-		text.setCharacterSize(24);
+		sf::Text text(font, entries[i].first, 24);
 		text.setOutlineColor(sf::Color::Black);
 		text.setPosition({ startPosition.x + i * spaceBetweenText.x, startPosition.y + i * spaceBetweenText.y });
 		texts.push_back(text);
@@ -50,11 +47,11 @@ void Menu::prepareMenu(const sf::Font& font) {
 }
 
 int Menu::handleEvent(const std::optional<sf::Event> event) {
-	if (event.type == sf::Event::MouseButtonReleased
-		&& event.mouseButton.button == sf::Mouse::Left
-		&& pos >= 0)
+	if (const auto* mouseReleased = event->getIf<sf::Event::MouseButtonReleased>())
 	{
-		entries[pos].second();
+		if (pos >= 0 && mouseReleased->button == sf::Mouse::Button::Left) {
+			entries[pos].second();
+		}
 	}
 	return 0;
 }

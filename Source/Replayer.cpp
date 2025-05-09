@@ -62,8 +62,9 @@ void Replayer::update(sf::Vector2i mousePosition)
 }
 
 int Replayer::handleEvent(const std::optional<sf::Event> event) {
-	if (event.type == sf::Event::KeyPressed) {
-		if (event.key.code == sf::Keyboard::Right) {
+	if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
+	{
+		if (keyPressed->code == sf::Keyboard::Key::Right) {
 			if (indexMove < movesLines.size()) {
 				board->play(movesLines[indexMove]);
 				indexMove++;
@@ -72,12 +73,13 @@ int Replayer::handleEvent(const std::optional<sf::Event> event) {
 				std::cout << "Save finished : can't play" << std::endl;
 			}
 		}
-		else if (event.key.code == sf::Keyboard::Left) {
+		else if (keyPressed->code == sf::Keyboard::Key::Left) {
 			if (board->undo()) {
 				indexMove--;
 			}
 		}
 	}
+
 	return 0;
 }
 

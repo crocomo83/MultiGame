@@ -19,19 +19,16 @@ OptionSelector::OptionSelector(const std::vector<std::string>& labels, const sf:
         outerCircle.setOutlineThickness(2.f);
         outerCircle.setOutlineColor(sf::Color::Black);
         outerCircle.setFillColor(sf::Color::Transparent);
-        outerCircle.setPosition(startPos.x, startPos.y + i * verticalSpacing);
+        outerCircle.setPosition({ startPos.x, startPos.y + i * verticalSpacing });
 
         sf::CircleShape innerCircle(radius / 2.f);
         innerCircle.setFillColor(sf::Color::Black);
-        innerCircle.setOrigin(innerCircle.getRadius(), innerCircle.getRadius());
-        innerCircle.setPosition(outerCircle.getPosition().x + radius, outerCircle.getPosition().y + radius);
+        innerCircle.setOrigin({ innerCircle.getRadius(), innerCircle.getRadius() });
+        innerCircle.setPosition({ outerCircle.getPosition().x + radius, outerCircle.getPosition().y + radius });
 
-        sf::Text text;
-        text.setFont(font);
+        sf::Text text(font, labels[i], 20);
         text.setFillColor(sf::Color::Black);
-        text.setString(labels[i]);
-        text.setCharacterSize(20);
-        text.setPosition(outerCircle.getPosition().x + radius * 2 + 10, outerCircle.getPosition().y - 2);
+        text.setPosition({ outerCircle.getPosition().x + radius * 2 + 10, outerCircle.getPosition().y - 2 });
 
         Option opt = { outerCircle, innerCircle, text };
         options.push_back(opt);
@@ -40,34 +37,38 @@ OptionSelector::OptionSelector(const std::vector<std::string>& labels, const sf:
 }
 
 int OptionSelector::handleEvent(const std::optional<sf::Event> event) {
-    if (enabled && event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
-        for (int i = 0; i < options.size(); i++) {
-            if (options[i].outerCircle.getGlobalBounds().contains((sf::Vector2f)mousePos)) {
-                if (selectedIndex != i) {
-                    selectedIndex = i;
-                    if (onItemChanged) {
-                        onItemChanged(i);
+    if (!enabled) {
+        return 0;
+    }
+    if (const auto* mouseReleased = event->getIf<sf::Event::MouseButtonPressed>())
+    {
+        if (mouseReleased->button == sf::Mouse::Button::Left) {
+            for (int i = 0; i < options.size(); i++) {
+                if (options[i].outerCircle.getGlobalBounds().contains((sf::Vector2f)mousePos)) {
+                    if (selectedIndex != i) {
+                        selectedIndex = i;
+                        if (onItemChanged) {
+                            onItemChanged(i);
+                        }
                     }
                 }
             }
         }
     }
-    else if (event.type == sf::Event::MouseWheelScrolled) {
-        if (event.mouseWheelScroll.wheel == sf::Mouse::VerticalWheel) {
-            float delta = event.mouseWheelScroll.delta;
-            if (delta < 0) {
-                if (firstItemDisplayed + nbItemRenderedMax < options.size()) {
-                    firstItemDisplayed++;
-                }
+    else if (const auto* mouseScrolled = event->getIf<sf::Event::MouseWheelScrolled>()) {
+        float delta = mouseScrolled->delta;
+        if (delta < 0) {
+            if (firstItemDisplayed + nbItemRenderedMax < options.size()) {
+                firstItemDisplayed++;
             }
-            else {
-                if (firstItemDisplayed > 0) {
-                    firstItemDisplayed--;
-                }
-            }
-            updateOptionsPosition();
-            scrollBar.setPositionInnerEllipsePercent((float)firstItemDisplayed / (float)options.size());
         }
+        else {
+            if (firstItemDisplayed > 0) {
+                firstItemDisplayed--;
+            }
+        }
+        updateOptionsPosition();
+        scrollBar.setPositionInnerEllipsePercent((float)firstItemDisplayed / (float)options.size());
     }
     return 0;
 }
@@ -100,9 +101,9 @@ void OptionSelector::updateOptionsPosition() {
     for (size_t i = 0; i < options.size(); ++i) {
         float posX = startPos.x;
         float posY = startPos.y + (static_cast<int>(i) - firstItemDisplayed) * verticalSpacing;
-        options[i].outerCircle.setPosition(posX, posY);
-        options[i].innerCircle.setPosition(posX + radius, posY + radius);
-        options[i].label.setPosition(posX + radius * 2 + 10, posY - 2);
+        options[i].outerCircle.setPosition({ posX, posY });
+        options[i].innerCircle.setPosition({ posX + radius, posY + radius });
+        options[i].label.setPosition({ posX + radius * 2 + 10, posY - 2 });
     }
 }
 
