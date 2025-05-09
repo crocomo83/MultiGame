@@ -171,7 +171,7 @@ void Game::initSave() {
     if (stat(SAVES_STR.data(), &info) != 0) {
         // Le dossier n'existe pas, on le crée
         if (mkdir(SAVES_STR.data()) != 0) {
-            std::cerr << "Erreur lors de la création du dossier : " << SAVES_STR.data() << std::endl;
+            std::cerr << "Erreur lors de la creation du dossier : " << SAVES_STR.data() << std::endl;
         }
     } else if (!(info.st_mode & S_IFDIR)) {
         std::cerr << "Erreur : '" << SAVES_STR.data() << "' existe mais n'est pas un dossier !" << std::endl;
@@ -180,7 +180,11 @@ void Game::initSave() {
 	auto t = std::time(nullptr);
 
 	std::tm tm;
-	localtime_s(&tm, &t);
+	#if defined(_WIN32)
+		localtime_s(&tm, &t);
+	#else
+		localtime_r(&t, &tm);
+	#endif
 
 	std::ostringstream		oss;
 	oss << std::put_time(&tm, "%Y_%m_%d_%H_%M_%S");
