@@ -5,8 +5,17 @@
 
 #include <SFML/Graphics.hpp>
 
-#include <direct.h>
 #include <sys/stat.h>
+
+#if defined(_WIN32)
+	#include <direct.h>
+	#define stat _stat
+	#define mkdir _mkdir
+#else
+	#include <unistd.h>
+	#define mkdir(path) mkdir(path, 0755)
+#endif
+
 #include <iomanip>
 #include <chrono>
 #include <fstream> 
@@ -157,16 +166,16 @@ void Game::reset()
 
 void Game::initSave() {
 	// Vérifie si le dossier existe
-	struct _stat info;
-	if (_stat(SAVES_STR.data(), &info) != 0) {
-		// Le dossier n'existe pas, on le crée
-		int returnValue = _mkdir(SAVES_STR.data());
-	}
-	else if (!(info.st_mode & _S_IFDIR)) {
-		// Existe mais ce n'est pas un dossier (problème)
-		std::cout << "Erreur : '" << SAVES_STR << "' existe mais n'est pas un dossier !" << std::endl;
-		return;
-	}
+	struct stat info;
+
+    if (stat(SAVES_STR.data(), &info) != 0) {
+        // Le dossier n'existe pas, on le crée
+        if (mkdir(SAVES_STR.data()) != 0) {
+            std::cerr << "Erreur lors de la création du dossier : " << SAVES_STR.data() << std::endl;
+        }
+    } else if (!(info.st_mode & S_IFDIR)) {
+        std::cerr << "Erreur : '" << SAVES_STR.data() << "' existe mais n'est pas un dossier !" << std::endl;
+    }
 
 	auto t = std::time(nullptr);
 
